@@ -1,0 +1,24 @@
+package io.test;
+
+import dev.fastball.core.annotation.UIComponent;
+import dev.fastball.ui.table.Table;
+import dev.fastball.ui.table.TableDataResult;
+
+import java.util.Collections;
+import java.util.Date;
+
+/**
+ * @author gr@fastball.dev
+ * @since 2022/12/10
+ */
+@UIComponent("User-Table")
+public class UserTable implements Table<User, UserQuerier> {
+    @Override
+    public TableDataResult<User> loadData(UserQuerier querier) {
+        User user = new User();
+        user.setName("abc");
+        user.setAge(17);
+        user.setCreatedAt(new Date());
+        return TableDataResult.<User>builder().data(Collections.singleton(user)).build();
+    }
+}
