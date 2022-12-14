@@ -1,5 +1,6 @@
-package dev.fastball.ui;
+package dev.fastball.ui.util;
 
+import dev.fastball.ui.FieldType;
 import dev.fastball.ui.annotation.Field;
 import dev.fastball.ui.annotation.Lookup;
 import dev.fastball.ui.common.FieldInfo;
@@ -10,6 +11,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -74,6 +76,7 @@ public class TypeCompileUtils {
             for (java.lang.reflect.Field declaredField : declaredFields) {
                 T field = fieldBuilder.get();
                 fields.add(field);
+                field.setColProps(Collections.singletonMap("span", 12));
                 field.setDataIndex(declaredField.getName());
                 field.setValueType(compileType(declaredField.getGenericType()).getType());
                 Field fieldAnnotation = declaredField.getDeclaredAnnotation(Field.class);

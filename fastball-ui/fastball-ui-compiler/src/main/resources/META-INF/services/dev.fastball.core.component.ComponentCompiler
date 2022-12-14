@@ -1,1 +1,2 @@
-dev.fastball.ui.table.TableCompiler
+dev.fastball.ui.components.table.TableCompiler
+dev.fastball.ui.components.form.FormCompiler

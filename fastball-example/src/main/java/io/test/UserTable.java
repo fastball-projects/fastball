@@ -1,8 +1,8 @@
 package io.test;
 
 import dev.fastball.core.annotation.UIComponent;
-import dev.fastball.ui.table.Table;
-import dev.fastball.ui.table.TableDataResult;
+import dev.fastball.ui.components.table.Table;
+import dev.fastball.ui.components.table.TableDataResult;
 
 import java.util.Collections;
 import java.util.Date;

@@ -1,4 +1,4 @@
-package dev.fastball.ui.table;
+package dev.fastball.ui.components.table;
 
 import dev.fastball.ui.common.FieldInfo;
 import lombok.Data;

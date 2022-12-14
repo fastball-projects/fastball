@@ -24,5 +24,7 @@ public class FieldInfo {
 
     private Object fieldProps;
 
+    private Map<String, Integer> colProps;
+
     private LookupActionInfo lookupAction;
 }

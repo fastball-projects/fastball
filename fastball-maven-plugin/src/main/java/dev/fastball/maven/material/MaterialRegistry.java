@@ -1,6 +1,7 @@
 package dev.fastball.maven.material;
 
 import dev.fastball.core.info.UIMaterial;
+import dev.fastball.core.info.UIMaterialAssets;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
@@ -24,8 +25,12 @@ import java.util.stream.Collectors;
 public class MaterialRegistry {
     private static final String FASTBALL_MATERIAL_PATTERN = "classpath*:/fastball-material.yml";
     private final Map<String, UIMaterial> materialMap = new ConcurrentHashMap<>();
-    private final UIMaterialAssets assets = new UIMaterialAssets(loadMaterials());
+    private final UIMaterialAssets assets;
     private final Yaml yaml = new Yaml();
+
+    public MaterialRegistry(ClassLoader classLoader) {
+        assets = new UIMaterialAssets(loadMaterials(classLoader));
+    }
 
     public UIMaterialAssets getAssets() {
         return assets;
@@ -35,9 +40,9 @@ public class MaterialRegistry {
         return materialMap.get(sourcePath);
     }
 
-    private Collection<UIMaterial> loadMaterials() {
+    private Collection<UIMaterial> loadMaterials(ClassLoader classLoader) {
         try {
-            ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
+            ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver(classLoader);
             Resource[] materialYamlFile = resourcePatternResolver.getResources(FASTBALL_MATERIAL_PATTERN);
             return Arrays.stream(materialYamlFile).map(this::loadMaterialFromYamlResource).collect(Collectors.toList());
         } catch (IOException e) {

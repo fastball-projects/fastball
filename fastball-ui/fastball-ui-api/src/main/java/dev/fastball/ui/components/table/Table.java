@@ -1,4 +1,6 @@
-package dev.fastball.ui.table;
+package dev.fastball.ui.components.table;
+
+import dev.fastball.core.annotation.UIApi;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -17,6 +19,7 @@ public interface Table<T, Q> {
      * @param querier 用于查询的条件
      * @return 返回的数据
      */
+    @UIApi
     TableDataResult<T> loadData(Q querier);
 
     @Target(ElementType.TYPE)
@@ -35,19 +38,20 @@ public interface Table<T, Q> {
          *
          * @return 按钮的显示文本
          */
-        String text() default "";
+        String value() default "";
     }
 
 
-    @Target({ElementType.FIELD, ElementType.METHOD})
+    @UIApi
+    @Target({ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
-    @interface RecordButton {
+    @interface RecordAction {
         /**
          * 按钮显示文本
          *
          * @return 按钮的显示文本
          */
-        String text() default "";
+        String value() default "";
 
         boolean refresh() default false;
     }

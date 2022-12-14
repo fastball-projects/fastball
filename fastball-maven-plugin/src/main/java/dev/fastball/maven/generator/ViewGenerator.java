@@ -19,11 +19,10 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import static dev.fastball.maven.Constants.FASTBALL_RESOURCE_PREFIX;
 import static dev.fastball.maven.Constants.FASTBALL_VIEW_SUFFIX;
 
 public class ViewGenerator {
-    private static final MaterialRegistry MATERIAL_REGISTRY = new MaterialRegistry();
-
     private ViewGenerator() {
     }
 
@@ -33,7 +32,8 @@ public class ViewGenerator {
         if (resources == null || resources.isEmpty()) {
             return;
         }
-        File sourceDir = new File(project.getBuild().getSourceDirectory());
+        File resourceDir = new File(resources.get(0).getDirectory(), FASTBALL_RESOURCE_PREFIX);
+        MaterialRegistry materialRegistry = new MaterialRegistry(projectClassLoader);
         ClassInfoList componentClassList = scanResult.getClassesWithAnnotation(UIComponent.class);
         for (Class<?> componentClass : componentClassList.getStandardClasses().loadClasses()) {
             File codeSource = new File(componentClass.getProtectionDomain().getCodeSource().getLocation().getPath());
@@ -43,13 +43,13 @@ public class ViewGenerator {
             for (ComponentCompiler<?, ?> loader : ComponentCompilerLoader.getLoaders(projectClassLoader)) {
                 if (loader.support(componentClass)) {
                     File loaderSource = new File(loader.getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
-                    File viewFile = buildViewFile(sourceDir, componentClass);
+                    File viewFile = buildViewFile(resourceDir, componentClass);
                     if (!force && viewFile.exists()) {
                         continue;
                     }
                     try {
                         ComponentInfo<?> componentInfo = loader.compile((Class) componentClass);
-                        UIMaterial material = MATERIAL_REGISTRY.getMaterial(loaderSource.getAbsolutePath());
+                        UIMaterial material = materialRegistry.getMaterial(loaderSource.getAbsolutePath());
                         if (material != null) {
                             componentInfo.setMaterial(material);
                         }

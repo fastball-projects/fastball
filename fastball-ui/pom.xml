@@ -14,6 +14,7 @@
     <modules>
         <module>fastball-ui-api</module>
         <module>fastball-ui-compiler</module>
+        <module>fastball-ui-backend</module>
     </modules>
 
 </project>

@@ -1,5 +1,6 @@
-package dev.fastball.ui.table;
+package dev.fastball.ui.components.table;
 
+import dev.fastball.ui.common.ActionInfo;
 import dev.fastball.ui.common.FieldInfo;
 import dev.fastball.ui.common.TableRecordActionInfo;
 import lombok.Data;
@@ -18,6 +19,8 @@ public class TableProps {
     List<ColumnInfo> columns;
 
     List<FieldInfo> query;
+
+    List<ActionInfo> actions;
 
     List<TableRecordActionInfo> recordActions;
 }
