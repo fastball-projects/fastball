@@ -22,6 +22,7 @@ public class FormCompiler extends AbstractComponentCompiler<Form<?>, FormProps> 
     protected FormProps compileProps(Class<Form<?>> componentClass) {
         FormProps props = new FormProps();
         Type[] genericType = getGenericTypes(componentClass);
+        props.setComponentKey(getComponentKey(componentClass));
         props.setFields(buildFieldInfoFromType(genericType[0]));
         List<ActionInfo> recordActions = Arrays.stream(componentClass.getDeclaredMethods()).map(method -> {
             Form.RecordAction actionAnnotation = method.getDeclaredAnnotation(Form.RecordAction.class);

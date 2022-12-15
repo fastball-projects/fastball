@@ -2,6 +2,8 @@ package dev.fastball.ui.components;
 
 import dev.fastball.core.annotation.UIApi;
 import dev.fastball.core.annotation.UIComponent;
+import dev.fastball.core.component.Component;
+import dev.fastball.core.component.ComponentBean;
 import dev.fastball.core.component.ComponentCompiler;
 import dev.fastball.core.info.ComponentInfo;
 import dev.fastball.ui.util.TypeCompileUtils;
@@ -19,7 +21,7 @@ import java.util.Map;
  * @author gr@fastball.dev
  * @since 2022/12/9
  */
-public abstract class AbstractComponentCompiler<T, P> implements ComponentCompiler<T, P> {
+public abstract class AbstractComponentCompiler<T extends Component, P> implements ComponentCompiler<T, P> {
 
     private final Class<?> basicComponentClass = getBasicComponentClass();
 
@@ -30,25 +32,31 @@ public abstract class AbstractComponentCompiler<T, P> implements ComponentCompil
     @Override
     public ComponentInfo<P> compile(Class<T> componentClass) {
         ComponentInfo<P> componentInfo = new ComponentInfo<>();
-        UIComponent frontendComponentAnnotation = componentClass.getAnnotation(UIComponent.class);
-        componentInfo.setComponentKey(frontendComponentAnnotation.value());
+        componentInfo.setComponentKey(getComponentKey(componentClass));
         componentInfo.setComponentName(getComponentName());
         P props = compileProps(componentClass);
         componentInfo.setProps(props);
         return componentInfo;
     }
 
-    protected Type[] getGenericTypes(Class<T> componentClass) {
-        Type superInterface = Arrays.stream(componentClass.getGenericInterfaces())
-                .filter(i -> ((ParameterizedType) i).getRawType() == this.basicComponentClass)
-                .findFirst().orElseThrow(() -> new RuntimeException("never happened"));
-        if (!(superInterface instanceof ParameterizedType)) {
-            throw new RuntimeException("never happened");
-        }
-        return ((ParameterizedType) superInterface).getActualTypeArguments();
+    @Override
+    public ComponentBean buildComponentBean(Component component) {
+        ComponentBean componentBean = new ComponentBean();
+        componentBean.setComponent(component);
+        componentBean.setMethodMap(getApiMethodMapper(component.getClass()));
+        return componentBean;
     }
 
-    protected Map<String, Method> getApiMethodMapper(Class<T> componentClass) {
+    @Override
+    public String getComponentKey(Class<? extends Component> componentClass) {
+        UIComponent frontendComponentAnnotation = componentClass.getAnnotation(UIComponent.class);
+        if (frontendComponentAnnotation.value().isEmpty()) {
+            return componentClass.getSimpleName();
+        }
+        return frontendComponentAnnotation.value();
+    }
+
+    protected Map<String, Method> getApiMethodMapper(Class<? extends Component> componentClass) {
         Map<String, Method> actionMethodMap = new HashMap<>();
         Arrays.stream(this.basicComponentClass.getDeclaredMethods())
                 .filter(method -> method.getDeclaredAnnotation(UIApi.class) != null)
@@ -60,9 +68,19 @@ public abstract class AbstractComponentCompiler<T, P> implements ComponentCompil
                 });
         Arrays.stream(componentClass.getDeclaredMethods())
                 .filter(method -> Arrays.stream(method.getDeclaredAnnotations())
-                        .anyMatch(annotation -> annotation.getClass().getDeclaredAnnotation(UIApi.class) != null)
+                        .anyMatch(annotation -> annotation.annotationType().getDeclaredAnnotation(UIApi.class) != null)
                 ).forEach(method -> actionMethodMap.put(method.getName(), method));
         return actionMethodMap;
+    }
+
+    protected Type[] getGenericTypes(Class<T> componentClass) {
+        Type superInterface = Arrays.stream(componentClass.getGenericInterfaces())
+                .filter(i -> ((ParameterizedType) i).getRawType() == this.basicComponentClass)
+                .findFirst().orElseThrow(() -> new RuntimeException("never happened"));
+        if (!(superInterface instanceof ParameterizedType)) {
+            throw new RuntimeException("never happened");
+        }
+        return ((ParameterizedType) superInterface).getActualTypeArguments();
     }
 
     protected List<FieldInfo> buildFieldInfoFromType(Type type) {

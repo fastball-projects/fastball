@@ -1,6 +1,7 @@
 package dev.fastball.ui.components.table;
 
 import dev.fastball.core.annotation.UIApi;
+import dev.fastball.core.component.Component;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -11,7 +12,7 @@ import java.lang.annotation.Target;
  * @author gr@fastball.dev
  * @since 2022/12/9
  */
-public interface Table<T, Q> {
+public interface Table<T, Q> extends Component {
 
     /**
      * 列表获取数据的接口

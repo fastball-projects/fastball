@@ -1,7 +1,6 @@
-package dev.fastball.maven.material;
+package dev.fastball.core.info;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import dev.fastball.core.info.UIMaterial;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

@@ -40,15 +40,15 @@ public class ViewGenerator {
             if (!moduleOutputDir.equals(codeSource)) {
                 continue;
             }
-            for (ComponentCompiler<?, ?> loader : ComponentCompilerLoader.getLoaders(projectClassLoader)) {
-                if (loader.support(componentClass)) {
-                    File loaderSource = new File(loader.getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
+            for (ComponentCompiler<?, ?> compiler : ComponentCompilerLoader.getLoaders(projectClassLoader)) {
+                if (compiler.support(componentClass)) {
+                    File loaderSource = new File(compiler.getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
                     File viewFile = buildViewFile(resourceDir, componentClass);
                     if (!force && viewFile.exists()) {
                         continue;
                     }
                     try {
-                        ComponentInfo<?> componentInfo = loader.compile((Class) componentClass);
+                        ComponentInfo<?> componentInfo = compiler.compile((Class) componentClass);
                         UIMaterial material = materialRegistry.getMaterial(loaderSource.getAbsolutePath());
                         if (material != null) {
                             componentInfo.setMaterial(material);

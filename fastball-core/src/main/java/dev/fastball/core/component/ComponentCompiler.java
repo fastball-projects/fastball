@@ -6,8 +6,12 @@ import dev.fastball.core.info.ComponentInfo;
  * @author gr@fastball.dev
  * @since 2022/12/9
  */
-public interface ComponentCompiler<T, P> {
+public interface ComponentCompiler<T extends Component, P> {
     ComponentInfo<P> compile(Class<T> componentClass);
+
+    ComponentBean buildComponentBean(Component component);
+
+    String getComponentKey(Class<? extends Component> componentClass);
 
     boolean support(Class<?> componentClass);
 

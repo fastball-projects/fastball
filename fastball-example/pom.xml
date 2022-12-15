@@ -18,13 +18,12 @@
         </dependency>
         <dependency>
             <groupId>dev.fastball</groupId>
-            <artifactId>fastball-ui-compiler</artifactId>
+            <artifactId>fastball-ui-backend</artifactId>
         </dependency>
     </dependencies>
 
     <build>
         <plugins>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>

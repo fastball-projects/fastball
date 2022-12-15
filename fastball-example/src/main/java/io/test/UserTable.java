@@ -3,6 +3,7 @@ package io.test;
 import dev.fastball.core.annotation.UIComponent;
 import dev.fastball.ui.components.table.Table;
 import dev.fastball.ui.components.table.TableDataResult;
+import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 import java.util.Date;
@@ -12,6 +13,7 @@ import java.util.Date;
  * @since 2022/12/10
  */
 @UIComponent("User-Table")
+@Component
 public class UserTable implements Table<User, UserQuerier> {
     @Override
     public TableDataResult<User> loadData(UserQuerier querier) {

@@ -23,6 +23,7 @@ public class TableCompiler extends AbstractComponentCompiler<Table<?, ?>, TableP
     protected TableProps compileProps(Class<Table<?, ?>> componentClass) {
         TableProps props = new TableProps();
         Type[] genericType = getGenericTypes(componentClass);
+        props.setComponentKey(getComponentKey(componentClass));
         props.setColumns(buildTableColumnsFromReturnType(genericType[0]));
         props.setQuery(buildFieldInfoFromType(genericType[1]));
         List<TableRecordActionInfo> recordActions = Arrays.stream(componentClass.getDeclaredMethods()).map(method -> {
