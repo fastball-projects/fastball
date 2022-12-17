@@ -1,7 +1,6 @@
 package dev.fastball.ui.common;
 
 import dev.fastball.auto.value.annotation.AutoValue;
-import dev.fastball.core.component.PopupComponent;
 import dev.fastball.ui.ActionType;
 
 /**
@@ -12,11 +11,5 @@ import dev.fastball.ui.ActionType;
 public interface PopupActionInfo extends ActionInfo {
     ActionType type = ActionType.Popup;
 
-    Class<? extends PopupComponent> componentClass();
-
-    String componentPackage();
-
-    String componentPath();
-
-    String componentName();
+    ReferencedComponentInfo popupComponent();
 }

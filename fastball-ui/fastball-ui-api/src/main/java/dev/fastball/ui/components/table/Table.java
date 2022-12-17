@@ -26,6 +26,8 @@ public interface Table<T, Q> extends Component {
     @interface Config {
         String title() default "";
 
+        Class<? extends Component> rowExpandedComponent() default Component.class;
+
         Button[] buttons() default {};
 
         Button[] recordButtons() default {};

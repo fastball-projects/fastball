@@ -1,6 +1,7 @@
 package dev.fastball.ui.components.table;
 
 
+import dev.fastball.core.component.Component;
 import dev.fastball.core.component.PopupComponent;
 import dev.fastball.ui.annotation.Button;
 import dev.fastball.ui.annotation.RecordAction;
@@ -42,15 +43,14 @@ public class TableCompiler extends AbstractComponentCompiler<Table<?, ?>, TableP
         Table.Config tableConfig = componentClass.getDeclaredAnnotation(Table.Config.class);
         List<ActionInfo> actions = new ArrayList<>();
         if (tableConfig != null) {
+            if (tableConfig.rowExpandedComponent() != Component.class) {
+                props.rowExpandedComponent(getReferencedComponentInfo(tableConfig.rowExpandedComponent()));
+            }
             int buttonIndex = 1;
             for (Button button : tableConfig.buttons()) {
                 Class<? extends PopupComponent> popupComponentClass = button.component();
                 PopupActionInfo_AutoValue actionInfo = new PopupActionInfo_AutoValue();
-                actionInfo.componentClass(popupComponentClass);
-                actionInfo.componentPackage("@");
-                String path = popupComponentClass.getPackage().getName().replace("\\.", "/") + popupComponentClass.getSimpleName();
-                actionInfo.componentPath(path);
-                actionInfo.componentName(popupComponentClass.getSimpleName());
+                actionInfo.popupComponent(getReferencedComponentInfo(popupComponentClass));
                 actionInfo.actionName(button.value().isEmpty() ? ("button" + buttonIndex++) : button.value());
                 actions.add(actionInfo);
             }
@@ -58,12 +58,8 @@ public class TableCompiler extends AbstractComponentCompiler<Table<?, ?>, TableP
             for (Button button : tableConfig.recordButtons()) {
                 Class<? extends PopupComponent> popupComponentClass = button.component();
                 TableRecordPopupActionInfo_AutoValue actionInfo = new TableRecordPopupActionInfo_AutoValue();
-                actionInfo.componentClass(popupComponentClass);
-                actionInfo.componentPackage("@");
-                String path = popupComponentClass.getPackage().getName().replace("\\.", "/") + popupComponentClass.getSimpleName();
-                actionInfo.componentPath(path);
+                actionInfo.popupComponent(getReferencedComponentInfo(popupComponentClass));
                 actionInfo.refresh(true);
-                actionInfo.componentName(popupComponentClass.getSimpleName());
                 actionInfo.actionName(button.value().isEmpty() ? ("button" + buttonIndex++) : button.value());
                 recordActions.add(actionInfo);
             }

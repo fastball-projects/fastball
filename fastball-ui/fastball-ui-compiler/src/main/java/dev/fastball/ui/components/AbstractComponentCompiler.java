@@ -6,6 +6,8 @@ import dev.fastball.core.component.Component;
 import dev.fastball.core.component.ComponentBean;
 import dev.fastball.core.component.ComponentCompiler;
 import dev.fastball.core.info.ComponentInfo;
+import dev.fastball.ui.common.ReferencedComponentInfo;
+import dev.fastball.ui.common.ReferencedComponentInfo_AutoValue;
 import dev.fastball.ui.util.TypeCompileUtils;
 import dev.fastball.ui.common.FieldInfo;
 
@@ -85,6 +87,16 @@ public abstract class AbstractComponentCompiler<T extends Component, P> implemen
 
     protected List<FieldInfo> buildFieldInfoFromType(Type type) {
         return TypeCompileUtils.compileTypeFields(type, FieldInfo::new);
+    }
+
+    protected ReferencedComponentInfo getReferencedComponentInfo(Class<? extends Component> componentClass) {
+        ReferencedComponentInfo_AutoValue refComponentInfo = new ReferencedComponentInfo_AutoValue();
+        String path = componentClass.getPackage().getName().replace("\\.", "/") + componentClass.getSimpleName();
+        refComponentInfo.componentClass(componentClass);
+        refComponentInfo.componentPackage("@");
+        refComponentInfo.componentPath(path);
+        refComponentInfo.componentName(componentClass.getSimpleName());
+        return refComponentInfo;
     }
 
     @Override

@@ -2,10 +2,9 @@ package dev.fastball.ui.components.table;
 
 import dev.fastball.auto.value.annotation.AutoValue;
 import dev.fastball.ui.common.ActionInfo;
+import dev.fastball.ui.common.ReferencedComponentInfo;
 import dev.fastball.ui.common.ComponentProps;
 import dev.fastball.ui.common.FieldInfo;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import java.util.List;
 
@@ -17,6 +16,8 @@ import java.util.List;
 public interface TableProps extends ComponentProps {
 
     String headerTitle();
+
+    ReferencedComponentInfo rowExpandedComponent();
 
     List<ColumnInfo> columns();
 
