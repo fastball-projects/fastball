@@ -20,6 +20,10 @@
     <dependencies>
         <dependency>
             <groupId>dev.fastball</groupId>
+            <artifactId>auto-value</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>dev.fastball</groupId>
             <artifactId>fastball-ui-api</artifactId>
         </dependency>
     </dependencies>

@@ -2,11 +2,9 @@ package dev.fastball.ui.components.table;
 
 import dev.fastball.core.annotation.UIApi;
 import dev.fastball.core.component.Component;
+import dev.fastball.ui.annotation.Button;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
  * @author gr@fastball.dev
@@ -29,31 +27,22 @@ public interface Table<T, Q> extends Component {
         String title() default "";
 
         Button[] buttons() default {};
+
+        Button[] recordButtons() default {};
     }
 
-    @Target(ElementType.FIELD)
-    @Retention(RetentionPolicy.RUNTIME)
-    @interface Button {
-        /**
-         * 按钮显示文本
-         *
-         * @return 按钮的显示文本
-         */
-        String value() default "";
-    }
-
-
-    @UIApi
+    /**
+     * 当 Action 执行完毕之后, 执行列表的数据重新加载
+     */
     @Target({ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
-    @interface RecordAction {
-        /**
-         * 按钮显示文本
-         *
-         * @return 按钮的显示文本
-         */
-        String value() default "";
-
-        boolean refresh() default false;
+    @interface Reload {
     }
+
+    @Documented
+    @Target(ElementType.FIELD)
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface Sortable {
+    }
+
 }

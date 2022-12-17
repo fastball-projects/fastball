@@ -1,9 +1,9 @@
 package dev.fastball.ui.components.table;
 
+import dev.fastball.auto.value.annotation.AutoValue;
 import dev.fastball.ui.common.ActionInfo;
 import dev.fastball.ui.common.ComponentProps;
 import dev.fastball.ui.common.FieldInfo;
-import dev.fastball.ui.common.TableRecordActionInfo;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -13,17 +13,16 @@ import java.util.List;
  * @author gr@fastball.dev
  * @since 2022/12/9
  */
-@Data
-@EqualsAndHashCode(callSuper = true)
-public class TableProps extends ComponentProps {
+@AutoValue
+public interface TableProps extends ComponentProps {
 
-    String headerTitle;
+    String headerTitle();
 
-    List<ColumnInfo> columns;
+    List<ColumnInfo> columns();
 
-    List<FieldInfo> query;
+    List<FieldInfo> query();
 
-    List<ActionInfo> actions;
+    List<ActionInfo> actions();
 
-    List<TableRecordActionInfo> recordActions;
+    List<TableRecordActionInfo> recordActions();
 }

@@ -10,13 +10,9 @@ public enum ActionType {
      */
     API,
     /**
-     * 抽屉弹窗
+     * 弹窗
      */
-    Drawer,
-    /**
-     * 模态弹窗
-     */
-    Modal,
+    Popup,
     /**
      * 跳转页面
      */

@@ -1,17 +1,15 @@
 package dev.fastball.ui.common;
 
 import dev.fastball.ui.ActionType;
-import lombok.Data;
 
 /**
  * @author gr@fastball.dev
- * @since 2022/12/9
+ * @since 2022/12/17
  */
-@Data
-public class ActionInfo {
-    private String actionName;
+public interface ActionInfo {
+    String actionName();
 
-    private String actionKey;
+    String actionKey();
 
-    private ActionType type;
+    ActionType type();
 }

@@ -1,11 +1,13 @@
 package dev.fastball.ui.components.table;
 
 
+import dev.fastball.core.component.PopupComponent;
+import dev.fastball.ui.annotation.Button;
+import dev.fastball.ui.annotation.RecordAction;
+import dev.fastball.ui.common.ActionInfo;
+import dev.fastball.ui.common.PopupActionInfo_AutoValue;
 import dev.fastball.ui.components.AbstractComponentCompiler;
-import dev.fastball.ui.ActionType;
 import dev.fastball.ui.util.TypeCompileUtils;
-import dev.fastball.ui.annotation.Sortable;
-import dev.fastball.ui.common.TableRecordActionInfo;
 
 import java.lang.reflect.Type;
 import java.util.*;
@@ -21,24 +23,53 @@ public class TableCompiler extends AbstractComponentCompiler<Table<?, ?>, TableP
 
     @Override
     protected TableProps compileProps(Class<Table<?, ?>> componentClass) {
-        TableProps props = new TableProps();
+        TableProps_AutoValue props = new TableProps_AutoValue();
         Type[] genericType = getGenericTypes(componentClass);
-        props.setComponentKey(getComponentKey(componentClass));
-        props.setColumns(buildTableColumnsFromReturnType(genericType[0]));
-        props.setQuery(buildFieldInfoFromType(genericType[1]));
+        props.componentKey(getComponentKey(componentClass));
+        props.columns(buildTableColumnsFromReturnType(genericType[0]));
+        props.query(buildFieldInfoFromType(genericType[1]));
         List<TableRecordActionInfo> recordActions = Arrays.stream(componentClass.getDeclaredMethods()).map(method -> {
-            Table.RecordAction actionAnnotation = method.getDeclaredAnnotation(Table.RecordAction.class);
+            RecordAction actionAnnotation = method.getDeclaredAnnotation(RecordAction.class);
             if (actionAnnotation == null) {
                 return null;
             }
-            TableRecordActionInfo actionInfo = new TableRecordActionInfo();
-            actionInfo.setActionKey(method.getName());
-            actionInfo.setActionName(actionAnnotation.value());
-            actionInfo.setRefresh(actionAnnotation.refresh());
-            actionInfo.setType(ActionType.API);
+            TableRecordApiActionInfo_AutoValue actionInfo = new TableRecordApiActionInfo_AutoValue();
+            actionInfo.actionKey(method.getName());
+            actionInfo.actionName(actionAnnotation.value());
+            actionInfo.refresh(true);
             return actionInfo;
         }).filter(Objects::nonNull).collect(Collectors.toList());
-        props.setRecordActions(recordActions);
+        Table.Config tableConfig = componentClass.getDeclaredAnnotation(Table.Config.class);
+        List<ActionInfo> actions = new ArrayList<>();
+        if (tableConfig != null) {
+            int buttonIndex = 1;
+            for (Button button : tableConfig.buttons()) {
+                Class<? extends PopupComponent> popupComponentClass = button.component();
+                PopupActionInfo_AutoValue actionInfo = new PopupActionInfo_AutoValue();
+                actionInfo.componentClass(popupComponentClass);
+                actionInfo.componentPackage("@");
+                String path = popupComponentClass.getPackage().getName().replace("\\.", "/") + popupComponentClass.getSimpleName();
+                actionInfo.componentPath(path);
+                actionInfo.componentName(popupComponentClass.getSimpleName());
+                actionInfo.actionName(button.value().isEmpty() ? ("button" + buttonIndex++) : button.value());
+                actions.add(actionInfo);
+            }
+            buttonIndex = 1;
+            for (Button button : tableConfig.recordButtons()) {
+                Class<? extends PopupComponent> popupComponentClass = button.component();
+                TableRecordPopupActionInfo_AutoValue actionInfo = new TableRecordPopupActionInfo_AutoValue();
+                actionInfo.componentClass(popupComponentClass);
+                actionInfo.componentPackage("@");
+                String path = popupComponentClass.getPackage().getName().replace("\\.", "/") + popupComponentClass.getSimpleName();
+                actionInfo.componentPath(path);
+                actionInfo.refresh(true);
+                actionInfo.componentName(popupComponentClass.getSimpleName());
+                actionInfo.actionName(button.value().isEmpty() ? ("button" + buttonIndex++) : button.value());
+                recordActions.add(actionInfo);
+            }
+        }
+        props.actions(actions);
+        props.recordActions(recordActions);
         return props;
     }
 
@@ -49,7 +80,7 @@ public class TableCompiler extends AbstractComponentCompiler<Table<?, ?>, TableP
 
     private List<ColumnInfo> buildTableColumnsFromReturnType(Type returnType) {
         return TypeCompileUtils.compileTypeFields(returnType, ColumnInfo::new, (field, tableColumn) -> {
-            Sortable sortable = field.getDeclaredAnnotation(Sortable.class);
+            Table.Sortable sortable = field.getDeclaredAnnotation(Table.Sortable.class);
             if (sortable != null) {
                 tableColumn.setSortable(true);
             }
