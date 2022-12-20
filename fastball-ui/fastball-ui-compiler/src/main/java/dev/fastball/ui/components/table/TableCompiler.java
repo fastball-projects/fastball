@@ -28,7 +28,7 @@ public class TableCompiler extends AbstractComponentCompiler<Table<?, ?>, TableP
         Type[] genericType = getGenericTypes(componentClass);
         props.componentKey(getComponentKey(componentClass));
         props.columns(buildTableColumnsFromReturnType(genericType[0]));
-        props.query(buildFieldInfoFromType(genericType[1]));
+        props.queryFields(buildFieldInfoFromType(genericType[1]));
         List<TableRecordActionInfo> recordActions = Arrays.stream(componentClass.getDeclaredMethods()).map(method -> {
             RecordAction actionAnnotation = method.getDeclaredAnnotation(RecordAction.class);
             if (actionAnnotation == null) {

@@ -1,3 +1,5 @@
 dev.fastball.ui.components.table.TableCompiler
+dev.fastball.ui.components.tree.TreeCompiler
 dev.fastball.ui.components.form.FormCompiler
 dev.fastball.ui.components.form.PopupFormCompiler
+dev.fastball.ui.components.layout.LayoutCompiler

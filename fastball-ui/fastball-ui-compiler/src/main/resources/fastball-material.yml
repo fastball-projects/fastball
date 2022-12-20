@@ -1,7 +1,7 @@
 materialName: FastballComponents
 npmPackage: fastball-components
-npmVersion: 0.0.42
-metaUrl: https://unpkg.com/fastball-components@0.0.42/build/lowcode/meta.js
+npmVersion: 0.0.71
+metaUrl: https://unpkg.com/fastball-components@0.0.71/build/lowcode/meta.js
 componentUrls:
-  - "https://unpkg.com/fastball-components@0.0.42/build/lowcode/view.js"
-  - "https://unpkg.com/fastball-components@0.0.42/build/lowcode/view.css"
+  - "https://unpkg.com/fastball-components@0.0.71/build/lowcode/view.js"
+  - "https://unpkg.com/fastball-components@0.0.71/build/lowcode/view.css"

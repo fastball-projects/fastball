@@ -21,7 +21,7 @@ public interface TableProps extends ComponentProps {
 
     List<ColumnInfo> columns();
 
-    List<FieldInfo> query();
+    List<FieldInfo> queryFields();
 
     List<ActionInfo> actions();
 
