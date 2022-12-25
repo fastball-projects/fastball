@@ -34,7 +34,7 @@ public abstract class AbstractFormCompiler<T extends Component> extends Abstract
     }
 
     @Override
-    protected String getComponentName() {
+    public String getComponentName() {
         return COMPONENT_TYPE;
     }
 

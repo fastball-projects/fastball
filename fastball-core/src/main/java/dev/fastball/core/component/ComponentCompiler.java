@@ -13,6 +13,8 @@ public interface ComponentCompiler<T extends Component, P> {
 
     String getComponentKey(Class<? extends Component> componentClass);
 
+    String getComponentName();
+
     boolean support(Class<?> componentClass);
 
 }

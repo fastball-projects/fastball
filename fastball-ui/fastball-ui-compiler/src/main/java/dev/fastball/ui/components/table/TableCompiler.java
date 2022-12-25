@@ -6,7 +6,9 @@ import dev.fastball.core.component.PopupComponent;
 import dev.fastball.ui.annotation.Button;
 import dev.fastball.ui.annotation.RecordAction;
 import dev.fastball.ui.common.ActionInfo;
+import dev.fastball.ui.common.PopupActionInfo;
 import dev.fastball.ui.common.PopupActionInfo_AutoValue;
+import dev.fastball.ui.common.ReferencedComponentInfo;
 import dev.fastball.ui.components.AbstractComponentCompiler;
 import dev.fastball.ui.util.TypeCompileUtils;
 
@@ -44,13 +46,13 @@ public class TableCompiler extends AbstractComponentCompiler<Table<?, ?>, TableP
         List<ActionInfo> actions = new ArrayList<>();
         if (tableConfig != null) {
             if (tableConfig.rowExpandedComponent() != Component.class) {
-                props.rowExpandedComponent(getReferencedComponentInfo(tableConfig.rowExpandedComponent()));
+                props.rowExpandedComponent(getReferencedComponentInfo(props, tableConfig.rowExpandedComponent()));
             }
             int buttonIndex = 1;
             for (Button button : tableConfig.buttons()) {
                 Class<? extends PopupComponent> popupComponentClass = button.component();
                 PopupActionInfo_AutoValue actionInfo = new PopupActionInfo_AutoValue();
-                actionInfo.popupComponent(getReferencedComponentInfo(popupComponentClass));
+                actionInfo.popupComponent(getReferencedComponentInfo(props, popupComponentClass));
                 actionInfo.actionName(button.value().isEmpty() ? ("button" + buttonIndex++) : button.value());
                 actions.add(actionInfo);
             }
@@ -58,7 +60,7 @@ public class TableCompiler extends AbstractComponentCompiler<Table<?, ?>, TableP
             for (Button button : tableConfig.recordButtons()) {
                 Class<? extends PopupComponent> popupComponentClass = button.component();
                 TableRecordPopupActionInfo_AutoValue actionInfo = new TableRecordPopupActionInfo_AutoValue();
-                actionInfo.popupComponent(getReferencedComponentInfo(popupComponentClass));
+                actionInfo.popupComponent(getReferencedComponentInfo(props, popupComponentClass));
                 actionInfo.refresh(true);
                 actionInfo.actionName(button.value().isEmpty() ? ("button" + buttonIndex++) : button.value());
                 recordActions.add(actionInfo);
@@ -70,7 +72,7 @@ public class TableCompiler extends AbstractComponentCompiler<Table<?, ?>, TableP
     }
 
     @Override
-    protected String getComponentName() {
+    public String getComponentName() {
         return COMPONENT_TYPE;
     }
 

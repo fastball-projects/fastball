@@ -1,7 +1,9 @@
 package dev.fastball.maven;
 
+import dev.fastball.core.info.ComponentInfo;
 import dev.fastball.maven.generator.CodeGenerator;
 import dev.fastball.maven.generator.ViewGenerator;
+import dev.fastball.maven.material.MaterialRegistry;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
@@ -39,12 +41,11 @@ public class FrontendComponentMojo extends AbstractMojo {
     @Override
     public void execute() {
         ClassLoader projectClassLoader = getClassLoader();
-        try (ScanResult scanResult = new ClassGraph().addClassLoader(projectClassLoader).enableAllInfo().scan()) {
-            if (viewGenerate) {
-                ViewGenerator.generate(project, scanResult, projectClassLoader, force);
-            }
+        if (viewGenerate) {
+            MaterialRegistry materialRegistry = new MaterialRegistry(projectClassLoader);
+            List<ComponentInfo<?>> componentInfoList = ViewGenerator.generate(project, materialRegistry, projectClassLoader, force);
             if (codeGenerate) {
-                CodeGenerator.generate(project);
+                CodeGenerator.generate(project, materialRegistry, componentInfoList);
             }
         }
 

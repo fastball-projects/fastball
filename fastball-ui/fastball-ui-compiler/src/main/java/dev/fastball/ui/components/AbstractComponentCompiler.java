@@ -6,40 +6,39 @@ import dev.fastball.core.component.Component;
 import dev.fastball.core.component.ComponentBean;
 import dev.fastball.core.component.ComponentCompiler;
 import dev.fastball.core.info.ComponentInfo;
+import dev.fastball.ui.common.ComponentProps;
 import dev.fastball.ui.common.ReferencedComponentInfo;
 import dev.fastball.ui.common.ReferencedComponentInfo_AutoValue;
+import dev.fastball.ui.util.PrettyJsonUtils;
 import dev.fastball.ui.util.TypeCompileUtils;
 import dev.fastball.ui.common.FieldInfo;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author gr@fastball.dev
  * @since 2022/12/9
  */
-public abstract class AbstractComponentCompiler<T extends Component, P> implements ComponentCompiler<T, P> {
+public abstract class AbstractComponentCompiler<T extends Component, P extends ComponentProps> implements ComponentCompiler<T, P> {
 
     private final Class<?> basicComponentClass = getBasicComponentClass();
 
     protected abstract P compileProps(Class<T> componentClass);
-
-    protected abstract String getComponentName();
 
     @Override
     public ComponentInfo<P> compile(Class<T> componentClass) {
         ComponentInfo<P> componentInfo = new ComponentInfo<>();
         componentInfo.setComponentKey(getComponentKey(componentClass));
         componentInfo.setComponentName(getComponentName());
+        componentInfo.setClassName(componentClass.getCanonicalName());
         P props = compileProps(componentClass);
         componentInfo.setProps(props);
         return componentInfo;
     }
+
 
     @Override
     public ComponentBean buildComponentBean(Component component) {
@@ -89,13 +88,18 @@ public abstract class AbstractComponentCompiler<T extends Component, P> implemen
         return TypeCompileUtils.compileTypeFields(type, FieldInfo::new);
     }
 
-    protected ReferencedComponentInfo getReferencedComponentInfo(Class<? extends Component> componentClass) {
+    protected ReferencedComponentInfo getReferencedComponentInfo(P props, Class<? extends Component> componentClass) {
+        if (props.referencedComponentInfoList() == null) {
+            props.referencedComponentInfoList(new HashSet<>());
+        }
         ReferencedComponentInfo_AutoValue refComponentInfo = new ReferencedComponentInfo_AutoValue();
         String path = componentClass.getPackage().getName().replace("\\.", "/") + componentClass.getSimpleName();
+        refComponentInfo.component("Component___" + (props.referencedComponentInfoList().size() + 1));
         refComponentInfo.componentClass(componentClass);
         refComponentInfo.componentPackage("@");
         refComponentInfo.componentPath(path);
         refComponentInfo.componentName(componentClass.getSimpleName());
+        props.referencedComponentInfoList().add(refComponentInfo);
         return refComponentInfo;
     }
 

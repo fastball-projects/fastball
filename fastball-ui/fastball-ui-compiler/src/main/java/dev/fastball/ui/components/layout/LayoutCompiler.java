@@ -16,25 +16,25 @@ public class LayoutCompiler extends AbstractComponentCompiler<LayoutComponent, L
         if (leftAndRight != null) {
             LeftAndRightLayoutProps_AutoValue props = new LeftAndRightLayoutProps_AutoValue();
             props.componentKey(getComponentKey(componentClass));
-            props.left(getReferencedComponentInfo(leftAndRight.left()));
-            props.right(getReferencedComponentInfo(leftAndRight.right()));
+            props.left(getReferencedComponentInfo(props, leftAndRight.left()));
+            props.right(getReferencedComponentInfo(props, leftAndRight.right()));
             return props;
         }
         LayoutComponent.TopAndBottom topAndBottom = componentClass.getDeclaredAnnotation(LayoutComponent.TopAndBottom.class);
         if (topAndBottom != null) {
             TopAndBottomLayoutProps_AutoValue props = new TopAndBottomLayoutProps_AutoValue();
             props.componentKey(getComponentKey(componentClass));
-            props.top(getReferencedComponentInfo(topAndBottom.top()));
-            props.bottom(getReferencedComponentInfo(topAndBottom.bottom()));
+            props.top(getReferencedComponentInfo(props, topAndBottom.top()));
+            props.bottom(getReferencedComponentInfo(props, topAndBottom.bottom()));
             return props;
         }
         LayoutComponent.LeftAndTopBottom leftAndTopBottom = componentClass.getDeclaredAnnotation(LayoutComponent.LeftAndTopBottom.class);
         if (leftAndTopBottom != null) {
             LeftAndTopBottomLayoutProps_AutoValue props = new LeftAndTopBottomLayoutProps_AutoValue();
             props.componentKey(getComponentKey(componentClass));
-            props.left(getReferencedComponentInfo(leftAndTopBottom.left()));
-            props.top(getReferencedComponentInfo(leftAndTopBottom.top()));
-            props.bottom(getReferencedComponentInfo(leftAndTopBottom.bottom()));
+            props.left(getReferencedComponentInfo(props, leftAndTopBottom.left()));
+            props.top(getReferencedComponentInfo(props, leftAndTopBottom.top()));
+            props.bottom(getReferencedComponentInfo(props, leftAndTopBottom.bottom()));
             return props;
         }
         String message = String.format("LayoutComponent [%s] must add annotation @LeftAndRight or @TopAndBottom or LeftAndTopBottom", componentClass.getCanonicalName());
@@ -42,7 +42,7 @@ public class LayoutCompiler extends AbstractComponentCompiler<LayoutComponent, L
     }
 
     @Override
-    protected String getComponentName() {
+    public String getComponentName() {
         return COMPONENT_TYPE;
     }
 }

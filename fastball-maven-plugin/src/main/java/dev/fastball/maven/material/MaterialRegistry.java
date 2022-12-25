@@ -40,6 +40,10 @@ public class MaterialRegistry {
         return materialMap.get(sourcePath);
     }
 
+    public Collection<UIMaterial> getMaterials() {
+        return materialMap.values();
+    }
+
     private Collection<UIMaterial> loadMaterials(ClassLoader classLoader) {
         try {
             ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver(classLoader);

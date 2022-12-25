@@ -19,7 +19,7 @@ public class TreeCompiler extends AbstractComponentCompiler<Tree<?>, TreeProps> 
     }
 
     @Override
-    protected String getComponentName() {
+    public String getComponentName() {
         return COMPONENT_TYPE;
     }
 }

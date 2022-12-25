@@ -46,6 +46,12 @@
             <groupId>dev.fastball</groupId>
             <artifactId>fastball-core</artifactId>
         </dependency>
+
+        <!-- 不应该依赖的, 临时处理一下 -->
+        <dependency>
+            <groupId>dev.fastball</groupId>
+            <artifactId>fastball-ui-compiler</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
