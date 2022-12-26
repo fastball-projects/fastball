@@ -10,6 +10,7 @@ import dev.fastball.maven.Route;
 import dev.fastball.maven.material.MaterialRegistry;
 import dev.fastball.ui.common.ComponentProps;
 import dev.fastball.ui.common.ReferencedComponentInfo;
+import dev.fastball.ui.util.PrettyJsonUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.project.MavenProject;
 
@@ -34,6 +35,13 @@ public class CodeGenerator {
         generateComponents(generatedCodeDir, componentInfoList);
         generateRoutes(generatedCodeDir, componentInfoList);
         generatePackageJson(generatedCodeDir, materialRegistry.getMaterials());
+        try {
+            Runtime.getRuntime().exec("pnpm i", null, generatedCodeDir).waitFor();
+            Runtime.getRuntime().exec("pnpm run build", null, generatedCodeDir).waitFor();
+            FileUtils.copyDirectory(new File(generatedCodeDir, "dist"), new File(project.getBuild().getResources().get(0).getDirectory(), "static"));
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static <T> void generateCodeToFile(ComponentInfo<T> componentInfo, File codeFile) {
@@ -44,7 +52,7 @@ public class CodeGenerator {
             if (props instanceof ComponentProps) {
                 componentContent += generateImportComponent((ComponentProps) props);
             }
-            componentContent += "const _f_b_props = " + JsonUtils.toPrettyJson(props) + "\n\n" +
+            componentContent += "const _f_b_props = " + PrettyJsonUtils.toPrettyJson(props) + "\n\n" +
                     "const Component = (props: any) => <OriginalComponent {..._f_b_props} {...props} />\n\n" +
                     "export default Component;";
             FileUtils.write(codeFile, componentContent, StandardCharsets.UTF_8);

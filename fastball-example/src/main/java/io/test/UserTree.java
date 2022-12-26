@@ -2,9 +2,10 @@ package io.test;
 
 import dev.fastball.core.annotation.UIComponent;
 import dev.fastball.ui.annotation.Button;
-import dev.fastball.ui.components.form.PopupForm;
 import dev.fastball.ui.components.table.Table;
 import dev.fastball.ui.components.table.TableDataResult;
+import dev.fastball.ui.components.tree.Tree;
+import dev.fastball.ui.components.tree.TreeDataResult;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -15,29 +16,25 @@ import java.util.Date;
  * @author gr@fastball.dev
  * @since 2022/12/10
  */
-@UIComponent("UserTable")
+@UIComponent("UserTree")
 @Component
-@Table.Config(
-        rowExpandedComponent = UserForm.class,
-        buttons = @Button(value = "新建", component = UserPopupForm.class),
-        recordButtons = @Button(value = "修改", component = UserPopupForm.class)
-)
-public class UserTable implements Table<User, UserQuerier> {
+public class UserTree implements Tree<User> {
 
     static int age = 17;
 
     @Override
-    public TableDataResult<User> loadData(UserQuerier querier) {
+    public TreeDataResult<User> loadData(User parent) {
         User user = new User();
-        user.setId(1L);
+        user.setId(123L);
         user.setName("abc");
         user.setAge(age);
         user.setCreatedAt(new Date());
         User user2 = new User();
-        user2.setId(2L);
+        user.setId(124L);
         user2.setName("abc222");
         user2.setAge(age + 1);
         user2.setCreatedAt(new Date());
-        return TableDataResult.<User>builder().data(Arrays.asList(user, user2)).build();
+        user.setChildren(Collections.singletonList(user2));
+        return TreeDataResult.<User>builder().data(Collections.singleton(user)).build();
     }
 }

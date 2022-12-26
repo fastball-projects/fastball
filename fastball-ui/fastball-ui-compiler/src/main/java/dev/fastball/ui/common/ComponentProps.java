@@ -1,5 +1,7 @@
 package dev.fastball.ui.common;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.Set;
 
 /**
@@ -9,6 +11,7 @@ import java.util.Set;
 public interface ComponentProps {
     String componentKey();
 
+    @JsonIgnore
     Set<ReferencedComponentInfo> referencedComponentInfoList();
     void referencedComponentInfoList(Set<ReferencedComponentInfo> referencedComponentInfoList);
 }
