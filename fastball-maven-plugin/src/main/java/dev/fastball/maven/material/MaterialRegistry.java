@@ -2,9 +2,11 @@ package dev.fastball.maven.material;
 
 import dev.fastball.core.info.UIMaterial;
 import dev.fastball.core.info.UIMaterialAssets;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
+import org.springframework.util.CollectionUtils;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
@@ -14,6 +16,7 @@ import java.net.JarURLConnection;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -68,10 +71,23 @@ public class MaterialRegistry {
         }
         try (InputStream inputStream = resource.getInputStream()) {
             UIMaterial material = yaml.loadAs(inputStream, UIMaterial.class);
+            if (StringUtils.isEmpty(material.getMetaUrl())) {
+                material.setMetaUrl(buildUnPkgUrl(material) + "/build/lowcode/meta.js");
+            }
+            if (CollectionUtils.isEmpty(material.getComponentUrls())) {
+                material.setComponentUrls(Arrays.asList(
+                        buildUnPkgUrl(material) + "/build/lowcode/view.js",
+                        buildUnPkgUrl(material) + "/build/lowcode/view.css"
+                ));
+            }
             materialMap.put(sourcePath.getAbsolutePath(), material);
             return material;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private String buildUnPkgUrl(UIMaterial material) {
+        return "https://unpkg.com/" + material.getNpmPackage() + "@" + material.getNpmVersion();
     }
 }

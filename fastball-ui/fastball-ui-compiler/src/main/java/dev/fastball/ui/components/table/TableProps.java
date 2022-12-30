@@ -17,6 +17,8 @@ public interface TableProps extends ComponentProps {
 
     String headerTitle();
 
+    String childrenFieldName();
+
     ReferencedComponentInfo rowExpandedComponent();
 
     List<ColumnInfo> columns();

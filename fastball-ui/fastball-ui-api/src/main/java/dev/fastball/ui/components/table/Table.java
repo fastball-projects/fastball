@@ -26,6 +26,13 @@ public interface Table<T, Q> extends Component {
     @interface Config {
         String title() default "";
 
+        /**
+         * 如果希望是一个树状列表, 可以配置自己录字段名, 并保证该字段类型为当前类型的集合
+         *
+         * @return 属性表格的子记录字段名
+         */
+        String childrenFieldName() default "";
+
         Class<? extends Component> rowExpandedComponent() default Component.class;
 
         Button[] buttons() default {};

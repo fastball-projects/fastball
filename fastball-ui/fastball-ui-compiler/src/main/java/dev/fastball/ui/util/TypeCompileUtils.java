@@ -5,7 +5,9 @@ import dev.fastball.ui.annotation.Field;
 import dev.fastball.ui.annotation.Lookup;
 import dev.fastball.ui.common.FieldInfo;
 import dev.fastball.ui.common.LookupActionInfo;
+import dev.fastball.ui.common.ValidationRule;
 
+import javax.validation.constraints.*;
 import java.lang.reflect.Type;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -50,7 +52,7 @@ public class TypeCompileUtils {
                 return FieldType.DATE_TIME;
             }
         }
-        return FieldType.TEXT;
+        return FieldType.AUTO;
     }
 
     public static List<FieldInfo> compileTypeFields(Type type) {
@@ -98,10 +100,36 @@ public class TypeCompileUtils {
                 if (afterBuild != null) {
                     afterBuild.accept(declaredField, field);
                 }
+                field.setValidationRules(compileFieldJsr303(declaredField));
             }
             return fields;
         }
         throw new RuntimeException("can not compile type[" + type + "]");
+    }
+
+    private static List<ValidationRule> compileFieldJsr303(java.lang.reflect.Field field) {
+        List<ValidationRule> validationRules = new ArrayList<>();
+        Min min = field.getDeclaredAnnotation(Min.class);
+        if (min != null) {
+            validationRules.add(ValidationRule.builder().type("number").min(min.value()).message(min.message()).build());
+        }
+        Max max = field.getDeclaredAnnotation(Max.class);
+        if (max != null) {
+            validationRules.add(ValidationRule.builder().type("number").max(max.value()).message(max.message()).build());
+        }
+        Size size = field.getDeclaredAnnotation(Size.class);
+        if (size != null) {
+            validationRules.add(ValidationRule.builder().type("string").min(size.min()).max(size.max()).message(size.message()).build());
+        }
+        NotNull notNull = field.getDeclaredAnnotation(NotNull.class);
+        if (notNull != null) {
+            validationRules.add(ValidationRule.builder().required(true).message(notNull.message()).build());
+        }
+        Pattern pattern = field.getDeclaredAnnotation(Pattern.class);
+        if (pattern != null) {
+            validationRules.add(ValidationRule.builder().pattern(pattern.regexp()).message(pattern.message()).build());
+        }
+        return validationRules;
     }
 
 }

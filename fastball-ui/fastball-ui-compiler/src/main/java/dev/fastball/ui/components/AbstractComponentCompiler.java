@@ -9,7 +9,6 @@ import dev.fastball.core.info.ComponentInfo;
 import dev.fastball.ui.common.ComponentProps;
 import dev.fastball.ui.common.ReferencedComponentInfo;
 import dev.fastball.ui.common.ReferencedComponentInfo_AutoValue;
-import dev.fastball.ui.util.PrettyJsonUtils;
 import dev.fastball.ui.util.TypeCompileUtils;
 import dev.fastball.ui.common.FieldInfo;
 

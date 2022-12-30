@@ -2,6 +2,7 @@ package dev.fastball.ui.common;
 
 import lombok.Data;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -27,4 +28,6 @@ public class FieldInfo {
     private Map<String, Integer> colProps;
 
     private LookupActionInfo lookupAction;
+
+    private List<ValidationRule> validationRules;
 }

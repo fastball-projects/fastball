@@ -6,21 +6,22 @@ import dev.fastball.core.component.PopupComponent;
 import dev.fastball.ui.annotation.Button;
 import dev.fastball.ui.annotation.RecordAction;
 import dev.fastball.ui.common.ActionInfo;
-import dev.fastball.ui.common.PopupActionInfo;
 import dev.fastball.ui.common.PopupActionInfo_AutoValue;
-import dev.fastball.ui.common.ReferencedComponentInfo;
 import dev.fastball.ui.components.AbstractComponentCompiler;
 import dev.fastball.ui.util.TypeCompileUtils;
 
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
  * @author gr@fastball.dev
  * @since 2022/12/9
  */
-public class TableCompiler extends AbstractComponentCompiler<Table<?, ?>, TableProps> {
+public class TableCompiler2 extends AbstractComponentCompiler<Table<?, ?>, TableProps> {
 
     private static final String COMPONENT_TYPE = "FastballTable";
 
