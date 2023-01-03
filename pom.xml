@@ -19,6 +19,8 @@
         <module>fastball-ui</module>
         <module>fastball-spring</module>
         <module>fastball-example</module>
+        <module>fastball-apt</module>
+        <module>fastball-portal</module>
     </modules>
 
     <distributionManagement>

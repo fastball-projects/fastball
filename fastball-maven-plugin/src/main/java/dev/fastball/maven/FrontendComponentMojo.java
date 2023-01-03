@@ -1,11 +1,9 @@
 package dev.fastball.maven;
 
-import dev.fastball.core.info.ComponentInfo;
+import dev.fastball.core.component.ComponentInfo;
 import dev.fastball.maven.generator.CodeGenerator;
 import dev.fastball.maven.generator.ViewGenerator;
-import dev.fastball.maven.material.MaterialRegistry;
-import io.github.classgraph.ClassGraph;
-import io.github.classgraph.ScanResult;
+import dev.fastball.core.material.MaterialRegistry;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -19,7 +17,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author gengrong
@@ -41,6 +38,7 @@ public class FrontendComponentMojo extends AbstractMojo {
     @Override
     public void execute() {
         ClassLoader projectClassLoader = getClassLoader();
+
         if (viewGenerate) {
             MaterialRegistry materialRegistry = new MaterialRegistry(projectClassLoader);
             List<ComponentInfo<?>> componentInfoList = ViewGenerator.generate(project, materialRegistry, projectClassLoader, force);

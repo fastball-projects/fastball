@@ -1,90 +1,117 @@
 package dev.fastball.ui.components.table;
 
 
+import dev.fastball.core.compile.CompileContext;
+import dev.fastball.core.compile.CompileUtils;
 import dev.fastball.core.component.Component;
-import dev.fastball.core.component.PopupComponent;
-import dev.fastball.ui.annotation.Button;
+import dev.fastball.ui.annotation.Action;
 import dev.fastball.ui.annotation.RecordAction;
-import dev.fastball.ui.common.ActionInfo;
-import dev.fastball.ui.common.PopupActionInfo;
-import dev.fastball.ui.common.PopupActionInfo_AutoValue;
-import dev.fastball.ui.common.ReferencedComponentInfo;
-import dev.fastball.ui.components.AbstractComponentCompiler;
-import dev.fastball.ui.util.TypeCompileUtils;
+import dev.fastball.ui.common.*;
+import dev.fastball.core.compile.AbstractComponentCompiler;
+import dev.fastball.ui.util.AptTypeCompileUtils;
 
-import java.lang.reflect.Type;
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.TypeMirror;
 import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * @author gr@fastball.dev
- * @since 2022/12/9
+ * @since 2022/12/30
  */
 public class TableCompiler extends AbstractComponentCompiler<Table<?, ?>, TableProps> {
 
     private static final String COMPONENT_TYPE = "FastballTable";
 
     @Override
-    protected TableProps compileProps(Class<Table<?, ?>> componentClass) {
+    protected TableProps compileProps(CompileContext compileContext) {
         TableProps_AutoValue props = new TableProps_AutoValue();
-        Type[] genericType = getGenericTypes(componentClass);
-        props.componentKey(getComponentKey(componentClass));
-        props.columns(buildTableColumnsFromReturnType(genericType[0]));
-        props.queryFields(buildFieldInfoFromType(genericType[1]));
-        List<TableRecordActionInfo> recordActions = Arrays.stream(componentClass.getDeclaredMethods()).map(method -> {
-            RecordAction actionAnnotation = method.getDeclaredAnnotation(RecordAction.class);
-            if (actionAnnotation == null) {
-                return null;
-            }
-            TableRecordApiActionInfo_AutoValue actionInfo = new TableRecordApiActionInfo_AutoValue();
-            actionInfo.actionKey(method.getName());
-            actionInfo.actionName(actionAnnotation.value());
-            actionInfo.refresh(true);
-            return actionInfo;
-        }).filter(Objects::nonNull).collect(Collectors.toList());
-        Table.Config tableConfig = componentClass.getDeclaredAnnotation(Table.Config.class);
-        List<ActionInfo> actions = new ArrayList<>();
-        if (tableConfig != null) {
-            if (tableConfig.rowExpandedComponent() != Component.class) {
-                props.rowExpandedComponent(getReferencedComponentInfo(props, tableConfig.rowExpandedComponent()));
-            }
-            if (tableConfig.childrenFieldName().isEmpty()) {
-                props.childrenFieldName(tableConfig.childrenFieldName());
-            }
-            int buttonIndex = 1;
-            for (Button button : tableConfig.buttons()) {
-                Class<? extends PopupComponent> popupComponentClass = button.component();
-                PopupActionInfo_AutoValue actionInfo = new PopupActionInfo_AutoValue();
-                actionInfo.popupComponent(getReferencedComponentInfo(props, popupComponentClass));
-                actionInfo.actionName(button.value().isEmpty() ? ("button" + buttonIndex++) : button.value());
-                actions.add(actionInfo);
-            }
-            buttonIndex = 1;
-            for (Button button : tableConfig.recordButtons()) {
-                Class<? extends PopupComponent> popupComponentClass = button.component();
-                TableRecordPopupActionInfo_AutoValue actionInfo = new TableRecordPopupActionInfo_AutoValue();
-                actionInfo.popupComponent(getReferencedComponentInfo(props, popupComponentClass));
-                actionInfo.refresh(true);
-                actionInfo.actionName(button.value().isEmpty() ? ("button" + buttonIndex++) : button.value());
-                recordActions.add(actionInfo);
-            }
-        }
-        props.actions(actions);
-        props.recordActions(recordActions);
+        compileBasicConfig(compileContext, props);
+        compileButtons(compileContext, props);
+        compileRecordActions(compileContext, props);
         return props;
     }
 
     @Override
-    public String getComponentName() {
+    protected String getComponentName() {
         return COMPONENT_TYPE;
     }
 
-    private List<ColumnInfo> buildTableColumnsFromReturnType(Type returnType) {
-        return TypeCompileUtils.compileTypeFields(returnType, ColumnInfo::new, (field, tableColumn) -> {
-            Table.Sortable sortable = field.getDeclaredAnnotation(Table.Sortable.class);
+    private List<ColumnInfo> buildTableColumnsFromReturnType(TypeElement returnType, ProcessingEnvironment processingEnv) {
+        return AptTypeCompileUtils.compileTypeFields(returnType, processingEnv, ColumnInfo::new, (field, tableColumn) -> {
+            Table.Sortable sortable = field.getAnnotation(Table.Sortable.class);
             if (sortable != null) {
                 tableColumn.setSortable(true);
             }
         });
+    }
+
+    private void compileRecordActions(CompileContext compileContext, TableProps_AutoValue props) {
+        List<ActionInfo> recordActions = CompileUtils
+                .getMethods(compileContext.getComponentElement(), compileContext.getProcessingEnv()).values().stream()
+                .map(method -> {
+                    RecordAction actionAnnotation = method.getAnnotation(RecordAction.class);
+                    if (actionAnnotation == null) {
+                        return null;
+                    }
+                    RefreshApiActionInfo_AutoValue actionInfo = new RefreshApiActionInfo_AutoValue();
+                    actionInfo.actionKey(method.getSimpleName().toString());
+                    actionInfo.actionName(actionAnnotation.value());
+                    actionInfo.refresh(true);
+                    return actionInfo;
+                }).filter(Objects::nonNull).collect(Collectors.toList());
+        Table.Config tableConfig = compileContext.getComponentElement().getAnnotation(Table.Config.class);
+        if (tableConfig != null) {
+            for (Action action : tableConfig.recordActions()) {
+                RefreshPopupActionInfo_AutoValue actionInfo = new RefreshPopupActionInfo_AutoValue();
+                actionInfo.popupComponent(getReferencedComponentInfo(props, action::component));
+                actionInfo.refresh(true);
+                actionInfo.popupTitle(action.popupTitle());
+                actionInfo.popupType(action.popupType());
+                actionInfo.drawerPlacementType(action.drawerPlacementType());
+                actionInfo.actionName(action.value());
+                recordActions.add(actionInfo);
+            }
+        }
+        props.recordActions(recordActions);
+    }
+
+    private void compileButtons(CompileContext compileContext, TableProps_AutoValue props) {
+        Table.Config tableConfig = compileContext.getComponentElement().getAnnotation(Table.Config.class);
+        if (tableConfig == null) {
+            return;
+        }
+        List<ActionInfo> actionInfoList = Arrays.stream(tableConfig.actions()).map(action -> {
+            PopupActionInfo_AutoValue actionInfo = new PopupActionInfo_AutoValue();
+            actionInfo.popupTitle(action.popupTitle());
+            actionInfo.popupType(action.popupType());
+            actionInfo.drawerPlacementType(action.drawerPlacementType());
+            actionInfo.popupComponent(getReferencedComponentInfo(props, action::component));
+            actionInfo.actionName(action.value());
+            return actionInfo;
+        }).collect(Collectors.toList());
+        props.actions(actionInfoList);
+    }
+
+    private void compileBasicConfig(CompileContext compileContext, TableProps_AutoValue props) {
+        List<TypeElement> genericTypes = getGenericTypes(compileContext);
+
+        props.columns(buildTableColumnsFromReturnType(genericTypes.get(0), compileContext.getProcessingEnv()));
+        props.queryFields(AptTypeCompileUtils.compileTypeFields(genericTypes.get(1), compileContext.getProcessingEnv()));
+
+        Table.Config tableConfig = compileContext.getComponentElement().getAnnotation(Table.Config.class);
+        if (tableConfig == null) {
+            return;
+        }
+        TypeMirror rowExpandedComponent = CompileUtils.getTypeMirrorFromAnnotationValue(tableConfig::rowExpandedComponent);
+        if (rowExpandedComponent == null || !Component.class.getCanonicalName().equals(rowExpandedComponent.toString())) {
+            TypeElement rowExpandedComponentElement = (TypeElement) compileContext.getProcessingEnv().getTypeUtils().asElement(rowExpandedComponent);
+            props.rowExpandedComponent(getReferencedComponentInfo(props, rowExpandedComponentElement));
+        }
+
+        if (tableConfig.childrenFieldName().isEmpty()) {
+            props.childrenFieldName(tableConfig.childrenFieldName());
+        }
     }
 }

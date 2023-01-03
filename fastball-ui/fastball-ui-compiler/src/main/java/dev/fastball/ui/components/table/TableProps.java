@@ -2,8 +2,8 @@ package dev.fastball.ui.components.table;
 
 import dev.fastball.auto.value.annotation.AutoValue;
 import dev.fastball.ui.common.ActionInfo;
-import dev.fastball.ui.common.ReferencedComponentInfo;
-import dev.fastball.ui.common.ComponentProps;
+import dev.fastball.core.component.ReferencedComponentInfo;
+import dev.fastball.core.component.ComponentProps;
 import dev.fastball.ui.common.FieldInfo;
 
 import java.util.List;
@@ -27,5 +27,5 @@ public interface TableProps extends ComponentProps {
 
     List<ActionInfo> actions();
 
-    List<TableRecordActionInfo> recordActions();
+    List<ActionInfo> recordActions();
 }

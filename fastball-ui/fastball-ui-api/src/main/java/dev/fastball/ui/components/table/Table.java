@@ -2,7 +2,7 @@ package dev.fastball.ui.components.table;
 
 import dev.fastball.core.annotation.UIApi;
 import dev.fastball.core.component.Component;
-import dev.fastball.ui.annotation.Button;
+import dev.fastball.ui.annotation.Action;
 
 import java.lang.annotation.*;
 
@@ -35,9 +35,9 @@ public interface Table<T, Q> extends Component {
 
         Class<? extends Component> rowExpandedComponent() default Component.class;
 
-        Button[] buttons() default {};
+        Action[] actions() default {};
 
-        Button[] recordButtons() default {};
+        Action[] recordActions() default {};
     }
 
     /**

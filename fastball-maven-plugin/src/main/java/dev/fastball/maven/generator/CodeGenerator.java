@@ -1,23 +1,18 @@
 package dev.fastball.maven.generator;
 
-import dev.fastball.core.component.ComponentCompiler;
-import dev.fastball.core.component.ComponentCompilerLoader;
-import dev.fastball.core.info.ComponentInfo;
-import dev.fastball.core.info.UIMaterial;
-import dev.fastball.maven.JsonUtils;
-import dev.fastball.maven.PackageModel;
-import dev.fastball.maven.Route;
-import dev.fastball.maven.material.MaterialRegistry;
-import dev.fastball.ui.common.ComponentProps;
-import dev.fastball.ui.common.ReferencedComponentInfo;
-import dev.fastball.ui.util.PrettyJsonUtils;
+import dev.fastball.core.PackageModel;
+import dev.fastball.core.component.ComponentInfo;
+import dev.fastball.core.material.UIMaterial;
+import dev.fastball.core.utils.JsonUtils;
+import dev.fastball.core.material.MaterialRegistry;
+import dev.fastball.core.component.ComponentProps;
+import dev.fastball.core.component.ReferencedComponentInfo;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.project.MavenProject;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -33,7 +28,6 @@ public class CodeGenerator {
         File generatedCodeDir = new File(project.getBuild().getDirectory(), GENERATED_PATH);
         copyProjectFiles(generatedCodeDir);
         generateComponents(generatedCodeDir, componentInfoList);
-        generateRoutes(generatedCodeDir, componentInfoList);
         generatePackageJson(generatedCodeDir, materialRegistry.getMaterials());
         try {
             Runtime.getRuntime().exec("pnpm i", null, generatedCodeDir).waitFor();
@@ -44,15 +38,13 @@ public class CodeGenerator {
         }
     }
 
-    private static <T> void generateCodeToFile(ComponentInfo<T> componentInfo, File codeFile) {
-        T props = componentInfo.getProps();
+    private static <T extends ComponentProps> void generateCodeToFile(ComponentInfo<T> componentInfo, File codeFile) {
+        T props = componentInfo.props();
         try {
-            String componentContent = "import { " + componentInfo.getComponentName() + " as OriginalComponent } from '" +
-                    componentInfo.getMaterial().getNpmPackage() + "';\n\n";
-            if (props instanceof ComponentProps) {
-                componentContent += generateImportComponent((ComponentProps) props);
-            }
-            componentContent += "const _f_b_props = " + PrettyJsonUtils.toPrettyJson(props) + "\n\n" +
+            String componentContent = "import { " + componentInfo.componentName() + " as OriginalComponent } from '" +
+                    componentInfo.material().getNpmPackage() + "';\n\n";
+            componentContent += generateImportComponent(props);
+            componentContent += "const _f_b_props = " + JsonUtils.toComponentJson(props) + "\n\n" +
                     "const Component = (props: any) => <OriginalComponent {..._f_b_props} {...props} />\n\n" +
                     "export default Component;";
             FileUtils.write(codeFile, componentContent, StandardCharsets.UTF_8);
@@ -91,32 +83,11 @@ public class CodeGenerator {
     private static void generateComponents(File generatedCodeDir, List<ComponentInfo<?>> componentInfoList) {
         File componentDir = new File(generatedCodeDir, COMPONENT_PATH);
         for (ComponentInfo<?> componentInfo : componentInfoList) {
-            File generateCodeFile = new File(componentDir, componentInfo.getComponentKey() + COMPONENT_SUFFIX);
+            File generateCodeFile = new File(componentDir, componentInfo.componentKey() + COMPONENT_SUFFIX);
             generateCodeToFile(componentInfo, generateCodeFile);
         }
     }
 
-    private static void generateRoutes(File generatedCodeDir, List<ComponentInfo<?>> componentInfoList) {
-        File routesFile = new File(generatedCodeDir, ROUTES_PATH);
-        List<Route> routes = new ArrayList<>();
-        StringBuilder routesCode = new StringBuilder();
-        for (ComponentInfo<?> componentInfo : componentInfoList) {
-            routes.add(Route.builder().path("/" + componentInfo.getComponentKey()).name(componentInfo.getComponentKey())
-                    .component(componentInfo.getComponentKey()).build());
-            routesCode.append("import ").append(componentInfo.getComponentKey())
-                    .append(" from '@/components/").append(componentInfo.getComponentKey()).append("';\n");
-        }
-        try {
-            routesCode.append("const routes = ");
-            routesCode.append(JsonUtils.toPrettyJson(routes));
-            routesCode.append("\n");
-            routesCode.append("\n");
-            routesCode.append("export default routes;");
-            FileUtils.write(routesFile, routesCode.toString(), StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     private static void copyProjectFiles(File generatedCodeDir) {
         try {

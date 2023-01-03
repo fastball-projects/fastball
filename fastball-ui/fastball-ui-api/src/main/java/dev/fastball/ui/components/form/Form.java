@@ -1,7 +1,7 @@
 package dev.fastball.ui.components.form;
 
 import dev.fastball.core.component.Component;
-import dev.fastball.ui.annotation.Button;
+import dev.fastball.ui.annotation.Action;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -16,6 +16,8 @@ public interface Form<T> extends Component {
     @Target(ElementType.TYPE)
     @Retention(RetentionPolicy.RUNTIME)
     @interface Config {
-        Button[] buttons() default {};
+        boolean showReset() default true;
+
+        Action[] buttons() default {};
     }
 }

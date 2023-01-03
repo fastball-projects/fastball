@@ -2,7 +2,7 @@ package dev.fastball.ui.components.form;
 
 import dev.fastball.core.component.PopupComponent;
 import dev.fastball.ui.PopupType;
-import dev.fastball.ui.annotation.Button;
+import dev.fastball.ui.annotation.Action;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -21,7 +21,7 @@ public interface PopupForm<T> extends PopupComponent {
 
         PopupType popupType() default PopupType.Drawer;
 
-        Button[] buttons() default {};
+        Action[] buttons() default {};
     }
 
     @Target(ElementType.METHOD)

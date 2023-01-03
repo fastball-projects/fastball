@@ -11,7 +11,7 @@ import java.util.Collection;
  */
 @Data
 @Builder
-public class TreeDataResult<T extends TreeNode> {
+public class TreeDataResult<T> {
 
     private Integer total;
     private Collection<T> data;

@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Component
 @LayoutComponent.LeftAndRight(
         left = UserTree.class,
-        right = UserForm.class
+        right = UserTable.class
 )
 public class UserLRTreeLayout implements LayoutComponent {
 }

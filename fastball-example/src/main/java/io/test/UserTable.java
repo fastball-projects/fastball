@@ -1,8 +1,9 @@
 package io.test;
 
 import dev.fastball.core.annotation.UIComponent;
-import dev.fastball.ui.annotation.Button;
-import dev.fastball.ui.components.form.PopupForm;
+import dev.fastball.ui.DrawerPlacementType;
+import dev.fastball.ui.PopupType;
+import dev.fastball.ui.annotation.Action;
 import dev.fastball.ui.components.table.Table;
 import dev.fastball.ui.components.table.TableDataResult;
 import org.springframework.stereotype.Component;
@@ -17,8 +18,8 @@ import java.util.*;
 @Component
 @Table.Config(
         rowExpandedComponent = UserForm.class,
-        buttons = @Button(value = "新建", component = UserPopupForm.class),
-        recordButtons = @Button(value = "修改", component = UserPopupForm.class)
+        actions = @Action(popupTitle = "新建用户", popupType = PopupType.Modal, value = "新建1", component = UserForm.class),
+        recordActions = @Action(popupTitle = "修改用户", drawerPlacementType = DrawerPlacementType.Left, value = "修改", component = UserForm.class)
 )
 public class UserTable implements Table<User, UserQuerier> {
 

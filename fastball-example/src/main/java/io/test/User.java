@@ -1,5 +1,6 @@
 package io.test;
 
+import dev.fastball.ui.annotation.Field;
 import dev.fastball.ui.components.tree.TreeNode;
 import lombok.Data;
 
@@ -16,10 +17,12 @@ import java.util.List;
  * @since 2022/12/10
  */
 @Data
-public class User implements TreeNode {
+public class User {
 
     private Long id;
 
+
+    @Field(title = "姓名1", tips = "用户姓名")
     @Size(min = 6, max = 64, message = "name length between [6 - 64]")
     @NotNull(message = "name can not be null")
     private String name;
@@ -31,19 +34,4 @@ public class User implements TreeNode {
     private Date createdAt;
 
     private List<User> children;
-
-    @Override
-    public String getTitle() {
-        return name;
-    }
-
-    @Override
-    public String getKey() {
-        return String.valueOf(id);
-    }
-
-    @Override
-    public Collection<User> getNodeChildren() {
-        return children;
-    }
 }
