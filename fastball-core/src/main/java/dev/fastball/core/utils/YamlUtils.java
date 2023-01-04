@@ -1,9 +1,9 @@
 package dev.fastball.core.utils;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import org.yaml.snakeyaml.Yaml;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,7 +17,8 @@ public class YamlUtils {
     private YamlUtils() {
     }
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper(new YAMLFactory());
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper(new YAMLFactory())
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     public static <T> T fromYaml(InputStream inputStream, Class<T> clazz) throws IOException {
         return OBJECT_MAPPER.readValue(inputStream, clazz);

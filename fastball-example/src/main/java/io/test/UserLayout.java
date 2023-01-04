@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
  * @since 2022/12/19
  */
 @UIComponent("UserTableForm")
-@Component
 @LayoutComponent.TopAndBottom(
         top = UserTable.class,
         bottom = UserForm.class

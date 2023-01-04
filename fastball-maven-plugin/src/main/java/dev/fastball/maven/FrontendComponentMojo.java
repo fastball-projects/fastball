@@ -1,9 +1,8 @@
 package dev.fastball.maven;
 
-import dev.fastball.core.component.ComponentInfo;
-import dev.fastball.maven.generator.CodeGenerator;
-import dev.fastball.maven.generator.ViewGenerator;
-import dev.fastball.core.material.MaterialRegistry;
+import dev.fastball.generate.generator.PortalCodeGenerator;
+import dev.fastball.generate.utils.NodeJsUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -13,40 +12,35 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.List;
 
+import static dev.fastball.generate.Constants.GENERATED_PATH;
+
 /**
  * @author gengrong
  */
-@Mojo(name = "publish", defaultPhase = LifecyclePhase.COMPILE, requiresDependencyResolution = ResolutionScope.RUNTIME, threadSafe = true)
+@Mojo(name = "build", defaultPhase = LifecyclePhase.PREPARE_PACKAGE, requiresDependencyResolution = ResolutionScope.RUNTIME, threadSafe = true)
 public class FrontendComponentMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
 
-    @Parameter(property = "fastball.force", defaultValue = "false")
-    private boolean force;
-
-    @Parameter(property = "fastball.generate.view", defaultValue = "true")
-    private boolean viewGenerate;
-
-    @Parameter(property = "fastball.generate.code", defaultValue = "false")
-    private boolean codeGenerate;
-
     @Override
     public void execute() {
         ClassLoader projectClassLoader = getClassLoader();
-
-        if (viewGenerate) {
-            MaterialRegistry materialRegistry = new MaterialRegistry(projectClassLoader);
-            List<ComponentInfo<?>> componentInfoList = ViewGenerator.generate(project, materialRegistry, projectClassLoader, force);
-            if (codeGenerate) {
-                CodeGenerator.generate(project, materialRegistry, componentInfoList);
-            }
+        File generatedCodeDir = new File(project.getBuild().getDirectory(), GENERATED_PATH);
+        PortalCodeGenerator.generate(generatedCodeDir, projectClassLoader);
+        try {
+            NodeJsUtils.exec("pnpm i", generatedCodeDir);
+            NodeJsUtils.exec("pnpm run build", generatedCodeDir);
+            File staticResourceDir = new File(project.getBuild().getOutputDirectory(), "static");
+            FileUtils.copyDirectory(new File(generatedCodeDir, "dist"), staticResourceDir);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-
     }
 
     private ClassLoader getClassLoader() {

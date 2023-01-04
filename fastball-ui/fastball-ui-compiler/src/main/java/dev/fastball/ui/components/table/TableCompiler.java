@@ -1,14 +1,14 @@
 package dev.fastball.ui.components.table;
 
 
-import dev.fastball.core.compile.CompileContext;
-import dev.fastball.core.compile.CompileUtils;
+import dev.fastball.compile.AbstractComponentCompiler;
+import dev.fastball.compile.CompileContext;
+import dev.fastball.compile.utils.CompileUtils;
 import dev.fastball.core.component.Component;
 import dev.fastball.ui.annotation.Action;
 import dev.fastball.ui.annotation.RecordAction;
 import dev.fastball.ui.common.*;
-import dev.fastball.core.compile.AbstractComponentCompiler;
-import dev.fastball.ui.util.AptTypeCompileUtils;
+import dev.fastball.ui.util.TypeCompileUtils;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.TypeElement;
@@ -39,7 +39,7 @@ public class TableCompiler extends AbstractComponentCompiler<Table<?, ?>, TableP
     }
 
     private List<ColumnInfo> buildTableColumnsFromReturnType(TypeElement returnType, ProcessingEnvironment processingEnv) {
-        return AptTypeCompileUtils.compileTypeFields(returnType, processingEnv, ColumnInfo::new, (field, tableColumn) -> {
+        return TypeCompileUtils.compileTypeFields(returnType, processingEnv, ColumnInfo::new, (field, tableColumn) -> {
             Table.Sortable sortable = field.getAnnotation(Table.Sortable.class);
             if (sortable != null) {
                 tableColumn.setSortable(true);
@@ -98,7 +98,7 @@ public class TableCompiler extends AbstractComponentCompiler<Table<?, ?>, TableP
         List<TypeElement> genericTypes = getGenericTypes(compileContext);
 
         props.columns(buildTableColumnsFromReturnType(genericTypes.get(0), compileContext.getProcessingEnv()));
-        props.queryFields(AptTypeCompileUtils.compileTypeFields(genericTypes.get(1), compileContext.getProcessingEnv()));
+        props.queryFields(TypeCompileUtils.compileTypeFields(genericTypes.get(1), compileContext.getProcessingEnv()));
 
         Table.Config tableConfig = compileContext.getComponentElement().getAnnotation(Table.Config.class);
         if (tableConfig == null) {

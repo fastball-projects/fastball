@@ -1,13 +1,12 @@
 package dev.fastball.ui.components.form;
 
-import dev.fastball.core.compile.AbstractComponentCompiler;
-import dev.fastball.core.compile.CompileContext;
-import dev.fastball.core.compile.CompileUtils;
-import dev.fastball.core.component.Component;
+import dev.fastball.compile.AbstractComponentCompiler;
+import dev.fastball.compile.CompileContext;
+import dev.fastball.compile.utils.CompileUtils;
 import dev.fastball.ui.annotation.RecordAction;
 import dev.fastball.ui.common.ActionInfo;
 import dev.fastball.ui.common.ApiActionInfo_AutoValue;
-import dev.fastball.ui.util.AptTypeCompileUtils;
+import dev.fastball.ui.util.TypeCompileUtils;
 
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
@@ -26,7 +25,7 @@ public class FormCompiler extends AbstractComponentCompiler<Form<?>, FormProps_A
     protected FormProps_AutoValue compileProps(CompileContext compileContext) {
         FormProps_AutoValue props = new FormProps_AutoValue();
         List<TypeElement> genericTypes = getGenericTypes(compileContext);
-        props.fields(AptTypeCompileUtils.compileTypeFields(genericTypes.get(0), compileContext.getProcessingEnv()));
+        props.fields(TypeCompileUtils.compileTypeFields(genericTypes.get(0), compileContext.getProcessingEnv()));
         compileRecordActions(compileContext, props);
         Form.Config config = compileContext.getComponentElement().getAnnotation(Form.Config.class);
         if (config != null) {

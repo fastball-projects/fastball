@@ -13,17 +13,21 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <groupId>dev.fastball</groupId>
+            <artifactId>spring-boot-starter-fastball</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>dev.fastball</groupId>
+            <artifactId>fastball-generator</artifactId>
         </dependency>
         <dependency>
             <groupId>dev.fastball</groupId>
             <artifactId>fastball-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>2.11.0</version>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+            <version>0.10.2</version>
         </dependency>
     </dependencies>
 

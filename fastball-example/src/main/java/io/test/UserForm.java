@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
  * @since 2022/12/14
  */
 @UIComponent("UserForm")
-@Component
 public class UserForm implements Form<User> {
 
     @RecordAction("提交")

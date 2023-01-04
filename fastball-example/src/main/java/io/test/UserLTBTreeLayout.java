@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
  * @since 2022/12/19
  */
 @UIComponent("UserLTBTreeForm")
-@Component
 @LayoutComponent.LeftAndTopBottom(
         left = UserTree.class,
         top = UserTable.class,

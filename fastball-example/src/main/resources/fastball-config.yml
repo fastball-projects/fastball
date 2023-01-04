@@ -1,0 +1,23 @@
+theme: default
+menus:
+  UserTable:
+    title: 用户列表
+    component: io.test.UserTable
+  User:
+    title: 用户
+    menus:
+      UserLayout:
+        title: 用户测试
+        menus:
+          UserLTBTreeLayout:
+            title: 左上下布局
+            component: io.test.UserLTBTreeLayout
+          UserLRTreeLayout:
+            title: 左树右表
+            component: io.test.UserLRTreeLayout
+          UserLRLayout:
+            title: 左右布局
+            component: io.test.UserLRLayout
+      UserTree:
+        title: 用户树
+        component: io.test.UserTree

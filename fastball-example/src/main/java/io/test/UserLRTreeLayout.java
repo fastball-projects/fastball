@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
  * @since 2022/12/19
  */
 @UIComponent("UserLRTreeForm")
-@Component
 @LayoutComponent.LeftAndRight(
         left = UserTree.class,
         right = UserTable.class

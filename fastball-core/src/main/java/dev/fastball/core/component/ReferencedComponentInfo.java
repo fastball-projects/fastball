@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import dev.fastball.auto.value.annotation.AutoValue;
 import dev.fastball.core.RefComponentSerialize;
-import dev.fastball.core.component.ReferencedComponentInfo_AutoValue;
 
 /**
  * @author gr@fastball.dev

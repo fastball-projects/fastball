@@ -15,7 +15,6 @@ import java.util.Date;
  * @since 2022/12/10
  */
 @UIComponent("UserTree")
-@Component
 @Tree.Config(
         titleField = "name",
         recordActions = @Action(value = "修改", component = UserForm.class)

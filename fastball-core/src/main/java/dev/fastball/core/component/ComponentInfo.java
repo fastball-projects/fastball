@@ -18,5 +18,7 @@ public interface ComponentInfo<T extends ComponentProps> {
 
     UIMaterial material();
 
+    Boolean customized();
+
     T props();
 }

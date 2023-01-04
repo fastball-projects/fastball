@@ -14,21 +14,11 @@
 
     <dependencies>
         <dependency>
-            <groupId>io.github.classgraph</groupId>
-            <artifactId>classgraph</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.yaml</groupId>
-            <artifactId>snakeyaml</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
+            <version>5.3.24</version>
         </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-        </dependency>
+
         <dependency>
             <groupId>org.apache.maven.plugin-tools</groupId>
             <artifactId>maven-plugin-annotations</artifactId>
@@ -44,13 +34,7 @@
 
         <dependency>
             <groupId>dev.fastball</groupId>
-            <artifactId>fastball-core</artifactId>
-        </dependency>
-
-        <!-- 不应该依赖的, 临时处理一下 -->
-        <dependency>
-            <groupId>dev.fastball</groupId>
-            <artifactId>fastball-ui-compiler</artifactId>
+            <artifactId>fastball-generator</artifactId>
         </dependency>
     </dependencies>
 
@@ -61,16 +45,10 @@
                 <artifactId>maven-plugin-plugin</artifactId>
                 <version>3.6.4</version>
                 <configuration>
-                    <!--                    <goalPrefix>typescript-generator</goalPrefix>-->
-                    <!--                    <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>-->
+                    <goalPrefix>fastball</goalPrefix>
+                    <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
                 </configuration>
                 <executions>
-                    <execution>
-                        <id>mojo-descriptor</id>
-                        <goals>
-                            <goal>descriptor</goal>
-                        </goals>
-                    </execution>
                     <execution>
                         <id>help-goal</id>
                         <goals>

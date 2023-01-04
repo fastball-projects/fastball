@@ -2,11 +2,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-parent</artifactId>
-        <version>2.7.6</version>
-    </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>dev.fastball</groupId>
@@ -17,10 +12,11 @@
         <module>fastball-maven-plugin</module>
         <module>fastball-core</module>
         <module>fastball-ui</module>
-        <module>fastball-spring</module>
         <module>fastball-example</module>
-        <module>fastball-apt</module>
+        <module>fastball-compile</module>
         <module>fastball-portal</module>
+        <module>fastball-runtime</module>
+        <module>fastball-generator</module>
     </modules>
 
     <distributionManagement>
@@ -38,20 +34,72 @@
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-        <classgraph.version>4.8.138</classgraph.version>
         <plexus-component-metadata.version>2.1.0</plexus-component-metadata.version>
         <maven-plugin-annotations.version>3.3</maven-plugin-annotations.version>
         <maven-plugin-plugin.version>3.6.4</maven-plugin-plugin.version>
+
+        <spring.version>5.3.24</spring.version>
+        <spring-boot.version>2.7.7</spring-boot.version>
+        <freemarker.version>2.3.31</freemarker.version>
+        <commons-io.version>2.11.0</commons-io.version>
+        <commons-exec.version>1.3</commons-exec.version>
+        <jackson.version>2.14.1</jackson.version>
+        <lombok.version>1.18.24</lombok.version>
+        <javax.validation.version>2.0.1.Final</javax.validation.version>
+        <jakarta.validation.version>3.0.2</jakarta.validation.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <!-- Common start -->
             <dependency>
-                <groupId>io.github.classgraph</groupId>
-                <artifactId>classgraph</artifactId>
-                <version>${classgraph.version}</version>
+                <groupId>com.fasterxml.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>${jackson.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
             </dependency>
+
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+            </dependency>
+            <!-- Common end -->
+
+            <!-- Apache start -->
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commons-io.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-exec</artifactId>
+                <version>${commons-exec.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-core</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <!-- Apache end -->
+
+            <!-- J2EE Jakarta start -->
+            <dependency>
+                <groupId>javax.validation</groupId>
+                <artifactId>validation-api</artifactId>
+                <version>${javax.validation.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>jakarta.validation</groupId>
+                <artifactId>jakarta.validation-api</artifactId>
+                <version>${jakarta.validation.version}</version>
+            </dependency>
+            <!-- J2EE Jakarta end -->
+
+            <!-- Maven start -->
             <dependency>
                 <groupId>org.apache.maven</groupId>
                 <artifactId>maven-core</artifactId>
@@ -72,17 +120,22 @@
                 <artifactId>maven-plugin-plugin</artifactId>
                 <version>${maven-plugin-plugin.version}</version>
             </dependency>
+            <!-- Maven end -->
 
-
+            <!-- Self project start -->
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>auto-value</artifactId>
                 <version>0.1.0-SNAPSHOT</version>
             </dependency>
-
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-core</artifactId>
+                <version>0.1.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>dev.fastball</groupId>
+                <artifactId>fastball-compile</artifactId>
                 <version>0.1.0-SNAPSHOT</version>
             </dependency>
             <dependency>
@@ -97,9 +150,31 @@
             </dependency>
             <dependency>
                 <groupId>dev.fastball</groupId>
-                <artifactId>fastball-ui-backend</artifactId>
+                <artifactId>fastball-generator</artifactId>
                 <version>0.1.0-SNAPSHOT</version>
             </dependency>
+            <dependency>
+                <groupId>dev.fastball</groupId>
+                <artifactId>fastball-runtime-spring-configure</artifactId>
+                <version>0.1.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>dev.fastball</groupId>
+                <artifactId>spring-boot-starter-fastball</artifactId>
+                <version>0.1.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>dev.fastball</groupId>
+                <artifactId>fastball-portal</artifactId>
+                <version>0.1.0-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>dev.fastball</groupId>
+                <artifactId>fastball-maven-plugin</artifactId>
+                <version>0.1.0-SNAPSHOT</version>
+            </dependency>
+            <!-- Self project end -->
         </dependencies>
     </dependencyManagement>
 </project>

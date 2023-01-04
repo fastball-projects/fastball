@@ -15,7 +15,6 @@ import java.util.*;
  * @since 2022/12/10
  */
 @UIComponent("UserTable")
-@Component
 @Table.Config(
         rowExpandedComponent = UserForm.class,
         actions = @Action(popupTitle = "新建用户", popupType = PopupType.Modal, value = "新建1", component = UserForm.class),

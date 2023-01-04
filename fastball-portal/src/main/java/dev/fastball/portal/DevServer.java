@@ -1,13 +1,16 @@
 package dev.fastball.portal;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import dev.fastball.core.utils.JsonUtils;
-import dev.fastball.core.component.ComponentInfo_AutoValue;
-import dev.fastball.core.material.MaterialRegistry;
-import dev.fastball.core.utils.YamlUtils;
 import dev.fastball.core.component.ComponentInfo;
+import dev.fastball.core.component.ComponentInfo_AutoValue;
+import dev.fastball.core.config.FastballConfig;
+import dev.fastball.core.utils.JsonUtils;
+import dev.fastball.core.utils.YamlUtils;
+import dev.fastball.generate.generator.PortalCodeGenerator;
+import org.apache.commons.io.IOUtils;
+import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.io.Resource;
@@ -18,7 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -37,20 +40,38 @@ public class DevServer implements WebMvcConfigurer, InitializingBean, Applicatio
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        Resource menuResource = applicationContext.getResource("classpath:/fastball-menu.yml");
-        Map<String, MenuInfo> menus;
-        try(InputStream inputStream = menuResource.getInputStream()) {
-            menus = YamlUtils.fromYaml(inputStream, new TypeReference<Map<String, MenuInfo>>(){});
+        Class<?> mainClass = getMainClass();
+        String primarySourcePath = mainClass.getProtectionDomain().getCodeSource().getLocation().getPath();
+        File primarySourceFile = new File(primarySourcePath);
+        if (primarySourceFile.isFile()) {
+            throw new RuntimeException("DevServer only available in development mode, but primary source in a jar.");
         }
-        List<ComponentInfo<?>> componentInfoList = Arrays.stream(applicationContext.getResources("classpath*:/FASTBALL-INF/**/*.fbv.json"))
-                .map(resource -> {
-                    try {
-                        ComponentInfo<?> componentInfo = JsonUtils.fromJson(resource.getInputStream(), ComponentInfo_AutoValue.class);
-                        return componentInfo;
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                }).collect(Collectors.toList());
-        CodeGenerator.generate(new File("./fastball-workspace"), new MaterialRegistry(DevServer.class.getClassLoader()), componentInfoList, menus);
+        File generatedCodeDir = new File(primarySourceFile.getParentFile(), "fastball-workspace");
+        PortalCodeGenerator.generate(generatedCodeDir, mainClass.getClassLoader());
+        try {
+            Runtime.getRuntime().exec("pnpm i", null, generatedCodeDir).waitFor();
+            new Thread(() -> {
+                Process devProcess;
+                try {
+                    devProcess = Runtime.getRuntime().exec("pnpm run dev", null, generatedCodeDir);
+                    IOUtils.copy(devProcess.getInputStream(), System.out);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }).start();
+//            Runtime.getRuntime().exec("pnpm run build", null, generatedCodeDir).waitFor();
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private Class<?> getMainClass() {
+        StackTraceElement[] stack = Thread.currentThread().getStackTrace();
+        StackTraceElement main = stack[stack.length - 1];
+        try {
+            return Class.forName(main.getClassName());
+        } catch (ClassNotFoundException ignore) {
+            throw new IllegalStateException("Cannot determine main class.");
+        }
     }
 }

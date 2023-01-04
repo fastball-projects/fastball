@@ -1,8 +1,8 @@
 package dev.fastball.ui.components.layout;
 
-import dev.fastball.core.compile.AbstractComponentCompiler;
-import dev.fastball.core.compile.CompileContext;
-import dev.fastball.ui.exception.CompilerException;
+import dev.fastball.compile.AbstractComponentCompiler;
+import dev.fastball.compile.CompileContext;
+import dev.fastball.compile.exception.CompilerException;
 
 /**
  * @author gr@fastball.dev
