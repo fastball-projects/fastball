@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -48,6 +49,12 @@ public class JsonUtils {
 
     public static <T> T fromJson(InputStream inputStream, Class<T> clazz) throws IOException {
         return OBJECT_MAPPER.readValue(inputStream, clazz);
+    }
+
+    public static <T> T fromJson(InputStream inputStream, Class<T> clazz, ClassLoader classLoader) throws IOException {
+        ObjectMapper classLoaderObjectMapper = OBJECT_MAPPER.copy();
+        classLoaderObjectMapper.setTypeFactory(TypeFactory.defaultInstance().withClassLoader(classLoader));
+        return classLoaderObjectMapper.readValue(inputStream, clazz);
     }
 
     public static <T> T fromJson(InputStream inputStream, TypeReference<T> valueTypeRef) throws IOException {

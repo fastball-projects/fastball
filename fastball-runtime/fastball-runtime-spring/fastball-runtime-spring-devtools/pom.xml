@@ -9,25 +9,20 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>fastball-runtime-spring-configure</artifactId>
+    <artifactId>fastball-runtime-spring-devtools</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>dev.fastball</groupId>
-            <artifactId>fastball-core</artifactId>
+            <artifactId>fastball-generator</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-webmvc</artifactId>
+            <groupId>dev.fastball</groupId>
+            <artifactId>fastball-runtime-spring-configure</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jsr310</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <scope>provided</scope>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
         </dependency>
     </dependencies>
 

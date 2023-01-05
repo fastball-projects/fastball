@@ -5,7 +5,7 @@
     <parent>
         <artifactId>fastball-runtime</artifactId>
         <groupId>dev.fastball</groupId>
-        <version>0.1.0-SNAPSHOT</version>
+        <version>0.1.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -14,6 +14,7 @@
     <modules>
         <module>fastball-runtime-spring-configure</module>
         <module>spring-boot-starter-fastball</module>
+        <module>fastball-runtime-spring-devtools</module>
     </modules>
 
     <dependencyManagement>
@@ -29,22 +30,10 @@
     </dependencyManagement>
 
     <dependencies>
-        <dependency>
-            <groupId>dev.fastball</groupId>
-            <artifactId>fastball-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>dev.fastball</groupId>
-            <artifactId>fastball-ui-compiler</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jsr310</artifactId>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.fasterxml.jackson.datatype</groupId>-->
+<!--            <artifactId>jackson-datatype-jsr310</artifactId>-->
+<!--        </dependency>-->
     </dependencies>
 
 </project>

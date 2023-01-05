@@ -5,6 +5,7 @@ import dev.fastball.core.component.ComponentInfo_AutoValue;
 import dev.fastball.core.config.FastballConfig;
 import dev.fastball.core.utils.JsonUtils;
 import dev.fastball.core.utils.YamlUtils;
+import dev.fastball.generate.exception.GenerateException;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
@@ -33,7 +34,7 @@ public class ResourceUtils {
         try (InputStream inputStream = menuResource.getInputStream()) {
             return YamlUtils.fromYaml(inputStream, FastballConfig.class);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new GenerateException(e);
         }
     }
 
@@ -42,14 +43,14 @@ public class ResourceUtils {
             return Arrays.stream(getResourceResolver(classLoader).getResources("classpath*:/FASTBALL-INF/**/*.fbv.json"))
                     .map(resource -> {
                         try (InputStream inputStream = resource.getInputStream()) {
-                            ComponentInfo<?> componentInfo = JsonUtils.fromJson(inputStream, ComponentInfo_AutoValue.class);
+                            ComponentInfo<?> componentInfo = JsonUtils.fromJson(inputStream, ComponentInfo_AutoValue.class, classLoader);
                             return componentInfo;
                         } catch (IOException e) {
-                            throw new RuntimeException(e);
+                            throw new GenerateException(e);
                         }
                     }).collect(Collectors.toList());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new GenerateException(e);
         }
     }
 
