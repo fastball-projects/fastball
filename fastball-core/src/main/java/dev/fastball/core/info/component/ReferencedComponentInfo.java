@@ -1,16 +1,15 @@
-package dev.fastball.core.component;
+package dev.fastball.core.info.component;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import dev.fastball.auto.value.annotation.AutoValue;
-import dev.fastball.core.RefComponentSerialize;
 
 /**
  * @author gr@fastball.dev
  * @since 2022/12/18
  */
 @AutoValue
-@JsonDeserialize(as = ReferencedComponentInfo_AutoValue.class)
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 public interface ReferencedComponentInfo {
     String componentClass();
 

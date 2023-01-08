@@ -1,13 +1,13 @@
 package dev.fastball.generate.generator;
 
-import dev.fastball.core.component.ComponentInfo;
 import dev.fastball.core.config.FastballConfig;
+import dev.fastball.core.config.Menu;
+import dev.fastball.core.info.component.ComponentInfo;
 import dev.fastball.core.utils.JsonUtils;
 import dev.fastball.generate.Constants;
 import dev.fastball.generate.exception.GenerateException;
-import dev.fastball.generate.utils.GeneratorUtils;
-import dev.fastball.core.config.Menu;
 import dev.fastball.generate.model.Route;
+import dev.fastball.generate.utils.GeneratorUtils;
 import dev.fastball.generate.utils.ResourceUtils;
 import org.apache.commons.io.FileUtils;
 

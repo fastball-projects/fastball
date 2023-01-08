@@ -1,4 +1,4 @@
-package dev.fastball.core.component;
+package dev.fastball.core.info.component;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 

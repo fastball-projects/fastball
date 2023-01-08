@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import dev.fastball.core.component.runtime.ComponentRegistry;
+import dev.fastball.core.component.runtime.LookupActionRegistry;
 import dev.fastball.runtime.spring.FastballComponentController;
 import dev.fastball.runtime.spring.FastballComponentPostProcessor;
 import dev.fastball.runtime.spring.FastballComponentRegistryPostProcessor;
@@ -40,15 +41,22 @@ public class FastballRuntimeConfiguration implements WebMvcConfigurer {
         return new ComponentRegistry();
     }
 
+
     @Bean
     @ConditionalOnMissingBean
-    public FastballComponentController componentController(ComponentRegistry componentRegistry, ObjectMapper objectMapper) {
-        return new FastballComponentController(componentRegistry, objectMapper);
+    public LookupActionRegistry lookupActionRegistry() {
+        return new LookupActionRegistry();
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public FastballComponentPostProcessor componentPostProcessor(ComponentRegistry componentRegistry) {
-        return new FastballComponentPostProcessor(componentRegistry);
+    public FastballComponentController componentController(ComponentRegistry componentRegistry, LookupActionRegistry lookupActionRegistry, ObjectMapper objectMapper) {
+        return new FastballComponentController(componentRegistry, lookupActionRegistry, objectMapper);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public FastballComponentPostProcessor componentPostProcessor(ComponentRegistry componentRegistry, LookupActionRegistry lookupActionRegistry) {
+        return new FastballComponentPostProcessor(componentRegistry, lookupActionRegistry);
     }
 }

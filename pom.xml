@@ -36,6 +36,9 @@
         <maven-plugin-annotations.version>3.3</maven-plugin-annotations.version>
         <maven-plugin-plugin.version>3.6.4</maven-plugin-plugin.version>
 
+        <javax.validation.version>2.0.1.Final</javax.validation.version>
+        <jakarta.validation.version>3.0.2</jakarta.validation.version>
+
         <slf4j.version>1.7.36</slf4j.version>
         <spring.version>5.3.24</spring.version>
         <spring-boot.version>2.7.7</spring-boot.version>
@@ -68,6 +71,19 @@
                 <version>${slf4j.version}</version>
             </dependency>
             <!-- Common end -->
+
+            <!-- J2EE Jakarta start -->
+            <dependency>
+                <groupId>javax.validation</groupId>
+                <artifactId>validation-api</artifactId>
+                <version>${javax.validation.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>jakarta.validation</groupId>
+                <artifactId>jakarta.validation-api</artifactId>
+                <version>${jakarta.validation.version}</version>
+            </dependency>
+            <!-- J2EE Jakarta end -->
 
             <!-- Apache start -->
             <dependency>

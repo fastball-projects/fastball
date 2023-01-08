@@ -1,7 +1,5 @@
 package dev.fastball.compile.exception;
 
-import java.io.IOException;
-
 /**
  * @author gr@fastball.dev
  * @since 2022/12/19

@@ -1,13 +1,11 @@
 package dev.fastball.compile.processor;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.fastball.compile.CompileContext;
 import dev.fastball.compile.ComponentCompiler;
 import dev.fastball.compile.ComponentCompilerLoader;
 import dev.fastball.compile.exception.CompilerException;
-import dev.fastball.core.component.ComponentInfo;
-import dev.fastball.core.component.ComponentInfo_AutoValue;
+import dev.fastball.core.info.component.ComponentInfo;
+import dev.fastball.core.info.component.ComponentInfo_AutoValue;
 import dev.fastball.core.material.MaterialRegistry;
 import dev.fastball.core.utils.JsonUtils;
 
@@ -37,8 +35,6 @@ import static dev.fastball.core.Constants.FASTBALL_VIEW_SUFFIX;
 @SupportedAnnotationTypes("dev.fastball.core.annotation.UIComponent")
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class FastballComponentCompileProcessor extends AbstractProcessor {
-
-    ObjectMapper objectMapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
     MaterialRegistry materialRegistry = new MaterialRegistry(FastballComponentCompileProcessor.class.getClassLoader());
 
@@ -71,7 +67,7 @@ public class FastballComponentCompileProcessor extends AbstractProcessor {
                 try {
                     FileObject file = processingEnv.getFiler().createResource(StandardLocation.CLASS_OUTPUT, "", relativeName);
                     try (OutputStream out = file.openOutputStream()) {
-                        objectMapper.writerWithDefaultPrettyPrinter().writeValue(out, componentInfo);
+                        JsonUtils.writeJson(out, componentInfo);
                     }
                 } catch (IOException e) {
                     throw new CompilerException(e);

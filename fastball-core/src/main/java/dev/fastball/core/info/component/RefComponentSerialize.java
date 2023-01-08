@@ -1,4 +1,4 @@
-package dev.fastball.core;
+package dev.fastball.core.info.component;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;

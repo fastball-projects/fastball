@@ -10,4 +10,6 @@ public interface Constants {
     String FASTBALL_MATERIAL_PATTERN = "/fastball-material.yml";
 
     String REF_COMPONENT_GENERATE_CODE_JSON_SERIALIZE_ATTR = "___generate_code___";
+
+    String LOOKUP_ACTION_METHOD_NAME = "loadLookupItems";
 }

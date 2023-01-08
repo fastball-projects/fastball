@@ -1,8 +1,8 @@
 package dev.fastball.generate.utils;
 
-import dev.fastball.core.component.ComponentInfo;
-import dev.fastball.core.component.ComponentInfo_AutoValue;
 import dev.fastball.core.config.FastballConfig;
+import dev.fastball.core.info.component.ComponentInfo;
+import dev.fastball.core.info.component.ComponentInfo_AutoValue;
 import dev.fastball.core.utils.JsonUtils;
 import dev.fastball.core.utils.YamlUtils;
 import dev.fastball.generate.exception.GenerateException;

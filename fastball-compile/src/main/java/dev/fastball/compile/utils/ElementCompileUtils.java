@@ -8,15 +8,18 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.*;
 import javax.lang.model.util.ElementFilter;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * @author gr@fastball.dev
  * @since 2022/12/30
  */
-public class CompileUtils {
+public class ElementCompileUtils {
 
-    private CompileUtils() {
+    private ElementCompileUtils() {
     }
 
     public static List<? extends TypeMirror> getTypeMirrorFromAnnotationValues(AnnotationClassGetter c) {

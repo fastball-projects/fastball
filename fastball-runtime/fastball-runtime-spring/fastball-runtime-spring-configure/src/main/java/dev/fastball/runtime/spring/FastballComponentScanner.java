@@ -1,5 +1,6 @@
 package dev.fastball.runtime.spring;
 
+import dev.fastball.core.annotation.LookupComponent;
 import dev.fastball.core.annotation.UIComponent;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -13,6 +14,7 @@ import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.util.ClassUtils;
 
+import java.lang.annotation.Annotation;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -21,9 +23,15 @@ import java.util.stream.Collectors;
  * @since 2023/1/4
  */
 public class FastballComponentScanner extends ClassPathBeanDefinitionScanner {
+
+    private static final Class<? extends Annotation>[] INCLUDED_ANNOTATION_TYPES = new Class[]{
+            UIComponent.class,
+            LookupComponent.class
+    };
+
     public FastballComponentScanner(BeanDefinitionRegistry registry) {
         super(registry, false);
-        addIncludeFilter(new AnnotationTypeFilter(UIComponent.class));
+        Arrays.stream(INCLUDED_ANNOTATION_TYPES).map(AnnotationTypeFilter::new).forEach(this::addIncludeFilter);
         setBeanNameGenerator(FullyQualifiedAnnotationBeanNameGenerator.INSTANCE);
     }
 

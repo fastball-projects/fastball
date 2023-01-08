@@ -6,8 +6,6 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 
 import java.io.IOException;
 
-import static dev.fastball.core.Constants.REF_COMPONENT_GENERATE_CODE_JSON_SERIALIZE_ATTR;
-
 /**
  * @author gr@fastball.dev
  * @since 2022/12/25

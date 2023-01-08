@@ -1,7 +1,6 @@
-package dev.fastball.core.component;
+package dev.fastball.core.info.component;
 
 import dev.fastball.auto.value.annotation.AutoValue;
-import dev.fastball.core.component.ComponentProps;
 import dev.fastball.core.material.UIMaterial;
 
 /**

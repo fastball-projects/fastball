@@ -13,11 +13,11 @@ import java.io.OutputStream;
  * @author gr@fastball.dev
  * @since 2023/1/5
  */
-public class NodeJsUtils {
-    private NodeJsUtils() {
+public class ExecUtils {
+    private ExecUtils() {
     }
 
-    private static final Logger LOG = LoggerFactory.getLogger(NodeJsUtils.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ExecUtils.class);
 
     /**
      * 执行本地命令

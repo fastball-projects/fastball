@@ -1,6 +1,6 @@
 package dev.fastball.generate.generator;
 
-import dev.fastball.core.component.ComponentInfo;
+import dev.fastball.core.info.component.ComponentInfo;
 import dev.fastball.core.utils.JsonUtils;
 import dev.fastball.generate.exception.GenerateException;
 import dev.fastball.generate.model.Package;

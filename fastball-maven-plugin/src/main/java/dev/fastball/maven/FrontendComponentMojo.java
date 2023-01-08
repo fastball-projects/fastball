@@ -1,7 +1,7 @@
 package dev.fastball.maven;
 
 import dev.fastball.generate.generator.PortalCodeGenerator;
-import dev.fastball.generate.utils.NodeJsUtils;
+import dev.fastball.generate.utils.ExecUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -36,11 +36,11 @@ public class FrontendComponentMojo extends AbstractMojo {
         File generatedCodeDir = new File(project.getBuild().getDirectory(), GENERATED_PATH);
         PortalCodeGenerator.generate(generatedCodeDir, projectClassLoader);
         try {
-            NodeJsUtils.checkNodeAndPNPM();
+            ExecUtils.checkNodeAndPNPM();
             OutputStream infoOut = new MavenLogOutputStream(getLog(), MavenLogOutputStream.LogLevel.INFO);
             OutputStream errorOut = new MavenLogOutputStream(getLog(), MavenLogOutputStream.LogLevel.ERROR);
-            NodeJsUtils.exec("pnpm i", generatedCodeDir, infoOut, errorOut);
-            NodeJsUtils.exec("pnpm run build", generatedCodeDir, infoOut, errorOut);
+            ExecUtils.exec("pnpm i", generatedCodeDir, infoOut, errorOut);
+            ExecUtils.exec("pnpm run build", generatedCodeDir, infoOut, errorOut);
             File staticResourceDir = new File(project.getBuild().getOutputDirectory(), "static");
             FileUtils.copyDirectory(new File(generatedCodeDir, "dist"), staticResourceDir);
         } catch (IOException e) {

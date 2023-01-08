@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import static dev.fastball.core.Constants.REF_COMPONENT_GENERATE_CODE_JSON_SERIALIZE_ATTR;
 
@@ -67,5 +68,9 @@ public class JsonUtils {
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static void writeJson(OutputStream out, Object obj) throws IOException {
+        OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValue(out, obj);
     }
 }

@@ -2,16 +2,19 @@ package dev.fastball.compile;
 
 import dev.fastball.compile.exception.CompilerException;
 import dev.fastball.compile.utils.AnnotationClassGetter;
-import dev.fastball.compile.utils.CompileUtils;
+import dev.fastball.compile.utils.ElementCompileUtils;
 import dev.fastball.core.annotation.UIComponent;
-import dev.fastball.core.component.*;
+import dev.fastball.core.component.Component;
+import dev.fastball.core.info.component.*;
 
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -52,7 +55,7 @@ public abstract class AbstractComponentCompiler<T extends Component, P extends C
     }
 
     protected List<TypeElement> getGenericTypes(CompileContext compileContext) {
-        DeclaredType declaredType = CompileUtils.getDeclaredInterface(basicComponentClass, compileContext.getComponentElement());
+        DeclaredType declaredType = ElementCompileUtils.getDeclaredInterface(basicComponentClass, compileContext.getComponentElement());
         if (declaredType == null) {
             return Collections.emptyList();
         }
@@ -61,7 +64,7 @@ public abstract class AbstractComponentCompiler<T extends Component, P extends C
     }
 
     protected ReferencedComponentInfo getReferencedComponentInfo(P props, AnnotationClassGetter annotationClassGetter) {
-        TypeMirror popupComponentClass = CompileUtils.getTypeMirrorFromAnnotationValue(annotationClassGetter);
+        TypeMirror popupComponentClass = ElementCompileUtils.getTypeMirrorFromAnnotationValue(annotationClassGetter);
         if (popupComponentClass == null) {
             throw new RuntimeException("can't happened");
         }
@@ -86,7 +89,7 @@ public abstract class AbstractComponentCompiler<T extends Component, P extends C
 
     @Override
     public boolean support(CompileContext componentContext) {
-        return CompileUtils.isAssignableFrom(basicComponentClass, componentContext);
+        return ElementCompileUtils.isAssignableFrom(basicComponentClass, componentContext);
     }
 
     protected Class<T> getBasicComponentClass() {

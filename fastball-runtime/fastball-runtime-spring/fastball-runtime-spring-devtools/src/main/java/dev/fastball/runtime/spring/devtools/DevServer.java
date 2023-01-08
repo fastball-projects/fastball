@@ -2,7 +2,7 @@ package dev.fastball.runtime.spring.devtools;
 
 import dev.fastball.generate.exception.GenerateException;
 import dev.fastball.generate.generator.PortalCodeGenerator;
-import dev.fastball.generate.utils.NodeJsUtils;
+import dev.fastball.generate.utils.ExecUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
@@ -42,9 +42,9 @@ public class DevServer implements WebMvcConfigurer, InitializingBean, Applicatio
         OutputStream infoOut = new Slf4jLogOutputStream(log, Slf4jLogOutputStream.LogLevel.INFO);
         OutputStream errorOut = new Slf4jLogOutputStream(log, Slf4jLogOutputStream.LogLevel.ERROR);
         try {
-            NodeJsUtils.checkNodeAndPNPM();
-            NodeJsUtils.exec("pnpm i", generatedCodeDir, infoOut, errorOut);
-            NodeJsUtils.execAsync("pnpm run dev --open", generatedCodeDir, infoOut, errorOut);
+            ExecUtils.checkNodeAndPNPM();
+            ExecUtils.exec("pnpm i", generatedCodeDir, infoOut, errorOut);
+            ExecUtils.execAsync("pnpm run dev --open", generatedCodeDir, infoOut, errorOut);
         } catch (IOException e) {
             throw new GenerateException(e);
         }

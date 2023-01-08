@@ -3,10 +3,13 @@ package dev.fastball.runtime.spring;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.fastball.core.component.LookupAction;
+import dev.fastball.core.component.NoArgsLookupAction;
 import dev.fastball.core.component.runtime.ComponentBean;
 import dev.fastball.core.component.runtime.ComponentRegistry;
+import dev.fastball.core.component.runtime.LookupActionBean;
+import dev.fastball.core.component.runtime.LookupActionRegistry;
 import lombok.RequiredArgsConstructor;
-import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,15 +28,35 @@ import java.lang.reflect.Type;
  */
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/fastball/component")
+@RequestMapping("/api/fastball")
 public class FastballComponentController {
     private final ComponentRegistry componentRegistry;
+    private final LookupActionRegistry lookupActionRegistry;
     private final ObjectMapper objectMapper;
 
-    @PostMapping("/{componentKey}/action/{actionKey}")
-    public Object invokeComponentAction(@PathVariable String componentKey, @PathVariable String actionKey, ServletRequest request) throws IOException, BindException, InvocationTargetException, IllegalAccessException {
+    @PostMapping("/component/{componentKey}/action/{actionKey}")
+    public Object invokeComponentAction(@PathVariable String componentKey, @PathVariable String actionKey, ServletRequest request) throws IOException, InvocationTargetException, IllegalAccessException {
         ComponentBean componentBean = componentRegistry.getComponentBean(componentKey);
         Method actionMethod = componentBean.getMethodMap().get(actionKey);
+        return invokeActionMethod(componentBean.getComponent(), actionMethod, request);
+    }
+
+    @PostMapping("/lookup/{lookupKey}")
+    public Object loadLookupItems(@PathVariable String lookupKey, ServletRequest request) throws IOException, InvocationTargetException, IllegalAccessException {
+        LookupActionBean lookupActionBean = lookupActionRegistry.getLookupActionBean(lookupKey);
+        if (lookupActionBean == null) {
+            throw new RuntimeException("Lookup action not found");
+        }
+        LookupAction<?, ?> lookupAction = lookupActionBean.getLookupAction();
+        if (lookupAction instanceof NoArgsLookupAction) {
+            return ((NoArgsLookupAction<?>) lookupAction).loadLookupItems();
+        }
+        Method actionMethod = lookupActionBean.getLookupMethod();
+        return invokeActionMethod(lookupActionBean, actionMethod, request);
+    }
+
+
+    private Object invokeActionMethod(Object bean, Method actionMethod, ServletRequest request) throws IOException, InvocationTargetException, IllegalAccessException {
         Parameter[] parameterList = actionMethod.getParameters();
         JsonNode jsonNode = objectMapper.readTree(request.getInputStream());
         Object[] params = new Object[jsonNode.size()];
@@ -45,14 +68,8 @@ public class FastballComponentController {
                     return parameter.getParameterizedType();
                 }
             });
-//            DataBinder binder = new DataBinder(param, parameter.getName());
-//            binder.addValidators(validatorFactoryBean);
-//            binder.validate();
-//            if (binder.getBindingResult().hasErrors()) {
-//                throw new BindException(binder.getBindingResult());
-//            }
             params[i] = param;
         }
-        return actionMethod.invoke(componentBean.getComponent(), params);
+        return actionMethod.invoke(bean, params);
     }
 }
