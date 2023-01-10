@@ -55,8 +55,8 @@ public class ComponentCodeGenerator {
         }
         StringBuilder importComponents = new StringBuilder();
         for (ReferencedComponentInfo ref : props.referencedComponentInfoList()) {
-            importComponents.append("import ").append(ref.component()).append(" from '")
-                    .append(ref.componentPackage()).append("/components/").append(ref.componentName()).append("';\n");
+            importComponents.append("import ").append(ref.getComponent()).append(" from '")
+                    .append(ref.getComponentPackage()).append("/components/").append(ref.getComponentName()).append("';\n");
         }
         return importComponents.toString();
     }

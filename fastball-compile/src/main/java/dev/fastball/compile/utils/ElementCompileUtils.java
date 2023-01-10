@@ -1,6 +1,10 @@
 package dev.fastball.compile.utils;
 
 import dev.fastball.compile.CompileContext;
+import dev.fastball.compile.exception.CompilerException;
+import dev.fastball.core.annotation.UIComponent;
+import dev.fastball.core.info.component.ComponentProps;
+import dev.fastball.core.info.component.ReferencedComponentInfo;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ExecutableElement;
@@ -8,10 +12,7 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.*;
 import javax.lang.model.util.ElementFilter;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * @author gr@fastball.dev
@@ -20,6 +21,34 @@ import java.util.TreeMap;
 public class ElementCompileUtils {
 
     private ElementCompileUtils() {
+    }
+
+    public static ReferencedComponentInfo getReferencedComponentInfo(ComponentProps props, AnnotationClassGetter annotationClassGetter) {
+        TypeMirror popupComponentClass = ElementCompileUtils.getTypeMirrorFromAnnotationValue(annotationClassGetter);
+        if (popupComponentClass == null) {
+            throw new CompilerException("can't happened");
+        }
+        TypeElement componentTypeElement = (TypeElement) ((DeclaredType) popupComponentClass).asElement();
+        return ElementCompileUtils.getReferencedComponentInfo(props, componentTypeElement);
+    }
+
+    public static ReferencedComponentInfo getReferencedComponentInfo(ComponentProps props, TypeElement componentTypeElement) {
+        if (props.referencedComponentInfoList() == null) {
+            props.referencedComponentInfoList(new HashSet<>());
+        }
+        String componentKey = getComponentKey(componentTypeElement);
+        if (componentKey == null || componentKey.equals(props.componentKey())) {
+            return null;
+        }
+        ReferencedComponentInfo refComponentInfo = new ReferencedComponentInfo();
+        String path = componentTypeElement.getQualifiedName().toString().replace("\\.", "/");
+        refComponentInfo.setComponent("Component___" + (props.referencedComponentInfoList().size() + 1));
+        refComponentInfo.setComponentClass(componentTypeElement.getQualifiedName().toString());
+        refComponentInfo.setComponentPackage("@");
+        refComponentInfo.setComponentPath(path);
+        refComponentInfo.setComponentName(getComponentKey(componentTypeElement));
+        props.referencedComponentInfoList().add(refComponentInfo);
+        return refComponentInfo;
     }
 
     public static List<? extends TypeMirror> getTypeMirrorFromAnnotationValues(AnnotationClassGetter c) {
@@ -52,6 +81,14 @@ public class ElementCompileUtils {
         return methodMap;
     }
 
+    public static String getComponentKey(TypeElement componentElement) {
+        UIComponent frontendComponentAnnotation = componentElement.getAnnotation(UIComponent.class);
+        if (frontendComponentAnnotation.value().isEmpty()) {
+            return componentElement.getSimpleName().toString();
+        }
+        return frontendComponentAnnotation.value();
+    }
+
     public static boolean isAssignableFrom(Class<?> clazz, CompileContext compileContext) {
         return isAssignableFrom(clazz, compileContext.getComponentElement(), compileContext.getProcessingEnv());
     }
@@ -71,7 +108,7 @@ public class ElementCompileUtils {
         return null;
     }
 
-    private static boolean isAssignableFrom(Class<?> clazz, TypeElement element, ProcessingEnvironment processingEnv) {
+    public static boolean isAssignableFrom(Class<?> clazz, TypeElement element, ProcessingEnvironment processingEnv) {
         for (TypeMirror anInterface : element.getInterfaces()) {
             TypeElement superInterface = (TypeElement) processingEnv.getTypeUtils().asElement(anInterface);
             if (clazz.getCanonicalName().equals(superInterface.getQualifiedName().toString())) {

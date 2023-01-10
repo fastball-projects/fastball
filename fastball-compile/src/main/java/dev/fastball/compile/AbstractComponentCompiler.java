@@ -3,10 +3,18 @@ package dev.fastball.compile;
 import dev.fastball.compile.exception.CompilerException;
 import dev.fastball.compile.utils.AnnotationClassGetter;
 import dev.fastball.compile.utils.ElementCompileUtils;
-import dev.fastball.core.annotation.UIComponent;
+import dev.fastball.core.annotation.Action;
+import dev.fastball.core.annotation.RecordAction;
 import dev.fastball.core.component.Component;
-import dev.fastball.core.info.component.*;
+import dev.fastball.core.info.action.ActionInfo;
+import dev.fastball.core.info.action.ApiActionInfo;
+import dev.fastball.core.info.action.PopupActionInfo;
+import dev.fastball.core.info.component.ComponentInfo;
+import dev.fastball.core.info.component.ComponentInfo_AutoValue;
+import dev.fastball.core.info.component.ComponentProps;
+import dev.fastball.core.info.component.ReferencedComponentInfo;
 
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
@@ -25,33 +33,26 @@ public abstract class AbstractComponentCompiler<T extends Component, P extends C
 
     private final Class<T> basicComponentClass = getBasicComponentClass();
 
-    protected abstract P compileProps(CompileContext compileContext);
+    protected abstract P buildProps(CompileContext compileContext);
 
     protected abstract String getComponentName();
+
+    protected void compileProps(P props, CompileContext compileContext) {
+    }
 
     @Override
     public ComponentInfo<P> compile(CompileContext compileContext) {
         ComponentInfo_AutoValue<P> componentInfo = new ComponentInfo_AutoValue<>();
 
-        P props = compileProps(compileContext);
+        P props = buildProps(compileContext);
+        props.componentKey(ElementCompileUtils.getComponentKey(compileContext.getComponentElement()));
+        compileProps(props, compileContext);
         componentInfo.props(props);
-        if (props.componentKey() == null || props.componentKey().trim().isEmpty()) {
-            props.componentKey(getComponentKey(compileContext.getComponentElement()));
-        }
-
         componentInfo.material(compileContext.getMaterialRegistry().getMaterial(this.getClass()));
         componentInfo.className(compileContext.getComponentElement().getQualifiedName().toString());
         componentInfo.componentKey(props.componentKey());
         componentInfo.componentName(getComponentName());
         return componentInfo;
-    }
-
-    protected String getComponentKey(TypeElement componentElement) {
-        UIComponent frontendComponentAnnotation = componentElement.getAnnotation(UIComponent.class);
-        if (frontendComponentAnnotation.value().isEmpty()) {
-            return componentElement.getSimpleName().toString();
-        }
-        return frontendComponentAnnotation.value();
     }
 
     protected List<TypeElement> getGenericTypes(CompileContext compileContext) {
@@ -61,30 +62,6 @@ public abstract class AbstractComponentCompiler<T extends Component, P extends C
         }
         List<? extends TypeMirror> typeArguments = declaredType.getTypeArguments();
         return typeArguments.stream().map(type -> (TypeElement) compileContext.getProcessingEnv().getTypeUtils().asElement(type)).collect(Collectors.toList());
-    }
-
-    protected ReferencedComponentInfo getReferencedComponentInfo(P props, AnnotationClassGetter annotationClassGetter) {
-        TypeMirror popupComponentClass = ElementCompileUtils.getTypeMirrorFromAnnotationValue(annotationClassGetter);
-        if (popupComponentClass == null) {
-            throw new RuntimeException("can't happened");
-        }
-        TypeElement componentTypeElement = (TypeElement) ((DeclaredType) popupComponentClass).asElement();
-        return getReferencedComponentInfo(props, componentTypeElement);
-    }
-
-    protected ReferencedComponentInfo getReferencedComponentInfo(P props, TypeElement componentTypeElement) {
-        if (props.referencedComponentInfoList() == null) {
-            props.referencedComponentInfoList(new HashSet<>());
-        }
-        ReferencedComponentInfo_AutoValue refComponentInfo = new ReferencedComponentInfo_AutoValue();
-        String path = componentTypeElement.getQualifiedName().toString().replace("\\.", "/");
-        refComponentInfo.component("Component___" + (props.referencedComponentInfoList().size() + 1));
-        refComponentInfo.componentClass(componentTypeElement.getQualifiedName().toString());
-        refComponentInfo.componentPackage("@");
-        refComponentInfo.componentPath(path);
-        refComponentInfo.componentName(componentTypeElement.getSimpleName().toString());
-        props.referencedComponentInfoList().add(refComponentInfo);
-        return refComponentInfo;
     }
 
     @Override
@@ -113,5 +90,36 @@ public abstract class AbstractComponentCompiler<T extends Component, P extends C
             }
         }
         throw new CompilerException("can't happened");
+    }
+
+    protected ActionInfo buildActionInfo(ExecutableElement method) {
+        RecordAction actionAnnotation = method.getAnnotation(RecordAction.class);
+        if (actionAnnotation == null) {
+            return null;
+        }
+        ApiActionInfo actionInfo = new ApiActionInfo();
+        actionInfo.setRefresh(actionAnnotation.refresh());
+        actionInfo.setClosePopupOnSuccess(actionAnnotation.closePopupOnSuccess());
+        actionInfo.setActionKey(method.getSimpleName().toString());
+        actionInfo.setActionName(actionAnnotation.value());
+        return actionInfo;
+    }
+
+    protected PopupActionInfo buildPopupActionInfo(Action action, P props, String actonKey) {
+        PopupActionInfo actionInfo = new PopupActionInfo();
+        ReferencedComponentInfo popupComponentInfo = ElementCompileUtils.getReferencedComponentInfo(props, action::component);
+        if (popupComponentInfo == null) {
+            return null;
+        }
+        actionInfo.setPopupComponent(popupComponentInfo);
+        actionInfo.setWidth(action.width());
+        actionInfo.setPopupTitle(action.popupTitle());
+        actionInfo.setPopupType(action.popupType());
+        actionInfo.setPlacementType(action.placementType());
+        actionInfo.setActionName(action.value());
+        actionInfo.setActionKey(actonKey);
+        actionInfo.setRefresh(action.refresh());
+        actionInfo.setClosePopupOnSuccess(action.closePopupOnSuccess());
+        return actionInfo;
     }
 }

@@ -1,4 +1,4 @@
-package dev.fastball.core.info.action;
+package dev.fastball.core.info.basic;
 
 /**
  * @author gr@fastball.dev
@@ -12,5 +12,9 @@ public enum PopupType {
     /**
      * 抽屉模式
      */
-    Drawer
+    Drawer,
+    /**
+     * 悬浮气泡
+     */
+    Popover
 }

@@ -17,4 +17,6 @@ public interface LookupInfo {
     String labelField();
 
     String valueField();
+
+    boolean multiple();
 }

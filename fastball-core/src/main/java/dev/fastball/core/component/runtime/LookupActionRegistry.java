@@ -1,7 +1,7 @@
 package dev.fastball.core.component.runtime;
 
-import dev.fastball.core.annotation.LookupComponent;
-import dev.fastball.core.component.LookupAction;
+import dev.fastball.core.annotation.UIComponent;
+import dev.fastball.core.component.LookupActionComponent;
 
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -21,11 +21,11 @@ public class LookupActionRegistry {
         return lookupActionBeanMap.get(lookupActionKey);
     }
 
-    public void register(LookupAction<?, ?> lookupAction) {
-        Class<? extends LookupAction> lookupActionClass = lookupAction.getClass();
+    public void register(LookupActionComponent lookupAction) {
+        Class<? extends LookupActionComponent> lookupActionClass = lookupAction.getClass();
         LookupActionBean lookupActionBean = new LookupActionBean();
         lookupActionBean.setLookupAction(lookupAction);
-        LookupComponent frontendComponentAnnotation = lookupActionClass.getAnnotation(LookupComponent.class);
+        UIComponent frontendComponentAnnotation = lookupActionClass.getAnnotation(UIComponent.class);
         String lookupActionKey = frontendComponentAnnotation.value();
         if (frontendComponentAnnotation.value().isEmpty()) {
             lookupActionKey = lookupActionClass.getSimpleName();
@@ -40,7 +40,7 @@ public class LookupActionRegistry {
             return null;
         }
         for (Method declaredMethod : lookupActionClass.getDeclaredMethods()) {
-            if (declaredMethod.getName().equals(LOOKUP_ACTION_METHOD_NAME) && declaredMethod.getParameters().length == 1) {
+            if (declaredMethod.getName().equals(LOOKUP_ACTION_METHOD_NAME)) {
                 return declaredMethod;
             }
         }

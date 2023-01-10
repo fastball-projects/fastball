@@ -1,6 +1,5 @@
 package dev.fastball.runtime.spring;
 
-import dev.fastball.core.annotation.LookupComponent;
 import dev.fastball.core.annotation.UIComponent;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -25,8 +24,7 @@ import java.util.stream.Collectors;
 public class FastballComponentScanner extends ClassPathBeanDefinitionScanner {
 
     private static final Class<? extends Annotation>[] INCLUDED_ANNOTATION_TYPES = new Class[]{
-            UIComponent.class,
-            LookupComponent.class
+            UIComponent.class
     };
 
     public FastballComponentScanner(BeanDefinitionRegistry registry) {

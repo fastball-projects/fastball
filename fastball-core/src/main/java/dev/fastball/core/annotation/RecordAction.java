@@ -19,4 +19,8 @@ public @interface RecordAction {
      * @return 按钮的显示文本
      */
     String value() default "";
+
+    boolean refresh() default true;
+
+    boolean closePopupOnSuccess() default true;
 }

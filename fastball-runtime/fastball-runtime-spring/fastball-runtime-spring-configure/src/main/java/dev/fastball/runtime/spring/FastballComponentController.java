@@ -3,8 +3,7 @@ package dev.fastball.runtime.spring;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.fastball.core.component.LookupAction;
-import dev.fastball.core.component.NoArgsLookupAction;
+import dev.fastball.core.component.LookupActionComponent;
 import dev.fastball.core.component.runtime.ComponentBean;
 import dev.fastball.core.component.runtime.ComponentRegistry;
 import dev.fastball.core.component.runtime.LookupActionBean;
@@ -47,20 +46,17 @@ public class FastballComponentController {
         if (lookupActionBean == null) {
             throw new RuntimeException("Lookup action not found");
         }
-        LookupAction<?, ?> lookupAction = lookupActionBean.getLookupAction();
-        if (lookupAction instanceof NoArgsLookupAction) {
-            return ((NoArgsLookupAction<?>) lookupAction).loadLookupItems();
-        }
+        LookupActionComponent lookupActionComponent = lookupActionBean.getLookupAction();
         Method actionMethod = lookupActionBean.getLookupMethod();
-        return invokeActionMethod(lookupActionBean, actionMethod, request);
+        return invokeActionMethod(lookupActionComponent, actionMethod, request);
     }
 
 
     private Object invokeActionMethod(Object bean, Method actionMethod, ServletRequest request) throws IOException, InvocationTargetException, IllegalAccessException {
         Parameter[] parameterList = actionMethod.getParameters();
         JsonNode jsonNode = objectMapper.readTree(request.getInputStream());
-        Object[] params = new Object[jsonNode.size()];
-        for (int i = 0; i < jsonNode.size(); i++) {
+        Object[] params = new Object[parameterList.length];
+        for (int i = 0; i < Math.min(jsonNode.size(), params.length); i++) {
             Parameter parameter = parameterList[i];
             Object param = objectMapper.readValue(jsonNode.get(i).toString(), new TypeReference<Object>() {
                 @Override

@@ -1,6 +1,7 @@
 package dev.fastball.core.annotation;
 
 
+import dev.fastball.core.info.basic.DisplayType;
 import dev.fastball.core.info.basic.FieldType;
 
 import java.lang.annotation.*;
@@ -18,7 +19,7 @@ public @interface Field {
 
     String tips() default "";
 
-    boolean display() default true;
+    DisplayType display() default DisplayType.Show;
 
     FieldType type() default FieldType.AUTO;
 }

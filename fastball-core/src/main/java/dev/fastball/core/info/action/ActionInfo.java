@@ -1,18 +1,22 @@
 package dev.fastball.core.info.action;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import lombok.Data;
 
 /**
  * @author gr@fastball.dev
  * @since 2022/12/17
  */
+@Data
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
-public interface ActionInfo {
-    String actionName();
+public abstract class ActionInfo {
+    private String actionName;
 
-    String actionKey();
+    private String actionKey;
 
-    ActionType type();
+    protected ActionType type;
 
-    boolean closeOnSuccess();
+    private boolean closePopupOnSuccess;
+
+    private boolean refresh;
 }

@@ -17,7 +17,7 @@ const HomePage = ({ routes }) => (
 const buildRoutes = (route) => {
   const routes = route.routes ? route.routes.map(buildRoutes) : []
   return (
-      <Route path={route.path} element={route.component}>
+      <Route key={route.path} path={route.path} element={route.component}>
           {routes}
       </Route>
   )

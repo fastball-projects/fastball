@@ -1,6 +1,6 @@
 package dev.fastball.core.component.runtime;
 
-import dev.fastball.core.component.LookupAction;
+import dev.fastball.core.component.LookupActionComponent;
 import lombok.Data;
 
 import java.lang.reflect.Method;
@@ -13,6 +13,6 @@ import java.lang.reflect.Method;
 public class LookupActionBean {
 
     private String lookupActionKey;
-    private LookupAction<?, ?> lookupAction;
+    private LookupActionComponent lookupAction;
     private Method lookupMethod;
 }

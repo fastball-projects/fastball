@@ -1,12 +1,12 @@
 package dev.fastball.core.info.action;
 
-import dev.fastball.auto.value.annotation.AutoValue;
+import lombok.Data;
 
 /**
  * @author gr@fastball.dev
  * @since 2022/12/9
  */
-@AutoValue
-public interface ApiActionInfo extends ActionInfo {
-    ActionType type = ActionType.API;
+@Data
+public class ApiActionInfo extends ActionInfo {
+    protected ActionType type = ActionType.API;
 }

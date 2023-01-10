@@ -1,24 +1,30 @@
 package dev.fastball.core.info.basic;
 
-import dev.fastball.auto.value.annotation.AutoValue;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author gr@fastball.dev
  * @since 2022/12/30
  */
-@AutoValue
-public interface ValidationRuleInfo {
-    Boolean required();
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class ValidationRuleInfo {
+    private Boolean required;
 
-    Number len();
+    private Number len;
 
-    Number min();
+    private Number min;
 
-    Number max();
+    private Number max;
 
-    String type();
+    private String type;
 
-    String pattern();
+    private String pattern;
 
-    String message();
+    private String message;
 }

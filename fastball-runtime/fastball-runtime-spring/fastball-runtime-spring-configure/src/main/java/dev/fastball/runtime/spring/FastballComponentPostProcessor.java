@@ -2,6 +2,7 @@ package dev.fastball.runtime.spring;
 
 import dev.fastball.core.component.Component;
 import dev.fastball.core.component.LookupAction;
+import dev.fastball.core.component.LookupActionComponent;
 import dev.fastball.core.component.runtime.ComponentRegistry;
 import dev.fastball.core.component.runtime.LookupActionRegistry;
 import lombok.RequiredArgsConstructor;
@@ -21,8 +22,8 @@ public class FastballComponentPostProcessor implements BeanPostProcessor {
         if (bean instanceof Component) {
             componentRegistry.register((Component) bean);
         }
-        if (bean instanceof LookupAction) {
-            lookupActionRegistry.register((LookupAction) bean);
+        if (bean instanceof LookupActionComponent) {
+            lookupActionRegistry.register((LookupActionComponent) bean);
         }
         return bean;
     }

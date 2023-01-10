@@ -1,18 +1,20 @@
-package dev.fastball.core.info.action;
+package dev.fastball.core.info.basic;
 
-import dev.fastball.core.info.basic.PlacementType;
-import dev.fastball.core.info.basic.PopupType;
 import dev.fastball.core.info.component.ReferencedComponentInfo;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author gr@fastball.dev
- * @since 2022/12/9
+ * @since 2023/1/10
  */
 @Data
-public class PopupActionInfo extends ActionInfo {
-    protected ActionType type = ActionType.Popup;
-
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class PopupInfo {
     private Integer width;
 
     private String popupTitle;

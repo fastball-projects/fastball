@@ -136,7 +136,12 @@ public enum FieldType {
     /**
      * 级联选择器
      */
-    CASCADER("cascader");
+    CASCADER("cascader"),
+
+    /**
+     * 弹出
+     */
+    POPUP("popup");
 
     FieldType(String type) {
         this.type = type;

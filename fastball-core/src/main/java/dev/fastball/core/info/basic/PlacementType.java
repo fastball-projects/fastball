@@ -1,14 +1,14 @@
-package dev.fastball.core.info.action;
+package dev.fastball.core.info.basic;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
- * 抽屉的方向
+ * 弹出的方向
  *
  * @author gr@fastball.dev
  * @since 2023/01/02
  */
-public enum DrawerPlacementType {
+public enum PlacementType {
     /**
      * 从上方
      */
@@ -29,7 +29,7 @@ public enum DrawerPlacementType {
     @JsonValue
     private String value;
 
-    DrawerPlacementType(String value) {
+    PlacementType(String value) {
         this.value = value;
     }
 }

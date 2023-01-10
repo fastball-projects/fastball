@@ -29,13 +29,13 @@ public interface FieldInfo {
 
     void valueType(String valueType);
 
-    Map<String, Object> valueEnum();
+    Map<String, EnumItem> valueEnum();
 
-    void valueEnum(Map<String, Object> valueEnum);
+    void valueEnum(Map<String, EnumItem> valueEnum);
 
-    boolean display();
+    DisplayType display();
 
-    void display(boolean display);
+    void display(DisplayType display);
 
     Object fieldProps();
 
@@ -48,6 +48,10 @@ public interface FieldInfo {
     LookupInfo lookupAction();
 
     void lookupAction(LookupInfo lookupAction);
+
+    PopupInfo popupInfo();
+
+    void popupInfo(PopupInfo popupInfo);
 
     List<ValidationRuleInfo> validationRules();
 
