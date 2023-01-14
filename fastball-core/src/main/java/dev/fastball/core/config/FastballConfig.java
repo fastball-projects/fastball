@@ -11,5 +11,7 @@ import java.util.Map;
 @Data
 public class FastballConfig {
 
+    private String theme;
+    private Map<String, String> customNpmDependencies;
     private Map<String, Menu> menus;
 }

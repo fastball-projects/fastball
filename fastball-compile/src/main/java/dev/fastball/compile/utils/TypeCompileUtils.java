@@ -2,23 +2,30 @@ package dev.fastball.compile.utils;
 
 import dev.fastball.compile.exception.CompilerException;
 import dev.fastball.core.annotation.*;
-import dev.fastball.core.info.action.PopupActionInfo;
+import dev.fastball.core.component.MainFieldComponent;
 import dev.fastball.core.info.basic.*;
 import dev.fastball.core.info.component.ComponentProps;
+import dev.fastball.core.info.component.MainFieldComponentInfo;
 import dev.fastball.core.info.component.ReferencedComponentInfo;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+
+import static dev.fastball.compile.CompileConstants.SIMPLE_FORM_LIST_VALUE_FIELD;
 
 /**
+ * TODO 字段类型编译, 这里需要优化一下
+ *
  * @author gr@fastball.dev
  * @since 2022/12/9
  */
@@ -28,12 +35,12 @@ public class TypeCompileUtils {
     }
 
     public static List<FieldInfo> compileTypeFields(TypeElement typeElement, ProcessingEnvironment processingEnv, ComponentProps props) {
-        return compileTypeFields(typeElement, processingEnv, props, FieldInfo_AutoValue::new, null);
+        return compileTypeFields(typeElement, processingEnv, props, FieldInfo::new, null);
     }
 
 
     public static List<FieldInfo> compileTypeFields(TypeElement typeElement, ProcessingEnvironment processingEnv, ComponentProps props, BiConsumer<VariableElement, FieldInfo> afterBuild) {
-        return compileTypeFields(typeElement, processingEnv, props, FieldInfo_AutoValue::new, afterBuild);
+        return compileTypeFields(typeElement, processingEnv, props, FieldInfo::new, afterBuild);
     }
 
     public static <T extends FieldInfo> List<T> compileTypeFields(TypeElement typeElement, ProcessingEnvironment processingEnv, ComponentProps props, Supplier<T> fieldBuilder) {
@@ -41,58 +48,88 @@ public class TypeCompileUtils {
     }
 
     public static <T extends FieldInfo> List<T> compileTypeFields(TypeElement typeElement, ProcessingEnvironment processingEnv, ComponentProps props, Supplier<T> fieldBuilder, BiConsumer<VariableElement, T> afterBuild) {
+        return compileTypeFields(typeElement, processingEnv, props, fieldBuilder, afterBuild, new HashSet<>());
+    }
+
+    public static <T extends FieldInfo> List<T> compileTypeFields(TypeElement typeElement, ProcessingEnvironment processingEnv, ComponentProps props, Supplier<T> fieldBuilder, BiConsumer<VariableElement, T> afterBuild, Set<TypeMirror> compiledTypes) {
         Map<String, VariableElement> fieldMap = ElementCompileUtils.getFields(typeElement, processingEnv);
-        List<T> fields = new ArrayList<>(fieldMap.size());
-        for (VariableElement fieldElement : fieldMap.values()) {
-            T field = fieldBuilder.get();
-            fields.add(field);
-            field.colProps(Collections.singletonMap("span", 12));
-            field.dataIndex(fieldElement.getSimpleName().toString());
-            Field fieldAnnotation = fieldElement.getAnnotation(Field.class);
-            if (fieldAnnotation != null) {
-                field.title(fieldAnnotation.title());
-                field.tooltip(fieldAnnotation.tips());
-                field.display(fieldAnnotation.display());
-            } else {
-                field.display(DisplayType.Show);
-                field.title(fieldElement.getSimpleName().toString());
-                field.tooltip(field.dataIndex());
-            }
-            compileType(field, fieldElement, processingEnv, props, fieldAnnotation);
-            field.validationRules(compileFieldJsr303(fieldElement));
-            if (afterBuild != null) {
-                afterBuild.accept(fieldElement, field);
-            }
-        }
-        return fields;
+        return fieldMap.values().stream()
+                .map(fieldElement -> compileField(fieldElement, processingEnv, props, fieldBuilder, afterBuild, compiledTypes))
+                .collect(Collectors.toList());
     }
 
-    public static void compileType(FieldInfo fieldInfo, VariableElement fieldElement, ProcessingEnvironment processingEnv, ComponentProps props, Field fieldAnnotation) {
+    public static <T extends FieldInfo> T compileField(VariableElement fieldElement, ProcessingEnvironment processingEnv, ComponentProps props, Supplier<T> fieldBuilder, BiConsumer<VariableElement, T> afterBuild, Set<TypeMirror> compiledTypes) {
+        T fieldInfo = fieldBuilder.get();
+        compileField(fieldElement, processingEnv, props, fieldInfo, afterBuild, compiledTypes);
+        return fieldInfo;
+    }
+
+    public static <T extends FieldInfo> void compileField(VariableElement fieldElement, ProcessingEnvironment processingEnv, ComponentProps props, T fieldInfo, BiConsumer<VariableElement, T> afterBuild, Set<TypeMirror> compiledTypes) {
+        fieldInfo.setColProps(Collections.singletonMap("span", 12));
+        fieldInfo.dataIndex(fieldElement.getSimpleName().toString());
+        Field fieldAnnotation = fieldElement.getAnnotation(Field.class);
+        if (fieldAnnotation != null) {
+            fieldInfo.setDisplay(fieldAnnotation.display());
+            fieldInfo.setTitle(fieldAnnotation.title());
+            fieldInfo.setTooltip(fieldAnnotation.tips());
+            fieldInfo.setReadonly(fieldAnnotation.readonly());
+        } else {
+            fieldInfo.setDisplay(DisplayType.Show);
+            fieldInfo.setTitle(fieldElement.getSimpleName().toString());
+        }
+        compileType(fieldInfo, fieldElement, processingEnv, props, compiledTypes);
+        fieldInfo.setValidationRules(compileFieldJsr303(fieldElement));
+        if (afterBuild != null) {
+            afterBuild.accept(fieldElement, fieldInfo);
+        }
+    }
+
+    public static ValueType compileType(FieldInfo fieldInfo, VariableElement fieldElement, ProcessingEnvironment processingEnv, ComponentProps props, Set<TypeMirror> compiledTypes) {
         TypeMirror type = fieldElement.asType();
-        FieldType fieldType = null;
-        if (type.getKind().isPrimitive()) {
-            fieldType = compilePrimitiveType(type);
-        } else if (fieldElement.getAnnotation(Popup.class) != null) {
+        if (compiledTypes.contains(type)) {
+            return ValueType.CIRCULAR;
+        }
+        compiledTypes.add(type);
+        ValueType valueType = null;
+        if (fieldElement.getAnnotation(Popup.class) != null) {
             compilePopup(fieldInfo, fieldElement, props);
-            fieldType = FieldType.POPUP;
-        } else if (fieldElement.getAnnotation(Lookup.class) != null) {
-            compileLookup(fieldInfo, fieldElement, processingEnv, fieldAnnotation);
-            fieldType = FieldType.SELECT;
+        } else {
+            if (fieldElement.getAnnotation(EditComponent.class) != null) {
+                compileEditComponent(fieldInfo, fieldElement, props);
+            }
+            if (fieldElement.getAnnotation(DisplayComponent.class) != null) {
+                compileDisplayComponent(fieldInfo, fieldElement, props);
+            }
+        }
+        if (fieldElement.getAnnotation(Lookup.class) != null) {
+            compileLookup(fieldInfo, fieldElement, processingEnv);
+            valueType = ValueType.SELECT;
         } else if (fieldElement.getAnnotation(TreeLookup.class) != null) {
-            compileTreeLookup(fieldInfo, fieldElement, processingEnv, fieldAnnotation);
-            fieldType = FieldType.TREE_SELECT;
+            compileTreeLookup(fieldInfo, fieldElement, processingEnv);
+            valueType = ValueType.TREE_SELECT;
+        } else if (fieldElement.getAnnotation(ShowField.class) != null) {
+            compileShowField(fieldInfo, fieldElement, processingEnv, props, compiledTypes);
+            valueType = ValueType.TREE_SELECT;
         } else if (type.getKind() == TypeKind.ARRAY) {
-            fieldType = compileArrayType(fieldElement, processingEnv, fieldInfo);
-        } else if (type.getKind() == TypeKind.DECLARED) {
-            fieldType = compileDeclaredType(fieldElement, processingEnv, fieldInfo);
+            valueType = compileArray((ArrayType) type, processingEnv, fieldInfo, props, compiledTypes, fieldElement);
         }
-        if (fieldType == null) {
-            fieldType = FieldType.AUTO;
+        if (valueType == null) {
+            if (type.getKind().isPrimitive()) {
+                valueType = compilePrimitiveType(type);
+            } else if (type.getKind() == TypeKind.DECLARED) {
+                valueType = compileDeclaredType(fieldElement, processingEnv, fieldInfo, props, compiledTypes);
+            }
         }
-        fieldInfo.valueType(fieldType.getType());
+        if (valueType == null) {
+            valueType = ValueType.AUTO;
+        }
+        // TODO 临时避免同级同类型字段消失, 可以优化 cache
+        compiledTypes.remove(type);
+        fieldInfo.setValueType(valueType.getType());
+        return valueType;
     }
 
-    private static FieldType compilePrimitiveType(TypeMirror type) {
+    private static ValueType compilePrimitiveType(TypeMirror type) {
         switch (type.getKind()) {
             case LONG:
             case INT:
@@ -100,39 +137,86 @@ public class TypeCompileUtils {
             case BYTE:
             case DOUBLE:
             case FLOAT:
-                return FieldType.DIGIT;
+            case CHAR:
+                return ValueType.DIGIT;
             case BOOLEAN:
-                return FieldType.SWITCH;
+                return ValueType.SWITCH;
             default:
-                return null;
+                return ValueType.AUTO;
         }
     }
 
-    private static FieldType compileCollectionType(VariableElement fieldElement, ProcessingEnvironment processingEnv, FieldInfo fieldInfo) {
-        return null;
+    private static ValueType compileCollection(DeclaredType fieldType, ProcessingEnvironment processingEnv, FieldInfo fieldInfo, ComponentProps props, Set<TypeMirror> compiledTypes, VariableElement fieldElement) {
+        return compileCollectionType(fieldType.getTypeArguments().get(0), processingEnv, fieldInfo, props, compiledTypes, fieldElement);
     }
 
-    private static FieldType compileArrayType(VariableElement fieldElement, ProcessingEnvironment processingEnv, FieldInfo fieldInfo) {
-        return null;
+    private static ValueType compileArray(ArrayType arrayType, ProcessingEnvironment processingEnv, FieldInfo fieldInfo, ComponentProps props, Set<TypeMirror> compiledTypes, VariableElement fieldElement) {
+        TypeMirror componentType = arrayType.getComponentType();
+        return compileCollectionType(componentType, processingEnv, fieldInfo, props, compiledTypes, fieldElement);
     }
 
-    private static FieldType compileDeclaredType(VariableElement fieldElement, ProcessingEnvironment processingEnv, FieldInfo fieldInfo) {
-        TypeElement typeElement = (TypeElement) ((DeclaredType) fieldElement.asType()).asElement();
+    private static ValueType compileCollectionType(TypeMirror componentType, ProcessingEnvironment processingEnv, FieldInfo fieldInfo, ComponentProps props, Set<TypeMirror> compiledTypes, VariableElement fieldElement) {
+        if (componentType.getKind().isPrimitive()) {
+            String fieldReferenceName = ((TypeElement) fieldElement.getEnclosingElement()).getQualifiedName() + ":" + fieldElement.getSimpleName();
+            throw new CompilerException("Field [" + fieldReferenceName + "] Collection primitive type [" + componentType + "] not supported, if you want multiple select, try use @Lookup");
+        } else if (componentType.getKind() == TypeKind.ARRAY) {
+            FieldInfo valueField = new FieldInfo(SIMPLE_FORM_LIST_VALUE_FIELD);
+            ValueType valueType = compileArray((ArrayType) componentType, processingEnv, valueField, props, compiledTypes, fieldElement);
+            valueField.setValueType(valueType.getType());
+            fieldInfo.setSubFields(Collections.singletonList(valueField));
+            return ValueType.SIMPLE_ARRAY;
+        } else if (componentType.getKind() == TypeKind.DECLARED) {
+            TypeElement typeElement = (TypeElement) ((DeclaredType) componentType).asElement();
+            if (ElementCompileUtils.isAssignableFrom(Iterable.class, typeElement, processingEnv)) {
+                FieldInfo valueField = new FieldInfo(SIMPLE_FORM_LIST_VALUE_FIELD);
+                ValueType valueType = compileCollectionType(componentType, processingEnv, valueField, props, compiledTypes, fieldElement);
+                valueField.setValueType(valueType.getType());
+                fieldInfo.setSubFields(Collections.singletonList(valueField));
+                return ValueType.SIMPLE_ARRAY;
+            } else if (typeElement.getKind() == ElementKind.ENUM) {
+                ValueType valueType = compileEnumType(typeElement, processingEnv, fieldInfo);
+                fieldInfo.setValueType(valueType.getType());
+                return ValueType.MULTI_SELECT;
+            } else if (typeElement.getKind() == ElementKind.CLASS) {
+                ValueType type = compileBasicClassType(typeElement, processingEnv, fieldInfo, props);
+                if (type != null) {
+                    String fieldReferenceName = ((TypeElement) fieldElement.getEnclosingElement()).getQualifiedName() + ":" + fieldElement.getSimpleName();
+                    throw new CompilerException("Field [" + fieldReferenceName + "] Collection basic type [" + typeElement + "] not supported, if you want multiple select, try use @Lookup");
+                } else {
+                    fieldInfo.setColProps(Collections.singletonMap("span", 24));
+                    fieldInfo.setFormItemProps(Collections.singletonMap("alwaysShowItemLabel", true));
+                    compileSubFields(typeElement, processingEnv, fieldInfo, props, compiledTypes);
+                    return ValueType.ARRAY;
+                }
+            }
+        }
+        String fieldReferenceName = ((TypeElement) fieldElement.getEnclosingElement()).getQualifiedName() + ":" + fieldElement.getSimpleName();
+        throw new CompilerException("Field [" + fieldReferenceName + "] Collection type [" + componentType + "] not supported");
+    }
+
+    private static ValueType compileDeclaredType(VariableElement fieldElement, ProcessingEnvironment processingEnv, FieldInfo fieldInfo, ComponentProps props, Set<TypeMirror> compiledTypes) {
+        TypeMirror fieldType = fieldElement.asType();
+        TypeElement typeElement = (TypeElement) ((DeclaredType) fieldType).asElement();
         if (ElementCompileUtils.isAssignableFrom(Iterable.class, typeElement, processingEnv)) {
-            return compileCollectionType(fieldElement, processingEnv, fieldInfo);
+            return compileCollection((DeclaredType) fieldType, processingEnv, fieldInfo, props, compiledTypes, fieldElement);
         } else {
             switch (typeElement.getKind()) {
                 case ENUM:
                     return compileEnumType(typeElement, processingEnv, fieldInfo);
                 case CLASS:
-                    return compileClassType(typeElement, processingEnv, fieldInfo);
+                    ValueType type = compileBasicClassType(typeElement, processingEnv, fieldInfo, props);
+                    if (type != null) {
+                        return type;
+                    }
+                    compileSubFields(typeElement, processingEnv, fieldInfo, props, compiledTypes);
+                    return ValueType.SUB_FIELDS;
                 default:
                     return null;
             }
         }
     }
 
-    private static FieldType compileEnumType(TypeElement typeElement, ProcessingEnvironment processingEnv, FieldInfo fieldInfo) {
+    private static ValueType compileEnumType(TypeElement typeElement, ProcessingEnvironment processingEnv, FieldInfo fieldInfo) {
         Map<String, VariableElement> enumFields = ElementCompileUtils.getFields(typeElement, processingEnv);
         Map<String, EnumItem> enumValues = new HashMap<>();
         enumFields.values().stream().filter(f -> f.getKind() == ElementKind.ENUM_CONSTANT).forEach(enumItem -> {
@@ -152,11 +236,31 @@ public class TypeCompileUtils {
             }
             enumValues.put(itemKey, item);
         });
-        fieldInfo.valueEnum(enumValues);
-        return FieldType.SELECT;
+        fieldInfo.setValueEnum(enumValues);
+        return ValueType.SELECT;
     }
 
-    private static FieldType compileClassType(TypeElement typeElement, ProcessingEnvironment processingEnv, FieldInfo fieldInfo) {
+    private static ValueType compileShowField(FieldInfo fieldInfo, VariableElement fieldElement, ProcessingEnvironment processingEnv, ComponentProps props, Set<TypeMirror> compiledTypes) {
+        TypeElement typeElement = (TypeElement) ((DeclaredType) fieldElement.asType()).asElement();
+        ShowField showFieldAnnotation = fieldElement.getAnnotation(ShowField.class);
+        if (showFieldAnnotation != null) {
+            VariableElement mainFieldElement = ElementCompileUtils.getFieldByPath(typeElement, processingEnv, showFieldAnnotation.value());
+            if (mainFieldElement == null) {
+                String fieldReferenceName = ((TypeElement) fieldElement.getEnclosingElement()).getQualifiedName() + ":" + fieldElement.getSimpleName();
+                throw new CompilerException("Field [" + fieldReferenceName + "] has annotation @ShowField([" + String.join(",", showFieldAnnotation.value()) + "]), but field path not found field");
+            }
+            ValueType valueType = compileType(fieldInfo, mainFieldElement, processingEnv, props, compiledTypes);
+            List<String> dataIndex = new ArrayList<>();
+            dataIndex.addAll(fieldInfo.getDataIndex());
+            dataIndex.addAll(Arrays.asList(showFieldAnnotation.value()));
+            fieldInfo.setDataIndex(dataIndex);
+            return valueType;
+        }
+        return null;
+    }
+
+
+    private static ValueType compileBasicClassType(TypeElement typeElement, ProcessingEnvironment processingEnv, FieldInfo fieldInfo, ComponentProps props) {
         switch (typeElement.getQualifiedName().toString()) {
             case "java.lang.Long":
             case "java.lang.Integer":
@@ -164,26 +268,76 @@ public class TypeCompileUtils {
             case "java.lang.Byte":
             case "java.lang.Double":
             case "java.lang.Float":
-                return FieldType.DIGIT;
+                return ValueType.DIGIT;
             case "java.lang.Boolean":
-                return FieldType.SWITCH;
+                return ValueType.SWITCH;
             case "java.lang.CharSequence":
             case "java.lang.String":
-                return FieldType.TEXT;
+                return ValueType.TEXT;
             case "java.time.LocalTime":
-                return FieldType.TIME;
+                return ValueType.TIME;
             case "java.time.LocalDate":
-                return FieldType.DATE;
+                return ValueType.DATE;
             case "java.util.Date":
             case "java.time.LocalDateTime":
-                return FieldType.DATE_TIME;
+                return ValueType.DATE_TIME;
             default:
-                break;
+                return null;
         }
-        return FieldType.AUTO;
     }
 
-    private static <T extends FieldInfo> void compilePopup(T field, VariableElement fieldElement, ComponentProps props) {
+    private static void compileSubFields(TypeElement typeElement, ProcessingEnvironment processingEnv, FieldInfo fieldInfo, ComponentProps props, Set<TypeMirror> compiledTypes) {
+        List<FieldInfo> subFields = compileTypeFields(typeElement, processingEnv, props, FieldInfo::new, null, compiledTypes);
+        fieldInfo.setSubFields(subFields);
+        fieldInfo.setColProps(Collections.singletonMap("span", 24));
+    }
+
+    private static <T extends FieldInfo> void compileEditComponent(T fieldInfo, VariableElement fieldElement, ComponentProps props) {
+        EditComponent useComponentAnnotation = fieldElement.getAnnotation(EditComponent.class);
+        TypeMirror componentType = ElementCompileUtils.getTypeMirrorFromAnnotationValue(useComponentAnnotation::value);
+        assert componentType != null;
+        TypeElement componentTypeElement = (TypeElement) ((DeclaredType) componentType).asElement();
+        UseComponentInfo useComponentInfo = UseComponentInfo.builder()
+                .valueKey(useComponentAnnotation.valueKey())
+                .recordKey(useComponentAnnotation.recordKey())
+                .componentInfo(ElementCompileUtils.getReferencedComponentInfo(props, componentTypeElement))
+                .build();
+        fieldInfo.setEditModeComponent(useComponentInfo);
+        fieldInfo.setFieldType(FieldType.COMPONENT.getType());
+    }
+
+    private static <T extends FieldInfo> void compileDisplayComponent(T fieldInfo, VariableElement fieldElement, ComponentProps props) {
+        DisplayComponent useComponentAnnotation = fieldElement.getAnnotation(DisplayComponent.class);
+        TypeMirror componentType = ElementCompileUtils.getTypeMirrorFromAnnotationValue(useComponentAnnotation::value);
+        assert componentType != null;
+        TypeElement componentTypeElement = (TypeElement) ((DeclaredType) componentType).asElement();
+        UseComponentInfo useComponentInfo = UseComponentInfo.builder()
+                .valueKey(useComponentAnnotation.valueKey())
+                .recordKey(useComponentAnnotation.recordKey())
+                .componentInfo(ElementCompileUtils.getReferencedComponentInfo(props, componentTypeElement))
+                .build();
+        fieldInfo.setDisplayModeComponent(useComponentInfo);
+        fieldInfo.setFieldType(FieldType.COMPONENT.getType());
+    }
+
+    private static ReferencedComponentInfo compileEditComponent(VariableElement fieldElement, TypeMirror popupComponentClass, ComponentProps props) {
+        TypeElement componentTypeElement = (TypeElement) ((DeclaredType) popupComponentClass).asElement();
+        if (MainFieldComponent.class.getCanonicalName().equals(componentTypeElement.getQualifiedName().toString())) {
+            TypeElement fieldTypeElement = (TypeElement) ((DeclaredType) fieldElement.asType()).asElement();
+            MainField mainFieldAnnotation = fieldTypeElement.getAnnotation(MainField.class);
+            if (mainFieldAnnotation == null) {
+                String fieldReferenceName = ((TypeElement) fieldElement.getEnclosingElement()).getQualifiedName() + ":" + fieldElement.getSimpleName();
+                throw new CompilerException("Field [" + fieldReferenceName + "] has annotation @UseComponent(MainFieldComponent), but Type [" + fieldTypeElement.getQualifiedName() + "] not found annotation @MainField");
+            }
+            MainFieldComponentInfo mainFieldComponentInfo = new MainFieldComponentInfo();
+            mainFieldComponentInfo.setComponentClass(MainFieldComponent.class.getSimpleName());
+            mainFieldComponentInfo.setMainField(mainFieldAnnotation.value());
+            return mainFieldComponentInfo;
+        }
+        return ElementCompileUtils.getReferencedComponentInfo(props, componentTypeElement);
+    }
+
+    private static <T extends FieldInfo> void compilePopup(T fieldInfo, VariableElement fieldElement, ComponentProps props) {
         Popup popupAnnotation = fieldElement.getAnnotation(Popup.class);
         ReferencedComponentInfo popupComponentInfo = ElementCompileUtils.getReferencedComponentInfo(props, popupAnnotation::component);
         if (popupComponentInfo == null) {
@@ -191,17 +345,21 @@ public class TypeCompileUtils {
         }
         PopupInfo popupInfo = new PopupInfo();
         popupInfo.setPopupComponent(popupComponentInfo);
-        popupInfo.setPopupTitle(popupAnnotation.popupTitle());
         popupInfo.setWidth(popupAnnotation.width());
+        popupInfo.setDataPath(popupAnnotation.dataPath());
+        popupInfo.setPopupTitle(popupAnnotation.popupTitle());
         popupInfo.setPopupType(popupAnnotation.popupType());
+        popupInfo.setTriggerType(popupAnnotation.triggerType());
         popupInfo.setPlacementType(popupAnnotation.placementType());
-        field.popupInfo(popupInfo);
+        fieldInfo.setPopup(popupInfo);
+        fieldInfo.setFieldType(FieldType.POPUP.getType());
     }
 
-    private static <T extends FieldInfo> void compileLookup(T field, VariableElement fieldElement, ProcessingEnvironment processingEnv, Field fieldAnnotation) {
+    private static <T extends FieldInfo> void compileLookup(T field, VariableElement fieldElement, ProcessingEnvironment processingEnv) {
         Lookup lookupAnnotation = fieldElement.getAnnotation(Lookup.class);
         if (lookupAnnotation != null) {
-            if (fieldAnnotation != null && fieldAnnotation.type() != FieldType.AUTO && fieldAnnotation.type() != FieldType.SELECT) {
+            Field fieldAnnotation = fieldElement.getAnnotation(Field.class);
+            if (fieldAnnotation != null && fieldAnnotation.type() != ValueType.AUTO && fieldAnnotation.type() != ValueType.SELECT) {
                 String fieldReferenceName = ((TypeElement) fieldElement.getEnclosingElement()).getQualifiedName() + ":" + fieldElement.getSimpleName();
                 throw new CompilerException("Field [" + fieldReferenceName + "] has annotation @Lookup, but @Field.type is not SELECT, try set @Field.type to FieldType.AUTO or FieldType.SELECT");
             }
@@ -220,14 +378,15 @@ public class TypeCompileUtils {
             lookupActionInfo.lookupKey(ElementCompileUtils.getComponentKey(lookupActionElement));
             lookupActionInfo.labelField(lookupAnnotation.labelField());
             lookupActionInfo.valueField(lookupAnnotation.valueField());
-            field.lookupAction(lookupActionInfo);
+            field.setLookup(lookupActionInfo);
         }
     }
 
-    private static <T extends FieldInfo> void compileTreeLookup(T field, VariableElement fieldElement, ProcessingEnvironment processingEnv, Field fieldAnnotation) {
+    private static <T extends FieldInfo> void compileTreeLookup(T field, VariableElement fieldElement, ProcessingEnvironment processingEnv) {
         TreeLookup lookupAnnotation = fieldElement.getAnnotation(TreeLookup.class);
         if (lookupAnnotation != null) {
-            if (fieldAnnotation != null && fieldAnnotation.type() != FieldType.AUTO && fieldAnnotation.type() != FieldType.TREE_SELECT) {
+            Field fieldAnnotation = fieldElement.getAnnotation(Field.class);
+            if (fieldAnnotation != null && fieldAnnotation.type() != ValueType.AUTO && fieldAnnotation.type() != ValueType.TREE_SELECT) {
                 String fieldReferenceName = ((TypeElement) fieldElement.getEnclosingElement()).getQualifiedName() + ":" + fieldElement.getSimpleName();
                 throw new CompilerException("Field [" + fieldReferenceName + "] has annotation @Lookup, but @Field.type is not TREE_SELECT, try set @Field.type to FieldType.AUTO or FieldType.TREE_SELECT");
             }
@@ -247,7 +406,7 @@ public class TypeCompileUtils {
             lookupActionInfo.labelField(lookupAnnotation.labelField());
             lookupActionInfo.valueField(lookupAnnotation.valueField());
             lookupActionInfo.childrenField(lookupAnnotation.childrenField());
-            field.lookupAction(lookupActionInfo);
+            field.setLookup(lookupActionInfo);
         }
     }
 

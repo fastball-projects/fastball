@@ -1,7 +1,6 @@
 package dev.fastball.runtime.spring;
 
 import dev.fastball.core.component.Component;
-import dev.fastball.core.component.LookupAction;
 import dev.fastball.core.component.LookupActionComponent;
 import dev.fastball.core.component.runtime.ComponentRegistry;
 import dev.fastball.core.component.runtime.LookupActionRegistry;

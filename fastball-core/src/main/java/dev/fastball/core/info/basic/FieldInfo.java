@@ -1,8 +1,11 @@
 package dev.fastball.core.info.basic;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import dev.fastball.auto.value.annotation.AutoValue;
+import dev.fastball.core.info.component.ReferencedComponentInfo;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -10,50 +13,49 @@ import java.util.Map;
  * @author gr@fastball.dev
  * @since 2022/12/9
  */
-@AutoValue
+@Data
+@NoArgsConstructor
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
-public interface FieldInfo {
-    String title();
+public class FieldInfo {
+    private String title;
 
-    void title(String title);
+    private List<String> dataIndex;
 
-    String dataIndex();
+    private String tooltip;
 
-    void dataIndex(String dataIndex);
+    private String valueType;
 
-    String tooltip();
+    private String fieldType;
 
-    void tooltip(String tooltip);
+    private Map<String, EnumItem> valueEnum;
 
-    String valueType();
+    private DisplayType display;
 
-    void valueType(String valueType);
+    private boolean readonly;
 
-    Map<String, EnumItem> valueEnum();
+    private Object fieldProps;
 
-    void valueEnum(Map<String, EnumItem> valueEnum);
+    private Object formItemProps;
 
-    DisplayType display();
+    private Map<String, Integer> colProps;
 
-    void display(DisplayType display);
+    private LookupInfo lookup;
 
-    Object fieldProps();
+    private PopupInfo popup;
 
-    void fieldProps(Object fieldProps);
+    private UseComponentInfo editModeComponent;
 
-    Map<String, Integer> colProps();
+    private UseComponentInfo displayModeComponent;
 
-    void colProps(Map<String, Integer> colProps);
+    private List<ValidationRuleInfo> validationRules;
 
-    LookupInfo lookupAction();
+    private List<FieldInfo> subFields;
 
-    void lookupAction(LookupInfo lookupAction);
+    public FieldInfo(String dataIndex) {
+        this.dataIndex = Collections.singletonList(dataIndex);
+    }
 
-    PopupInfo popupInfo();
-
-    void popupInfo(PopupInfo popupInfo);
-
-    List<ValidationRuleInfo> validationRules();
-
-    void validationRules(List<ValidationRuleInfo> validationRules);
+    public void dataIndex(String dataIndex) {
+        this.dataIndex = Collections.singletonList(dataIndex);
+    }
 }

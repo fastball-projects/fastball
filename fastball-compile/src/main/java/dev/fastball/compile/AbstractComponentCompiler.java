@@ -1,9 +1,9 @@
 package dev.fastball.compile;
 
 import dev.fastball.compile.exception.CompilerException;
-import dev.fastball.compile.utils.AnnotationClassGetter;
 import dev.fastball.compile.utils.ElementCompileUtils;
-import dev.fastball.core.annotation.Action;
+import dev.fastball.core.annotation.Popup;
+import dev.fastball.core.annotation.ViewAction;
 import dev.fastball.core.annotation.RecordAction;
 import dev.fastball.core.component.Component;
 import dev.fastball.core.info.action.ActionInfo;
@@ -21,7 +21,6 @@ import javax.lang.model.type.TypeMirror;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,6 +50,7 @@ public abstract class AbstractComponentCompiler<T extends Component, P extends C
         componentInfo.material(compileContext.getMaterialRegistry().getMaterial(this.getClass()));
         componentInfo.className(compileContext.getComponentElement().getQualifiedName().toString());
         componentInfo.componentKey(props.componentKey());
+        componentInfo.componentPath(ElementCompileUtils.getComponentPath(compileContext.getComponentElement()));
         componentInfo.componentName(getComponentName());
         return componentInfo;
     }
@@ -92,34 +92,47 @@ public abstract class AbstractComponentCompiler<T extends Component, P extends C
         throw new CompilerException("can't happened");
     }
 
-    protected ActionInfo buildActionInfo(ExecutableElement method) {
+    protected ActionInfo buildRecordActionInfo(ExecutableElement method) {
         RecordAction actionAnnotation = method.getAnnotation(RecordAction.class);
         if (actionAnnotation == null) {
             return null;
         }
-        ApiActionInfo actionInfo = new ApiActionInfo();
-        actionInfo.setRefresh(actionAnnotation.refresh());
-        actionInfo.setClosePopupOnSuccess(actionAnnotation.closePopupOnSuccess());
-        actionInfo.setActionKey(method.getSimpleName().toString());
-        actionInfo.setActionName(actionAnnotation.value());
-        return actionInfo;
+        return ApiActionInfo.builder()
+                .refresh(actionAnnotation.refresh())
+                .closePopupOnSuccess(actionAnnotation.closePopupOnSuccess())
+                .actionName(actionAnnotation.value())
+                .actionKey(method.getSimpleName().toString())
+                .build();
     }
 
-    protected PopupActionInfo buildPopupActionInfo(Action action, P props, String actonKey) {
-        PopupActionInfo actionInfo = new PopupActionInfo();
-        ReferencedComponentInfo popupComponentInfo = ElementCompileUtils.getReferencedComponentInfo(props, action::component);
-        if (popupComponentInfo == null) {
-            return null;
+    protected ActionInfo buildViewActionInfo(ViewAction viewAction, P props, String actonKey) {
+        ActionInfo actionInfo;
+        switch (viewAction.type()) {
+            case Popup:
+                Popup popup = viewAction.popup();
+                ReferencedComponentInfo popupComponentInfo = ElementCompileUtils.getReferencedComponentInfo(props, popup::component);
+                if (popupComponentInfo == null) {
+                    throw new CompilerException("@ViewAction(type=Popup) but @ViewAction.popup.component not config.");
+                }
+                actionInfo = PopupActionInfo.builder()
+                        .popupComponent(popupComponentInfo)
+                        .width(popup.width())
+                        .popupTitle(popup.popupTitle())
+                        .popupType(popup.popupType())
+                        .placementType(popup.placementType())
+                        .closePopupOnSuccess(popup.closePopupOnSuccess())
+                        .refresh(popup.refresh())
+                        .build();
+                break;
+            case Link:
+                throw new CompilerException("@ViewAction(type=Link) not supported yet");
+            case Menu:
+                throw new CompilerException("@ViewAction(type=Menu) not supported yet");
+            default:
+                throw new CompilerException("@ViewAction(type=" + viewAction.type() + ") not supported yet");
         }
-        actionInfo.setPopupComponent(popupComponentInfo);
-        actionInfo.setWidth(action.width());
-        actionInfo.setPopupTitle(action.popupTitle());
-        actionInfo.setPopupType(action.popupType());
-        actionInfo.setPlacementType(action.placementType());
-        actionInfo.setActionName(action.value());
+        actionInfo.setActionName(viewAction.value());
         actionInfo.setActionKey(actonKey);
-        actionInfo.setRefresh(action.refresh());
-        actionInfo.setClosePopupOnSuccess(action.closePopupOnSuccess());
         return actionInfo;
     }
 }

@@ -27,7 +27,7 @@ public class ComponentCodeGenerator {
     public static void generate(File generatedCodeDir, List<ComponentInfo<?>> componentInfoList) {
         File componentDir = new File(generatedCodeDir, COMPONENT_PATH);
         for (ComponentInfo<?> componentInfo : componentInfoList) {
-            File generateCodeFile = new File(componentDir, componentInfo.componentKey() + COMPONENT_SUFFIX);
+            File generateCodeFile = new File(componentDir, componentInfo.className().replaceAll("\\.", "/") + COMPONENT_SUFFIX);
             generateCodeToFile(componentInfo, generateCodeFile);
         }
     }
@@ -55,8 +55,18 @@ public class ComponentCodeGenerator {
         }
         StringBuilder importComponents = new StringBuilder();
         for (ReferencedComponentInfo ref : props.referencedComponentInfoList()) {
-            importComponents.append("import ").append(ref.getComponent()).append(" from '")
-                    .append(ref.getComponentPackage()).append("/components/").append(ref.getComponentName()).append("';\n");
+            importComponents.append("import ");
+            if (ref.isDefaultComponent()) {
+                importComponents.append(ref.getComponent());
+            } else {
+                importComponents.append("{ ").append(ref.getComponent()).append(" }");
+            }
+            importComponents.append(" from '")
+                    .append(ref.getComponentPackage());
+            if (ref.getComponentPath() != null && !ref.getComponentPath().isEmpty()) {
+                importComponents.append("/").append(ref.getComponentPath());
+            }
+            importComponents.append("';\n");
         }
         return importComponents.toString();
     }

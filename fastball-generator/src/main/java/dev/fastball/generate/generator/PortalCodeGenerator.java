@@ -36,7 +36,7 @@ public class PortalCodeGenerator {
         FastballConfig fastballConfig = ResourceUtils.loadFastballConfig(classLoader);
         List<ComponentInfo<?>> componentInfoList = ResourceUtils.loadComponentInfoList(classLoader);
         copyProjectFiles(generatedCodeDir);
-        PackageJsonGenerator.generate(generatedCodeDir, componentInfoList, Constants.Portal.PACKAGE_FILE_SOURCE_PATH);
+        PackageJsonGenerator.generate(generatedCodeDir, componentInfoList, Constants.Portal.PACKAGE_FILE_SOURCE_PATH, fastballConfig);
         ComponentCodeGenerator.generate(generatedCodeDir, componentInfoList);
         generateRoutes(generatedCodeDir, componentInfoList, fastballConfig);
     }
@@ -64,8 +64,8 @@ public class PortalCodeGenerator {
         usedComponent.forEach(componentInfo -> {
             routesCode.append("import ");
             routesCode.append(componentInfo.componentKey());
-            routesCode.append(" from '@/components/");
-            routesCode.append(componentInfo.componentKey());
+            routesCode.append(" from '@/");
+            routesCode.append(componentInfo.componentPath());
             routesCode.append("';\n\n");
         });
         try {

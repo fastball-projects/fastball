@@ -14,18 +14,11 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PopupInfo {
-    private Integer width;
+public class UseComponentInfo {
 
-    private String popupTitle;
+    private ReferencedComponentInfo componentInfo;
 
-    private String[] dataPath;
+    private String valueKey;
 
-    private PopupType popupType;
-
-    private PopupTriggerType triggerType;
-
-    private PlacementType placementType;
-
-    private ReferencedComponentInfo popupComponent;
+    private String recordKey;
 }

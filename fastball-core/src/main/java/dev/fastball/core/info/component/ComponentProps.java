@@ -1,6 +1,7 @@
 package dev.fastball.core.info.component;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import dev.fastball.core.utils.JsonUtils;
 
 import java.util.Set;
 
@@ -14,6 +15,7 @@ public interface ComponentProps {
 
     void componentKey(String componentKey);
 
+    @JsonUtils.JsonIgnoreOnGenerateCode
     Set<ReferencedComponentInfo> referencedComponentInfoList();
 
     void referencedComponentInfoList(Set<ReferencedComponentInfo> referencedComponentInfoList);

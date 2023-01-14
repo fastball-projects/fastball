@@ -3,6 +3,7 @@ package dev.fastball.compile.utils;
 import dev.fastball.compile.CompileContext;
 import dev.fastball.compile.exception.CompilerException;
 import dev.fastball.core.annotation.UIComponent;
+import dev.fastball.core.component.Component;
 import dev.fastball.core.info.component.ComponentProps;
 import dev.fastball.core.info.component.ReferencedComponentInfo;
 
@@ -13,6 +14,9 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.*;
 import javax.lang.model.util.ElementFilter;
 import java.util.*;
+
+import static dev.fastball.compile.CompileConstants.COMPONENT_IMPORT_PREFIX;
+import static dev.fastball.compile.CompileConstants.SELF_PACKAGE;
 
 /**
  * @author gr@fastball.dev
@@ -29,6 +33,9 @@ public class ElementCompileUtils {
             throw new CompilerException("can't happened");
         }
         TypeElement componentTypeElement = (TypeElement) ((DeclaredType) popupComponentClass).asElement();
+        if (Component.class.getCanonicalName().equals(componentTypeElement.getQualifiedName().toString())) {
+            return null;
+        }
         return ElementCompileUtils.getReferencedComponentInfo(props, componentTypeElement);
     }
 
@@ -41,12 +48,10 @@ public class ElementCompileUtils {
             return null;
         }
         ReferencedComponentInfo refComponentInfo = new ReferencedComponentInfo();
-        String path = componentTypeElement.getQualifiedName().toString().replace("\\.", "/");
-        refComponentInfo.setComponent("Component___" + (props.referencedComponentInfoList().size() + 1));
+        refComponentInfo.setComponent(COMPONENT_IMPORT_PREFIX + (props.referencedComponentInfoList().size() + 1));
         refComponentInfo.setComponentClass(componentTypeElement.getQualifiedName().toString());
-        refComponentInfo.setComponentPackage("@");
-        refComponentInfo.setComponentPath(path);
-        refComponentInfo.setComponentName(getComponentKey(componentTypeElement));
+        refComponentInfo.setComponentPackage(SELF_PACKAGE);
+        refComponentInfo.setComponentPath(getComponentPath(componentTypeElement));
         props.referencedComponentInfoList().add(refComponentInfo);
         return refComponentInfo;
     }
@@ -70,23 +75,38 @@ public class ElementCompileUtils {
     }
 
     public static Map<String, VariableElement> getFields(TypeElement element, ProcessingEnvironment processingEnv) {
-        Map<String, VariableElement> fieldMap = new TreeMap<>();
+        Map<String, VariableElement> fieldMap = new LinkedHashMap<>();
         loadFields(element, processingEnv, fieldMap);
         return fieldMap;
     }
 
     public static Map<String, ExecutableElement> getMethods(TypeElement element, ProcessingEnvironment processingEnv) {
-        Map<String, ExecutableElement> methodMap = new TreeMap<>();
+        Map<String, ExecutableElement> methodMap = new LinkedHashMap<>();
         loadMethods(element, processingEnv, methodMap);
         return methodMap;
     }
 
     public static String getComponentKey(TypeElement componentElement) {
         UIComponent frontendComponentAnnotation = componentElement.getAnnotation(UIComponent.class);
+        if (frontendComponentAnnotation == null) {
+            throw new CompilerException("Component class [" + componentElement.getQualifiedName() + "] not found annotation @UIComponent");
+        }
         if (frontendComponentAnnotation.value().isEmpty()) {
             return componentElement.getSimpleName().toString();
         }
         return frontendComponentAnnotation.value();
+    }
+
+    public static String getComponentPath(TypeElement componentElement) {
+        UIComponent frontendComponentAnnotation = componentElement.getAnnotation(UIComponent.class);
+        if (frontendComponentAnnotation == null) {
+            throw new CompilerException("Component class [" + componentElement.getQualifiedName() + "] not found annotation @UIComponent");
+        }
+        if (frontendComponentAnnotation.path().isEmpty()) {
+            String packageName = componentElement.getQualifiedName().toString();
+            return packageName.replaceAll("\\.", "/");
+        }
+        return frontendComponentAnnotation.path();
     }
 
     public static boolean isAssignableFrom(Class<?> clazz, CompileContext compileContext) {
@@ -144,5 +164,19 @@ public class ElementCompileUtils {
             }
         }
         ElementFilter.methodsIn(element.getEnclosedElements()).forEach(method -> methodMap.put(method.getSimpleName().toString(), method));
+    }
+
+    public static VariableElement getFieldByPath(TypeElement typeElement, ProcessingEnvironment processingEnv, String[] fieldPath) {
+        TypeElement fieldType = typeElement;
+        VariableElement fieldElement = null;
+        for (String path : fieldPath) {
+            fieldElement = getFields(fieldType, processingEnv).get(path);
+            if (fieldElement != null && fieldElement.asType() instanceof DeclaredType) {
+                fieldType = (TypeElement) ((DeclaredType) fieldElement.asType()).asElement();
+            } else {
+                return null;
+            }
+        }
+        return fieldElement;
     }
 }

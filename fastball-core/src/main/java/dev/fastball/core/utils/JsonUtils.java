@@ -6,11 +6,14 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
+import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.annotation.*;
 
 import static dev.fastball.core.Constants.REF_COMPONENT_GENERATE_CODE_JSON_SERIALIZE_ATTR;
 
@@ -33,6 +36,7 @@ public class JsonUtils {
         ContextAttributes defAttrs = ContextAttributes.getEmpty().withSharedAttribute(REF_COMPONENT_GENERATE_CODE_JSON_SERIALIZE_ATTR, true);
         COMPONENT_OBJECT_MAPPER.setSerializationInclusion(JsonInclude.Include.NON_NULL)
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                .setAnnotationIntrospector(new JsonIgnoreOnGenerateCodeAnnotationIntrospector())
                 .setDefaultAttributes(defAttrs);
     }
 
@@ -62,6 +66,10 @@ public class JsonUtils {
         return OBJECT_MAPPER.readValue(inputStream, valueTypeRef);
     }
 
+    public static void writeJson(OutputStream out, Object obj) throws IOException {
+        OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValue(out, obj);
+    }
+
     public static String toComponentJson(Object obj) {
         try {
             return COMPONENT_OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(obj);
@@ -70,7 +78,17 @@ public class JsonUtils {
         }
     }
 
-    public static void writeJson(OutputStream out, Object obj) throws IOException {
-        OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValue(out, obj);
+    @Documented
+    @Target({ElementType.FIELD, ElementType.METHOD})
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface JsonIgnoreOnGenerateCode {
+
+    }
+
+    static class JsonIgnoreOnGenerateCodeAnnotationIntrospector extends JacksonAnnotationIntrospector {
+        @Override
+        public boolean hasIgnoreMarker(AnnotatedMember m) {
+            return super.hasIgnoreMarker(m) || m.hasAnnotation(JsonIgnoreOnGenerateCode.class);
+        }
     }
 }

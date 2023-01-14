@@ -11,5 +11,13 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface UIComponent {
 
+    /**
+     * @return 组件发起请求时的Key
+     */
     String value() default "";
+
+    /**
+     * @return 生成的组件文件时的路径
+     */
+    String path() default "";
 }

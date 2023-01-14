@@ -1,5 +1,6 @@
 package dev.fastball.generate.generator;
 
+import dev.fastball.core.config.FastballConfig;
 import dev.fastball.core.info.component.ComponentInfo;
 import dev.fastball.core.utils.JsonUtils;
 import dev.fastball.generate.exception.GenerateException;
@@ -25,7 +26,7 @@ public class PackageJsonGenerator {
     private PackageJsonGenerator() {
     }
 
-    public static void generate(File generatedCodeDir, List<ComponentInfo<?>> componentInfoList, String packageJsonSourcePath) {
+    public static void generate(File generatedCodeDir, List<ComponentInfo<?>> componentInfoList, String packageJsonSourcePath, FastballConfig fastballConfig) {
         try (InputStream inputStream = PackageJsonGenerator.class.getResourceAsStream(packageJsonSourcePath)) {
             Package nodePackage = JsonUtils.fromJson(inputStream, Package.class);
             Map<String, String> materialPackageMap = new HashMap<>();
@@ -35,6 +36,9 @@ public class PackageJsonGenerator {
                 }
             }
             for (Map.Entry<String, String> dependency : materialPackageMap.entrySet()) {
+                nodePackage.getDependencies().put(dependency.getKey(), dependency.getValue());
+            }
+            for (Map.Entry<String, String> dependency : fastballConfig.getCustomNpmDependencies().entrySet()) {
                 nodePackage.getDependencies().put(dependency.getKey(), dependency.getValue());
             }
             File packageJsonFile = new File(generatedCodeDir, PACKAGE_FILE_NAME);
