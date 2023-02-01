@@ -1,6 +1,5 @@
 package dev.fastball.core.annotation;
 
-import dev.fastball.core.component.Component;
 import dev.fastball.core.info.basic.PlacementType;
 import dev.fastball.core.info.basic.PopupTriggerType;
 import dev.fastball.core.info.basic.PopupType;
@@ -19,20 +18,18 @@ public @interface Popup {
     /**
      * 按钮打开的组件
      *
-     * @return 对应组件的 Class
+     * @return 对应组件的引用配置
      */
-    Class<? extends Component> component();
+    RefComponent value();
 
     /**
-     * 调用 popup component 时传入的参数路径, 默认是当前记录
+     * 弹出窗口的宽度, 等于 0 则为自适应, 默认为 0
      *
-     * @return 参数路径
+     * @return 弹出窗口的宽度
      */
-    String[] dataPath() default {};
+    int width() default 0;
 
-    int width() default 720;
-
-    String popupTitle() default "";
+    String title() default "";
 
     PopupType popupType() default PopupType.Drawer;
 

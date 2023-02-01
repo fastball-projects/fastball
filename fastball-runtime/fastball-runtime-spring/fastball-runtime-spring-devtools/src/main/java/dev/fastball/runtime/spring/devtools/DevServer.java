@@ -23,6 +23,8 @@ public class DevServer implements WebMvcConfigurer, InitializingBean, Applicatio
 
     private ApplicationContext applicationContext;
 
+    private final PortalCodeGenerator portalCodeGenerator = new DevModePortalCodeGenerator();
+
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
@@ -38,7 +40,7 @@ public class DevServer implements WebMvcConfigurer, InitializingBean, Applicatio
             throw new GenerateException("DevServer only available in development mode, but primary source [" + mainClass + "] in a jar.");
         }
         File generatedCodeDir = new File(primarySourceFile.getParentFile(), "fastball-workspace");
-        PortalCodeGenerator.generate(generatedCodeDir, mainClass.getClassLoader());
+        portalCodeGenerator.generate(generatedCodeDir, mainClass.getClassLoader());
         OutputStream infoOut = new Slf4jLogOutputStream(log, Slf4jLogOutputStream.LogLevel.INFO);
         OutputStream errorOut = new Slf4jLogOutputStream(log, Slf4jLogOutputStream.LogLevel.ERROR);
         try {

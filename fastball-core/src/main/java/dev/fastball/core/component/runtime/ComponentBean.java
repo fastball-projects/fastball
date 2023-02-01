@@ -1,10 +1,11 @@
 package dev.fastball.core.component.runtime;
 
 import dev.fastball.core.component.Component;
+import dev.fastball.core.component.RecordActionFilter;
 import lombok.Data;
 
-import java.lang.reflect.Method;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author gr@fastball.dev
@@ -15,5 +16,7 @@ public class ComponentBean {
 
     private String componentKey;
     private Component component;
-    private Map<String, Method> methodMap;
+    private Map<String, UIApiMethod> methodMap;
+    private Map<String, Class<? extends RecordActionFilter>> recordActionFilterClasses;
+    private Map<Class<? extends RecordActionFilter>, RecordActionFilter> recordActionFilters = new ConcurrentHashMap<>();
 }

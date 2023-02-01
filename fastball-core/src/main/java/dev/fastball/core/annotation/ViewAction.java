@@ -1,9 +1,9 @@
 package dev.fastball.core.annotation;
 
 import dev.fastball.core.component.Component;
+import dev.fastball.core.component.RecordActionFilter;
 import dev.fastball.core.info.basic.ViewActionType;
 
-import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -12,15 +12,22 @@ import java.lang.annotation.Target;
  * @author gr@fastball.dev
  * @since 2022/12/17
  */
-@Target(ElementType.FIELD)
+@Target({})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ViewAction {
+    /**
+     * 按钮的 Key, 可用作数据权限或按钮过滤等场景
+     *
+     * @return 按钮的 Key, 需组件内唯一
+     */
+    String key();
+
     /**
      * 按钮显示文本
      *
      * @return 按钮的显示文本
      */
-    String value();
+    String name();
 
     /**
      * 按钮点击时, 触发的视图动作的类型, 目前支持支 Popup
@@ -34,7 +41,7 @@ public @interface ViewAction {
      *
      * @return 弹出窗口的相关配置
      */
-    Popup popup() default @Popup(component = Component.class);
+    Popup popup() default @Popup(@RefComponent(Component.class));
 
     /**
      * 当 type=Menu 时配置
@@ -49,4 +56,10 @@ public @interface ViewAction {
      * @return 跳转链接的相关配置
      */
     GotoLink gotoLink() default @GotoLink;
+
+    boolean refresh() default true;
+
+    boolean closePopupOnSuccess() default true;
+
+    Class<? extends RecordActionFilter> recordActionFilter() default RecordActionFilter.class;
 }

@@ -1,7 +1,6 @@
 package dev.fastball.core.info.basic;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import dev.fastball.core.info.component.ReferencedComponentInfo;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -41,11 +40,11 @@ public class FieldInfo {
 
     private LookupInfo lookup;
 
-    private PopupInfo popup;
+    private PopupInfo popupInfo;
 
-    private UseComponentInfo editModeComponent;
+    private RefComponentInfo editModeComponent;
 
-    private UseComponentInfo displayModeComponent;
+    private RefComponentInfo displayModeComponent;
 
     private List<ValidationRuleInfo> validationRules;
 

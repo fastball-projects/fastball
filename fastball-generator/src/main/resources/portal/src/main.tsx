@@ -1,27 +1,21 @@
 import React, { useState } from 'react'
 import ReactDOM from 'react-dom/client'
-import { HashRouter, Routes, Route, Outlet, Link } from "react-router-dom";
-import ProLayout, { PageContainer } from '@ant-design/pro-layout';
+import { HashRouter, Routes, Route, Outlet, Link, RouteProps } from "react-router-dom";
+import ProLayout from '@ant-design/pro-layout';
 import { Button, Result } from 'antd';
 import routes from './routes'
+import { RouteComponentProps } from '../types'
+import { routeBuilder } from './route-builder'
 
-const HomePage = ({ routes }) => (
+const HomePage: React.FC<RouteComponentProps> = ({ routes }) => (
   <Routes>
-    <Route path="/" element={<Layout routes={routes}/>}>
-      {routes.map(buildRoutes)}
+    <Route path="/" element={<Layout routes={routes} />}>
+      {routes.map(routeBuilder)}
       <Route path="*" element={<Page404 />} />
     </Route>
   </Routes>
 )
 
-const buildRoutes = (route) => {
-  const routes = route.routes ? route.routes.map(buildRoutes) : []
-  return (
-      <Route key={route.path} path={route.path} element={route.component}>
-          {routes}
-      </Route>
-  )
-}
 
 const Page404 = () => (
   <Result
@@ -35,7 +29,7 @@ const Page404 = () => (
   />
 )
 
-const Layout = ({ routes }) => {
+const Layout: React.FC<RouteComponentProps> = ({ routes }) => {
   const [pathname, setPathname] = useState('/welcome');
   return (
     <div
@@ -46,6 +40,8 @@ const Layout = ({ routes }) => {
     >
       <ProLayout
         fixSiderbar
+        title="Fastball portal"
+        logo="/logo.svg"
         route={{
           path: '/',
           routes,
@@ -55,27 +51,17 @@ const Layout = ({ routes }) => {
         }}
         menu={{ defaultOpenAll: true, hideMenuWhenCollapsed: true }}
         menuItemRender={(item, dom) => (
-          <a
-            onClick={() => {
-              setPathname(item.path || '/welcome');
-            }}
-          >
-            <Link to={item.path}>{dom}</Link>
-          </a>
+          <Link onClick={() => setPathname(item.path || '/welcome')} to={item.path}>{dom}</Link>
         )}
       >
-        <PageContainer>
-          <Outlet />
-        </PageContainer>
+        <Outlet />
       </ProLayout>
     </div>
   );
 }
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-  <React.StrictMode>
-    <HashRouter>
-      <HomePage routes={routes}/>
-    </HashRouter>
-  </React.StrictMode>,
+  <HashRouter>
+    <HomePage routes={routes} />
+  </HashRouter>
 )

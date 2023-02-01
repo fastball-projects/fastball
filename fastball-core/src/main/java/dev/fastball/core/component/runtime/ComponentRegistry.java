@@ -1,8 +1,10 @@
 package dev.fastball.core.component.runtime;
 
+import dev.fastball.core.annotation.RecordAction;
 import dev.fastball.core.annotation.UIApi;
 import dev.fastball.core.annotation.UIComponent;
 import dev.fastball.core.component.Component;
+import dev.fastball.core.component.RecordActionFilter;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -31,25 +33,47 @@ public class ComponentRegistry {
         }
 
         componentBean.setMethodMap(getApiMethodMapper(component.getClass()));
+        componentBean.setRecordActionFilterClasses(getRecordActionFilter(component.getClass()));
         componentBeanMap.put(componentKey, componentBean);
     }
 
-    private Map<String, Method> getApiMethodMapper(Class<? extends Component> componentClass) {
+    private Map<String, UIApiMethod> getApiMethodMapper(Class<? extends Component> componentClass) {
         Set<Method> superMethodSet = new HashSet<>();
         loadAllMethod(componentClass, superMethodSet);
-        Map<String, Method> actionMethodMap = new HashMap<>();
+        Map<String, UIApiMethod> actionMethodMap = new HashMap<>();
         superMethodSet.stream().filter(method -> method.getDeclaredAnnotation(UIApi.class) != null)
                 .forEach(method -> {
+                    UIApi uiApi = method.getDeclaredAnnotation(UIApi.class);
                     Method declaredMethod = Arrays.stream(componentClass.getDeclaredMethods())
                             .filter(m -> !m.isBridge() && m.getName().equals(method.getName()))
                             .findFirst().orElseThrow(() -> new RuntimeException("never happened"));
-                    actionMethodMap.put(declaredMethod.getName(), declaredMethod);
+                    actionMethodMap.put(declaredMethod.getName(), buildUIApiMethod(declaredMethod, uiApi));
                 });
         Arrays.stream(componentClass.getDeclaredMethods())
                 .filter(method -> Arrays.stream(method.getDeclaredAnnotations())
                         .anyMatch(annotation -> annotation.annotationType().getDeclaredAnnotation(UIApi.class) != null)
-                ).forEach(method -> actionMethodMap.put(method.getName(), method));
+                ).forEach(method -> actionMethodMap.put(method.getName(), buildUIApiMethod(method, null)));
         return actionMethodMap;
+    }
+
+    private Map<String, Class<? extends RecordActionFilter>> getRecordActionFilter(Class<? extends Component> componentClass) {
+        Map<String, Class<? extends RecordActionFilter>> recordActionFilterMap = new HashMap<>();
+        for (Method method : componentClass.getDeclaredMethods()) {
+            RecordAction recordAction = method.getDeclaredAnnotation(RecordAction.class);
+            if (recordAction != null) {
+                String actionKey = recordAction.key().isEmpty() ? method.getName() : recordAction.key();
+                recordActionFilterMap.put(actionKey, recordAction.recordActionFilter());
+            }
+        }
+        return recordActionFilterMap;
+    }
+
+    private UIApiMethod buildUIApiMethod(Method method, UIApi uiApi) {
+        UIApiMethod.UIApiMethodBuilder methodBuilder = UIApiMethod.builder().key(method.getName()).method(method);
+        if (uiApi != null) {
+            methodBuilder.needRecordFilter(uiApi.needRecordFilter());
+        }
+        return methodBuilder.build();
     }
 
     private void loadAllMethod(Class<?> componentClass, Set<Method> methodSet) {

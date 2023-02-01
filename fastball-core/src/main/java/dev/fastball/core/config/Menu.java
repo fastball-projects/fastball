@@ -12,5 +12,6 @@ import java.util.Map;
 public class Menu {
     private String title;
     private String component;
+    private Object params;
     private Map<String, Menu> menus;
 }

@@ -2,17 +2,15 @@ package dev.fastball.compile;
 
 import dev.fastball.compile.exception.CompilerException;
 import dev.fastball.compile.utils.ElementCompileUtils;
-import dev.fastball.core.annotation.Popup;
-import dev.fastball.core.annotation.ViewAction;
-import dev.fastball.core.annotation.RecordAction;
+import dev.fastball.core.annotation.*;
 import dev.fastball.core.component.Component;
 import dev.fastball.core.info.action.ActionInfo;
 import dev.fastball.core.info.action.ApiActionInfo;
 import dev.fastball.core.info.action.PopupActionInfo;
+import dev.fastball.core.info.basic.PopupInfo;
 import dev.fastball.core.info.component.ComponentInfo;
 import dev.fastball.core.info.component.ComponentInfo_AutoValue;
 import dev.fastball.core.info.component.ComponentProps;
-import dev.fastball.core.info.component.ReferencedComponentInfo;
 
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
@@ -20,8 +18,10 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -46,6 +46,8 @@ public abstract class AbstractComponentCompiler<T extends Component, P extends C
         P props = buildProps(compileContext);
         props.componentKey(ElementCompileUtils.getComponentKey(compileContext.getComponentElement()));
         compileProps(props, compileContext);
+        compileViewActions(props, compileContext);
+        compileRecordActions(props, compileContext);
         componentInfo.props(props);
         componentInfo.material(compileContext.getMaterialRegistry().getMaterial(this.getClass()));
         componentInfo.className(compileContext.getComponentElement().getQualifiedName().toString());
@@ -55,13 +57,18 @@ public abstract class AbstractComponentCompiler<T extends Component, P extends C
         return componentInfo;
     }
 
-    protected List<TypeElement> getGenericTypes(CompileContext compileContext) {
+    protected List<? extends TypeMirror> getGenericTypes(CompileContext compileContext) {
         DeclaredType declaredType = ElementCompileUtils.getDeclaredInterface(basicComponentClass, compileContext.getComponentElement());
         if (declaredType == null) {
             return Collections.emptyList();
         }
-        List<? extends TypeMirror> typeArguments = declaredType.getTypeArguments();
-        return typeArguments.stream().map(type -> (TypeElement) compileContext.getProcessingEnv().getTypeUtils().asElement(type)).collect(Collectors.toList());
+        return declaredType.getTypeArguments();
+    }
+
+    protected List<TypeElement> getGenericTypeElements(CompileContext compileContext) {
+        return getGenericTypes(compileContext).stream()
+                .map(type -> (TypeElement) compileContext.getProcessingEnv().getTypeUtils().asElement(type))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -92,7 +99,34 @@ public abstract class AbstractComponentCompiler<T extends Component, P extends C
         throw new CompilerException("can't happened");
     }
 
-    protected ActionInfo buildRecordActionInfo(ExecutableElement method) {
+    private void compileViewActions(P props, CompileContext compileContext) {
+        ViewActions viewActions = compileContext.getComponentElement().getAnnotation(ViewActions.class);
+        if (viewActions == null) {
+            return;
+        }
+        List<ActionInfo> viewActionInfoList = new ArrayList<>();
+        for (ViewAction action : viewActions.value()) {
+            ActionInfo viewActionInfo = buildViewActionInfo(action, props);
+            viewActionInfoList.add(viewActionInfo);
+        }
+        props.actions(viewActionInfoList);
+    }
+
+    protected void compileRecordActions(P props, CompileContext compileContext) {
+        List<ActionInfo> recordActions = ElementCompileUtils
+                .getMethods(compileContext.getComponentElement(), compileContext.getProcessingEnv()).values().stream()
+                .map(this::buildApiRecordActionInfo).filter(Objects::nonNull).collect(Collectors.toList());
+        RecordViewActions recordViewActions = compileContext.getComponentElement().getAnnotation(RecordViewActions.class);
+        if (recordViewActions != null) {
+            for (ViewAction action : recordViewActions.value()) {
+                ActionInfo actionInfo = buildViewActionInfo(action, props);
+                recordActions.add(actionInfo);
+            }
+        }
+        props.recordActions(recordActions);
+    }
+
+    protected ActionInfo buildApiRecordActionInfo(ExecutableElement method) {
         RecordAction actionAnnotation = method.getAnnotation(RecordAction.class);
         if (actionAnnotation == null) {
             return null;
@@ -100,29 +134,21 @@ public abstract class AbstractComponentCompiler<T extends Component, P extends C
         return ApiActionInfo.builder()
                 .refresh(actionAnnotation.refresh())
                 .closePopupOnSuccess(actionAnnotation.closePopupOnSuccess())
-                .actionName(actionAnnotation.value())
-                .actionKey(method.getSimpleName().toString())
+                .actionName(actionAnnotation.name())
+                .actionKey(actionAnnotation.key().isEmpty() ? method.getSimpleName().toString() : actionAnnotation.key())
                 .build();
     }
 
-    protected ActionInfo buildViewActionInfo(ViewAction viewAction, P props, String actonKey) {
+    protected ActionInfo buildViewActionInfo(ViewAction viewAction, P props) {
         ActionInfo actionInfo;
         switch (viewAction.type()) {
             case Popup:
                 Popup popup = viewAction.popup();
-                ReferencedComponentInfo popupComponentInfo = ElementCompileUtils.getReferencedComponentInfo(props, popup::component);
-                if (popupComponentInfo == null) {
-                    throw new CompilerException("@ViewAction(type=Popup) but @ViewAction.popup.component not config.");
+                PopupInfo popupInfo = ElementCompileUtils.getPopupInfo(props, popup);
+                if (popupInfo == null) {
+                    throw new CompilerException("@ViewAction(type=Popup) but @ViewAction.popup.value not config.");
                 }
-                actionInfo = PopupActionInfo.builder()
-                        .popupComponent(popupComponentInfo)
-                        .width(popup.width())
-                        .popupTitle(popup.popupTitle())
-                        .popupType(popup.popupType())
-                        .placementType(popup.placementType())
-                        .closePopupOnSuccess(popup.closePopupOnSuccess())
-                        .refresh(popup.refresh())
-                        .build();
+                actionInfo = PopupActionInfo.builder().popupInfo(popupInfo).build();
                 break;
             case Link:
                 throw new CompilerException("@ViewAction(type=Link) not supported yet");
@@ -131,8 +157,10 @@ public abstract class AbstractComponentCompiler<T extends Component, P extends C
             default:
                 throw new CompilerException("@ViewAction(type=" + viewAction.type() + ") not supported yet");
         }
-        actionInfo.setActionName(viewAction.value());
-        actionInfo.setActionKey(actonKey);
+        actionInfo.setActionName(viewAction.name());
+        actionInfo.setActionKey(viewAction.key());
+        actionInfo.setRefresh(viewAction.refresh());
+        actionInfo.setClosePopupOnSuccess(viewAction.closePopupOnSuccess());
         return actionInfo;
     }
 }

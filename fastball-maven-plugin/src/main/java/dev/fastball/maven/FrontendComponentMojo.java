@@ -27,14 +27,18 @@ import static dev.fastball.generate.Constants.GENERATED_PATH;
  */
 @Mojo(name = "build", defaultPhase = LifecyclePhase.PREPARE_PACKAGE, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME, threadSafe = true)
 public class FrontendComponentMojo extends AbstractMojo {
+
+    private final PortalCodeGenerator portalCodeGenerator = new PortalCodeGenerator();
+
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
+
 
     @Override
     public void execute() {
         ClassLoader projectClassLoader = getClassLoader();
         File generatedCodeDir = new File(project.getBuild().getDirectory(), GENERATED_PATH);
-        PortalCodeGenerator.generate(generatedCodeDir, projectClassLoader);
+        portalCodeGenerator.generate(generatedCodeDir, projectClassLoader);
         try {
             ExecUtils.checkNodeAndPNPM();
             OutputStream infoOut = new MavenLogOutputStream(getLog(), MavenLogOutputStream.LogLevel.INFO);

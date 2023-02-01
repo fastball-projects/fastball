@@ -38,8 +38,10 @@ public class PackageJsonGenerator {
             for (Map.Entry<String, String> dependency : materialPackageMap.entrySet()) {
                 nodePackage.getDependencies().put(dependency.getKey(), dependency.getValue());
             }
-            for (Map.Entry<String, String> dependency : fastballConfig.getCustomNpmDependencies().entrySet()) {
-                nodePackage.getDependencies().put(dependency.getKey(), dependency.getValue());
+            if (fastballConfig.getCustomNpmDependencies() != null) {
+                for (Map.Entry<String, String> dependency : fastballConfig.getCustomNpmDependencies().entrySet()) {
+                    nodePackage.getDependencies().put(dependency.getKey(), dependency.getValue());
+                }
             }
             File packageJsonFile = new File(generatedCodeDir, PACKAGE_FILE_NAME);
             FileUtils.write(packageJsonFile, JsonUtils.toPrettyJson(nodePackage), StandardCharsets.UTF_8);

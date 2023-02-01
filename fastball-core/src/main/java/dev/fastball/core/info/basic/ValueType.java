@@ -102,6 +102,10 @@ public enum ValueType {
      */
     DIGIT("digit"),
     /**
+     * 数字范围输入框
+     */
+    DIGIT_RANGE("digitRange"),
+    /**
      * 秒格式化
      */
     SECOND("second"),

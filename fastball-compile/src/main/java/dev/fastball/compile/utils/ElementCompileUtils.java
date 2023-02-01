@@ -2,8 +2,12 @@ package dev.fastball.compile.utils;
 
 import dev.fastball.compile.CompileContext;
 import dev.fastball.compile.exception.CompilerException;
+import dev.fastball.core.annotation.Popup;
+import dev.fastball.core.annotation.RefComponent;
 import dev.fastball.core.annotation.UIComponent;
 import dev.fastball.core.component.Component;
+import dev.fastball.core.info.basic.PopupInfo;
+import dev.fastball.core.info.basic.RefComponentInfo;
 import dev.fastball.core.info.component.ComponentProps;
 import dev.fastball.core.info.component.ReferencedComponentInfo;
 
@@ -39,6 +43,25 @@ public class ElementCompileUtils {
         return ElementCompileUtils.getReferencedComponentInfo(props, componentTypeElement);
     }
 
+    public static RefComponentInfo getReferencedComponentInfo(ComponentProps props, RefComponent refComponentAnnotation) {
+        TypeMirror popupComponentClass = ElementCompileUtils.getTypeMirrorFromAnnotationValue(refComponentAnnotation::value);
+        if (popupComponentClass == null) {
+            throw new CompilerException("can't happened");
+        }
+        TypeElement componentTypeElement = (TypeElement) ((DeclaredType) popupComponentClass).asElement();
+        if (Component.class.getCanonicalName().equals(componentTypeElement.getQualifiedName().toString())) {
+            return null;
+        }
+        ReferencedComponentInfo componentInfo = ElementCompileUtils.getReferencedComponentInfo(props, componentTypeElement);
+        if (componentInfo == null) {
+            return null;
+        }
+        return RefComponentInfo.builder()
+                .componentInfo(componentInfo)
+                .dataPath(refComponentAnnotation.dataPath()).propsKey(refComponentAnnotation.propsKey())
+                .currentFieldInput(refComponentAnnotation.currentFieldInput()).build();
+    }
+
     public static ReferencedComponentInfo getReferencedComponentInfo(ComponentProps props, TypeElement componentTypeElement) {
         if (props.referencedComponentInfoList() == null) {
             props.referencedComponentInfoList(new HashSet<>());
@@ -54,6 +77,21 @@ public class ElementCompileUtils {
         refComponentInfo.setComponentPath(getComponentPath(componentTypeElement));
         props.referencedComponentInfoList().add(refComponentInfo);
         return refComponentInfo;
+    }
+
+    public static PopupInfo getPopupInfo(ComponentProps props, Popup popupAnnotation) {
+        RefComponentInfo refComponentInfo = ElementCompileUtils.getReferencedComponentInfo(props, popupAnnotation.value());
+        if (refComponentInfo == null) {
+            return null;
+        }
+        PopupInfo popupInfo = new PopupInfo();
+        popupInfo.setPopupComponent(refComponentInfo);
+        popupInfo.setWidth(popupAnnotation.width());
+        popupInfo.setTitle(popupAnnotation.title());
+        popupInfo.setPopupType(popupAnnotation.popupType());
+        popupInfo.setTriggerType(popupAnnotation.triggerType());
+        popupInfo.setPlacementType(popupAnnotation.placementType());
+        return popupInfo;
     }
 
     public static List<? extends TypeMirror> getTypeMirrorFromAnnotationValues(AnnotationClassGetter c) {
@@ -129,6 +167,9 @@ public class ElementCompileUtils {
     }
 
     public static boolean isAssignableFrom(Class<?> clazz, TypeElement element, ProcessingEnvironment processingEnv) {
+        if (clazz.getCanonicalName().equals(element.getQualifiedName().toString())) {
+            return true;
+        }
         for (TypeMirror anInterface : element.getInterfaces()) {
             TypeElement superInterface = (TypeElement) processingEnv.getTypeUtils().asElement(anInterface);
             if (clazz.getCanonicalName().equals(superInterface.getQualifiedName().toString())) {

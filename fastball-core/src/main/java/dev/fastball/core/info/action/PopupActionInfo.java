@@ -1,9 +1,9 @@
 package dev.fastball.core.info.action;
 
-import dev.fastball.core.info.basic.PlacementType;
-import dev.fastball.core.info.basic.PopupType;
-import dev.fastball.core.info.component.ReferencedComponentInfo;
-import lombok.*;
+import dev.fastball.core.info.basic.PopupInfo;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 /**
@@ -17,13 +17,5 @@ import lombok.experimental.SuperBuilder;
 public class PopupActionInfo extends ActionInfo {
     protected final ActionType type = ActionType.Popup;
 
-    private Integer width;
-
-    private String popupTitle;
-
-    private PopupType popupType;
-
-    private PlacementType placementType;
-
-    private ReferencedComponentInfo popupComponent;
+    private PopupInfo popupInfo;
 }

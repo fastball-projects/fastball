@@ -25,14 +25,11 @@ import static dev.fastball.generate.Constants.ROUTES_PATH;
  */
 public class PortalCodeGenerator {
 
-    private PortalCodeGenerator() {
-    }
-
     private static final String[] NEED_COPY_RESOURCES = new String[]{
-            "tsconfig.json", "vite.config.ts", "index.html", "src/main.tsx"
+            "tsconfig.json", "vite.config.ts", "index.html", "public/logo.svg", "types/index.d.ts", "src/main.tsx", "src/route-builder.tsx"
     };
 
-    public static void generate(File generatedCodeDir, ClassLoader classLoader) {
+    public void generate(File generatedCodeDir, ClassLoader classLoader) {
         FastballConfig fastballConfig = ResourceUtils.loadFastballConfig(classLoader);
         List<ComponentInfo<?>> componentInfoList = ResourceUtils.loadComponentInfoList(classLoader);
         copyProjectFiles(generatedCodeDir);
@@ -41,14 +38,14 @@ public class PortalCodeGenerator {
         generateRoutes(generatedCodeDir, componentInfoList, fastballConfig);
     }
 
-    private static void copyProjectFiles(File generatedCodeDir) {
+    private void copyProjectFiles(File generatedCodeDir) {
         for (String needCopyResource : NEED_COPY_RESOURCES) {
             GeneratorUtils.copyResourceFile(Constants.Portal.SOURCE_PATH + needCopyResource, new File(generatedCodeDir, needCopyResource));
         }
     }
 
     // use template engine?
-    private static void generateRoutes(File generatedCodeDir, List<ComponentInfo<?>> componentInfoList, FastballConfig fastballConfig) {
+    private void generateRoutes(File generatedCodeDir, List<ComponentInfo<?>> componentInfoList, FastballConfig fastballConfig) {
         if (fastballConfig == null || fastballConfig.getMenus() == null || fastballConfig.getMenus().isEmpty()) {
             return;
         }
@@ -59,7 +56,7 @@ public class PortalCodeGenerator {
         for (ComponentInfo<?> componentInfo : componentInfoList) {
             componentInfoMap.put(componentInfo.className(), componentInfo);
         }
-        StringBuilder routesCode = new StringBuilder();
+        StringBuilder routesCode = new StringBuilder("import { MenuItemRoute } from '../types';\n\n");
         fastballConfig.getMenus().forEach((menuKey, menu) -> routes.add(buildMenu("/" + menuKey, menu, componentInfoMap, usedComponent)));
         usedComponent.forEach(componentInfo -> {
             routesCode.append("import ");
@@ -69,8 +66,8 @@ public class PortalCodeGenerator {
             routesCode.append("';\n\n");
         });
         try {
-            routesCode.append("const routes = ");
-            routesCode.append(JsonUtils.toPrettyJson(routes));
+            routesCode.append("const routes: MenuItemRoute[] = ");
+            routesCode.append(JsonUtils.toComponentJson(routes));
             routesCode.append("\n\n");
             routesCode.append("export default routes;");
             FileUtils.write(routesFile, routesCode.toString(), StandardCharsets.UTF_8);
@@ -80,8 +77,8 @@ public class PortalCodeGenerator {
     }
 
 
-    private static Route buildMenu(String menuPath, Menu menu, Map<String, ComponentInfo<?>> componentInfoMap, Set<ComponentInfo<?>> usedComponent) {
-        Route.RouteBuilder routeBuilder = Route.builder().path(menuPath).name(menu.getTitle());
+    protected Route buildMenu(String menuPath, Menu menu, Map<String, ComponentInfo<?>> componentInfoMap, Set<ComponentInfo<?>> usedComponent) {
+        Route.RouteBuilder routeBuilder = Route.builder().path(menuPath).name(menu.getTitle()).params(menu.getParams());
         if (menu.getComponent() != null) {
             ComponentInfo<?> componentInfo = componentInfoMap.get(menu.getComponent());
             if (componentInfo != null) {

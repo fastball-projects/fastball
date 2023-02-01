@@ -2,11 +2,9 @@ package dev.fastball.compile.utils;
 
 import dev.fastball.compile.exception.CompilerException;
 import dev.fastball.core.annotation.*;
-import dev.fastball.core.component.MainFieldComponent;
+import dev.fastball.core.component.Range;
 import dev.fastball.core.info.basic.*;
 import dev.fastball.core.info.component.ComponentProps;
-import dev.fastball.core.info.component.MainFieldComponentInfo;
-import dev.fastball.core.info.component.ReferencedComponentInfo;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ElementKind;
@@ -24,7 +22,7 @@ import java.util.stream.Collectors;
 import static dev.fastball.compile.CompileConstants.SIMPLE_FORM_LIST_VALUE_FIELD;
 
 /**
- * TODO 字段类型编译, 这里需要优化一下
+ * TODO 字段类型编译, 这里需要优化一下, 各类型抽成独立注册的
  *
  * @author gr@fastball.dev
  * @since 2022/12/9
@@ -95,10 +93,14 @@ public class TypeCompileUtils {
             compilePopup(fieldInfo, fieldElement, props);
         } else {
             if (fieldElement.getAnnotation(EditComponent.class) != null) {
-                compileEditComponent(fieldInfo, fieldElement, props);
+                EditComponent editComponentAnnotation = fieldElement.getAnnotation(EditComponent.class);
+                fieldInfo.setEditModeComponent(ElementCompileUtils.getReferencedComponentInfo(props, editComponentAnnotation.value()));
+                fieldInfo.setFieldType(FieldType.COMPONENT.getType());
             }
             if (fieldElement.getAnnotation(DisplayComponent.class) != null) {
-                compileDisplayComponent(fieldInfo, fieldElement, props);
+                DisplayComponent displayComponentAnnotation = fieldElement.getAnnotation(DisplayComponent.class);
+                fieldInfo.setDisplayModeComponent(ElementCompileUtils.getReferencedComponentInfo(props, displayComponentAnnotation.value()));
+                fieldInfo.setFieldType(FieldType.COMPONENT.getType());
             }
         }
         if (fieldElement.getAnnotation(Lookup.class) != null) {
@@ -115,7 +117,7 @@ public class TypeCompileUtils {
         }
         if (valueType == null) {
             if (type.getKind().isPrimitive()) {
-                valueType = compilePrimitiveType(type);
+                valueType = compilePrimitiveType(type, fieldElement, fieldInfo);
             } else if (type.getKind() == TypeKind.DECLARED) {
                 valueType = compileDeclaredType(fieldElement, processingEnv, fieldInfo, props, compiledTypes);
             }
@@ -129,20 +131,28 @@ public class TypeCompileUtils {
         return valueType;
     }
 
-    private static ValueType compilePrimitiveType(TypeMirror type) {
-        switch (type.getKind()) {
-            case LONG:
-            case INT:
-            case SHORT:
-            case BYTE:
-            case DOUBLE:
-            case FLOAT:
-            case CHAR:
-                return ValueType.DIGIT;
-            case BOOLEAN:
-                return ValueType.SWITCH;
+    private static ValueType compileRange(DeclaredType fieldType) {
+        TypeMirror typeMirror = fieldType.getTypeArguments().get(0);
+        TypeElement typeElement = (TypeElement) ((DeclaredType) typeMirror).asElement();
+        switch (typeElement.getQualifiedName().toString()) {
+            case "java.lang.Long":
+            case "java.lang.Integer":
+            case "java.lang.Short":
+            case "java.lang.Byte":
+            case "java.lang.Double":
+            case "java.lang.Float":
+            case "java.math.BigInteger":
+            case "java.math.BigDecimal":
+                return ValueType.DIGIT_RANGE;
+            case "java.time.LocalTime":
+                return ValueType.TIME_RANGE;
+            case "java.time.LocalDate":
+                return ValueType.DATE_RANGE;
+            case "java.util.Date":
+            case "java.time.LocalDateTime":
+                return ValueType.DATE_TIME_RANGE;
             default:
-                return ValueType.AUTO;
+                return null;
         }
     }
 
@@ -178,7 +188,7 @@ public class TypeCompileUtils {
                 fieldInfo.setValueType(valueType.getType());
                 return ValueType.MULTI_SELECT;
             } else if (typeElement.getKind() == ElementKind.CLASS) {
-                ValueType type = compileBasicClassType(typeElement, processingEnv, fieldInfo, props);
+                ValueType type = compileBasicClassType(typeElement, fieldElement, fieldInfo);
                 if (type != null) {
                     String fieldReferenceName = ((TypeElement) fieldElement.getEnclosingElement()).getQualifiedName() + ":" + fieldElement.getSimpleName();
                     throw new CompilerException("Field [" + fieldReferenceName + "] Collection basic type [" + typeElement + "] not supported, if you want multiple select, try use @Lookup");
@@ -199,12 +209,14 @@ public class TypeCompileUtils {
         TypeElement typeElement = (TypeElement) ((DeclaredType) fieldType).asElement();
         if (ElementCompileUtils.isAssignableFrom(Iterable.class, typeElement, processingEnv)) {
             return compileCollection((DeclaredType) fieldType, processingEnv, fieldInfo, props, compiledTypes, fieldElement);
+        } else if (ElementCompileUtils.isAssignableFrom(Range.class, typeElement, processingEnv)) {
+            return compileRange((DeclaredType) fieldType);
         } else {
             switch (typeElement.getKind()) {
                 case ENUM:
                     return compileEnumType(typeElement, processingEnv, fieldInfo);
                 case CLASS:
-                    ValueType type = compileBasicClassType(typeElement, processingEnv, fieldInfo, props);
+                    ValueType type = compileBasicClassType(typeElement, fieldElement, fieldInfo);
                     if (type != null) {
                         return type;
                     }
@@ -259,8 +271,38 @@ public class TypeCompileUtils {
         return null;
     }
 
+    // 挺奇怪的...逻辑上应该先判断类型给 FieldInfo 的子类, 先这样简单处理一下吧
+    private static void compileBooleanField(VariableElement fieldElement, FieldInfo fieldInfo) {
+        BooleanDisplay booleanDisplayAnnotation = fieldElement.getAnnotation(BooleanDisplay.class);
+        if (booleanDisplayAnnotation != null) {
+            fieldInfo.setFieldProps(
+                    BooleanDisplayInfo.builder()
+                            .checkedChildren(booleanDisplayAnnotation.trueLabel())
+                            .unCheckedChildren(booleanDisplayAnnotation.falseLabel()).build()
+            );
+        }
+    }
 
-    private static ValueType compileBasicClassType(TypeElement typeElement, ProcessingEnvironment processingEnv, FieldInfo fieldInfo, ComponentProps props) {
+    private static ValueType compilePrimitiveType(TypeMirror type, VariableElement fieldElement, FieldInfo fieldInfo) {
+        switch (type.getKind()) {
+            case LONG:
+            case INT:
+            case SHORT:
+            case BYTE:
+            case DOUBLE:
+            case FLOAT:
+            case CHAR:
+                return ValueType.DIGIT;
+            case BOOLEAN:
+                compileBooleanField(fieldElement, fieldInfo);
+                return ValueType.SWITCH;
+            default:
+                return ValueType.AUTO;
+        }
+    }
+
+    private static ValueType compileBasicClassType(TypeElement typeElement, VariableElement fieldElement, FieldInfo fieldInfo) {
+        Field fieldAnnotation = fieldElement.getAnnotation(Field.class);
         switch (typeElement.getQualifiedName().toString()) {
             case "java.lang.Long":
             case "java.lang.Integer":
@@ -268,17 +310,44 @@ public class TypeCompileUtils {
             case "java.lang.Byte":
             case "java.lang.Double":
             case "java.lang.Float":
+            case "java.math.BigInteger":
+            case "java.math.BigDecimal":
+                if (fieldAnnotation != null && fieldAnnotation.type() == ValueType.MONEY) {
+                    return ValueType.MONEY;
+                }
                 return ValueType.DIGIT;
             case "java.lang.Boolean":
+                compileBooleanField(fieldElement, fieldInfo);
                 return ValueType.SWITCH;
             case "java.lang.CharSequence":
             case "java.lang.String":
+                if (fieldAnnotation != null && fieldAnnotation.type() == ValueType.TEXTAREA) {
+                    return ValueType.TEXTAREA;
+                }
                 return ValueType.TEXT;
             case "java.time.LocalTime":
                 return ValueType.TIME;
             case "java.time.LocalDate":
                 return ValueType.DATE;
             case "java.util.Date":
+                if (fieldAnnotation != null) {
+                    if (fieldAnnotation.type() == ValueType.DATE_TIME) {
+                        return ValueType.DATE_TIME;
+                    }
+                    if (fieldAnnotation.type() == ValueType.DATE_WEEK) {
+                        return ValueType.DATE_WEEK;
+                    }
+                    if (fieldAnnotation.type() == ValueType.DATE_MONTH) {
+                        return ValueType.DATE_MONTH;
+                    }
+                    if (fieldAnnotation.type() == ValueType.DATE_QUARTER) {
+                        return ValueType.DATE_QUARTER;
+                    }
+                    if (fieldAnnotation.type() == ValueType.DATE_YEAR) {
+                        return ValueType.DATE_YEAR;
+                    }
+                }
+                return ValueType.DATE;
             case "java.time.LocalDateTime":
                 return ValueType.DATE_TIME;
             default:
@@ -292,66 +361,9 @@ public class TypeCompileUtils {
         fieldInfo.setColProps(Collections.singletonMap("span", 24));
     }
 
-    private static <T extends FieldInfo> void compileEditComponent(T fieldInfo, VariableElement fieldElement, ComponentProps props) {
-        EditComponent useComponentAnnotation = fieldElement.getAnnotation(EditComponent.class);
-        TypeMirror componentType = ElementCompileUtils.getTypeMirrorFromAnnotationValue(useComponentAnnotation::value);
-        assert componentType != null;
-        TypeElement componentTypeElement = (TypeElement) ((DeclaredType) componentType).asElement();
-        UseComponentInfo useComponentInfo = UseComponentInfo.builder()
-                .valueKey(useComponentAnnotation.valueKey())
-                .recordKey(useComponentAnnotation.recordKey())
-                .componentInfo(ElementCompileUtils.getReferencedComponentInfo(props, componentTypeElement))
-                .build();
-        fieldInfo.setEditModeComponent(useComponentInfo);
-        fieldInfo.setFieldType(FieldType.COMPONENT.getType());
-    }
-
-    private static <T extends FieldInfo> void compileDisplayComponent(T fieldInfo, VariableElement fieldElement, ComponentProps props) {
-        DisplayComponent useComponentAnnotation = fieldElement.getAnnotation(DisplayComponent.class);
-        TypeMirror componentType = ElementCompileUtils.getTypeMirrorFromAnnotationValue(useComponentAnnotation::value);
-        assert componentType != null;
-        TypeElement componentTypeElement = (TypeElement) ((DeclaredType) componentType).asElement();
-        UseComponentInfo useComponentInfo = UseComponentInfo.builder()
-                .valueKey(useComponentAnnotation.valueKey())
-                .recordKey(useComponentAnnotation.recordKey())
-                .componentInfo(ElementCompileUtils.getReferencedComponentInfo(props, componentTypeElement))
-                .build();
-        fieldInfo.setDisplayModeComponent(useComponentInfo);
-        fieldInfo.setFieldType(FieldType.COMPONENT.getType());
-    }
-
-    private static ReferencedComponentInfo compileEditComponent(VariableElement fieldElement, TypeMirror popupComponentClass, ComponentProps props) {
-        TypeElement componentTypeElement = (TypeElement) ((DeclaredType) popupComponentClass).asElement();
-        if (MainFieldComponent.class.getCanonicalName().equals(componentTypeElement.getQualifiedName().toString())) {
-            TypeElement fieldTypeElement = (TypeElement) ((DeclaredType) fieldElement.asType()).asElement();
-            MainField mainFieldAnnotation = fieldTypeElement.getAnnotation(MainField.class);
-            if (mainFieldAnnotation == null) {
-                String fieldReferenceName = ((TypeElement) fieldElement.getEnclosingElement()).getQualifiedName() + ":" + fieldElement.getSimpleName();
-                throw new CompilerException("Field [" + fieldReferenceName + "] has annotation @UseComponent(MainFieldComponent), but Type [" + fieldTypeElement.getQualifiedName() + "] not found annotation @MainField");
-            }
-            MainFieldComponentInfo mainFieldComponentInfo = new MainFieldComponentInfo();
-            mainFieldComponentInfo.setComponentClass(MainFieldComponent.class.getSimpleName());
-            mainFieldComponentInfo.setMainField(mainFieldAnnotation.value());
-            return mainFieldComponentInfo;
-        }
-        return ElementCompileUtils.getReferencedComponentInfo(props, componentTypeElement);
-    }
-
     private static <T extends FieldInfo> void compilePopup(T fieldInfo, VariableElement fieldElement, ComponentProps props) {
         Popup popupAnnotation = fieldElement.getAnnotation(Popup.class);
-        ReferencedComponentInfo popupComponentInfo = ElementCompileUtils.getReferencedComponentInfo(props, popupAnnotation::component);
-        if (popupComponentInfo == null) {
-            return;
-        }
-        PopupInfo popupInfo = new PopupInfo();
-        popupInfo.setPopupComponent(popupComponentInfo);
-        popupInfo.setWidth(popupAnnotation.width());
-        popupInfo.setDataPath(popupAnnotation.dataPath());
-        popupInfo.setPopupTitle(popupAnnotation.popupTitle());
-        popupInfo.setPopupType(popupAnnotation.popupType());
-        popupInfo.setTriggerType(popupAnnotation.triggerType());
-        popupInfo.setPlacementType(popupAnnotation.placementType());
-        fieldInfo.setPopup(popupInfo);
+        fieldInfo.setPopupInfo(ElementCompileUtils.getPopupInfo(props, popupAnnotation));
         fieldInfo.setFieldType(FieldType.POPUP.getType());
     }
 

@@ -1,5 +1,6 @@
 package dev.fastball.core.info.basic;
 
+import dev.fastball.core.info.component.ReferencedComponentInfo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,16 +14,13 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PopupInfo {
-    private Integer width;
+public class RefComponentInfo {
 
-    private String title;
+    private ReferencedComponentInfo componentInfo;
 
-    private PopupType popupType;
+    private boolean currentFieldInput;
 
-    private PopupTriggerType triggerType;
+    private String[] dataPath;
 
-    private PlacementType placementType;
-
-    private RefComponentInfo popupComponent;
+    private String propsKey;
 }

@@ -13,6 +13,11 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      '~FGV': path.resolve(__dirname, '../classes/FASTBALL-INF'),
+      '~FCV': path.resolve(__dirname, '../../src/main/resources/FASTBALL-INF'),
     },
+  },
+  build: {
+    chunkSizeWarningLimit: 4096
   }
 })

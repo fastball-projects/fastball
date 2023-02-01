@@ -3,11 +3,11 @@ package dev.fastball.runtime.spring;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.fastball.core.component.DataRecord;
+import dev.fastball.core.component.DataResult;
 import dev.fastball.core.component.LookupActionComponent;
-import dev.fastball.core.component.runtime.ComponentBean;
-import dev.fastball.core.component.runtime.ComponentRegistry;
-import dev.fastball.core.component.runtime.LookupActionBean;
-import dev.fastball.core.component.runtime.LookupActionRegistry;
+import dev.fastball.core.component.RecordActionFilter;
+import dev.fastball.core.component.runtime.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +20,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author gr@fastball.dev
@@ -31,13 +33,24 @@ import java.lang.reflect.Type;
 public class FastballComponentController {
     private final ComponentRegistry componentRegistry;
     private final LookupActionRegistry lookupActionRegistry;
+    private final RecordActionFilterRegistry recordActionFilterRegistry;
     private final ObjectMapper objectMapper;
 
     @PostMapping("/component/{componentKey}/action/{actionKey}")
     public Object invokeComponentAction(@PathVariable String componentKey, @PathVariable String actionKey, ServletRequest request) throws IOException, InvocationTargetException, IllegalAccessException {
         ComponentBean componentBean = componentRegistry.getComponentBean(componentKey);
-        Method actionMethod = componentBean.getMethodMap().get(actionKey);
-        return invokeActionMethod(componentBean.getComponent(), actionMethod, request);
+        UIApiMethod actionMethod = componentBean.getMethodMap().get(actionKey);
+        Object result = invokeActionMethod(componentBean.getComponent(), actionMethod.getMethod(), request);
+        if (actionMethod.isNeedRecordFilter()) {
+            if (result instanceof DataResult) {
+                DataResult<?> dataResult = (DataResult<?>) result;
+                dataResult.getData().stream().filter(DataRecord.class::isInstance)
+                        .forEach(dataRecord -> doRecordActionFilter((DataRecord) dataRecord, componentBean));
+            } else if (result instanceof DataRecord) {
+                doRecordActionFilter((DataRecord) result, componentBean);
+            }
+        }
+        return result;
     }
 
     @PostMapping("/lookup/{lookupKey}")
@@ -49,6 +62,17 @@ public class FastballComponentController {
         LookupActionComponent lookupActionComponent = lookupActionBean.getLookupAction();
         Method actionMethod = lookupActionBean.getLookupMethod();
         return invokeActionMethod(lookupActionComponent, actionMethod, request);
+    }
+
+    private void doRecordActionFilter(DataRecord record, ComponentBean componentBean) {
+        Map<String, Boolean> recordActionAvailableFlags = new HashMap<>();
+        componentBean.getRecordActionFilterClasses().forEach((key, value) -> {
+            RecordActionFilter recordActionFilter = recordActionFilterRegistry.getRecordActionFilter(value);
+            if (recordActionFilter != null) {
+                recordActionAvailableFlags.put(key, recordActionFilter.filter(record));
+            }
+        });
+        record.setRecordActionAvailableFlags(recordActionAvailableFlags);
     }
 
 

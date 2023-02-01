@@ -1,7 +1,5 @@
 package dev.fastball.core.annotation;
 
-import dev.fastball.core.component.Component;
-
 import java.lang.annotation.*;
 
 /**
@@ -17,17 +15,7 @@ public @interface EditComponent {
     /**
      * 编辑模式下引用的组件
      *
-     * @return 对应组件的 Class
+     * @return 对应组件的引用
      */
-    Class<? extends Component> value();
-
-    /**
-     * @return 当前字段值传给组件时的 props key
-     */
-    String valueKey() default "value";
-
-    /**
-     * @return 当前记录值传给组件时的 props key
-     */
-    String recordKey() default "record";
+    RefComponent value();
 }
