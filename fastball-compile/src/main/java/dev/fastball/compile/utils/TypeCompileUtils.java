@@ -1,7 +1,6 @@
 package dev.fastball.compile.utils;
 
 import dev.fastball.compile.exception.CompilerException;
-import dev.fastball.core.annotation.*;
 import dev.fastball.core.component.Range;
 import dev.fastball.core.info.basic.*;
 import dev.fastball.core.info.component.ComponentProps;
@@ -131,27 +130,46 @@ public class TypeCompileUtils {
         return valueType;
     }
 
-    private static ValueType compileRange(DeclaredType fieldType) {
+    private static ValueType compileRange(DeclaredType fieldType, VariableElement fieldElement, ProcessingEnvironment processingEnv) {
         TypeMirror typeMirror = fieldType.getTypeArguments().get(0);
+        Field fieldAnnotation = fieldElement.getAnnotation(Field.class);
         TypeElement typeElement = (TypeElement) ((DeclaredType) typeMirror).asElement();
         switch (typeElement.getQualifiedName().toString()) {
-            case "java.lang.Long":
-            case "java.lang.Integer":
-            case "java.lang.Short":
-            case "java.lang.Byte":
-            case "java.lang.Double":
-            case "java.lang.Float":
-            case "java.math.BigInteger":
-            case "java.math.BigDecimal":
-                return ValueType.DIGIT_RANGE;
+            case "java.lang.CharSequence":
+            case "java.lang.String":
+                if (fieldAnnotation != null) {
+                    if (fieldAnnotation.type() == ValueType.TIME_RANGE) {
+                        return ValueType.TIME_RANGE;
+                    }
+                    if (fieldAnnotation.type() == ValueType.DATE_WEEK_RANGE) {
+                        return ValueType.DATE_WEEK_RANGE;
+                    }
+                    if (fieldAnnotation.type() == ValueType.DATE_MONTH_RANGE) {
+                        return ValueType.DATE_MONTH_RANGE;
+                    }
+                    if (fieldAnnotation.type() == ValueType.DATE_QUARTER_RANGE) {
+                        return ValueType.DATE_QUARTER_RANGE;
+                    }
+                    if (fieldAnnotation.type() == ValueType.DATE_YEAR_RANGE) {
+                        return ValueType.DATE_YEAR_RANGE;
+                    }
+                }
+                return null;
             case "java.time.LocalTime":
                 return ValueType.TIME_RANGE;
             case "java.time.LocalDate":
                 return ValueType.DATE_RANGE;
-            case "java.util.Date":
             case "java.time.LocalDateTime":
                 return ValueType.DATE_TIME_RANGE;
+            case "java.util.Date":
+                if (fieldAnnotation != null && fieldAnnotation.type() == ValueType.DATE_TIME_RANGE) {
+                    return ValueType.DATE_TIME_RANGE;
+                }
+                return ValueType.DATE_RANGE;
             default:
+                if (ElementCompileUtils.isAssignableFrom(Number.class, typeElement, processingEnv)) {
+                    return ValueType.DIGIT_RANGE;
+                }
                 return null;
         }
     }
@@ -188,7 +206,7 @@ public class TypeCompileUtils {
                 fieldInfo.setValueType(valueType.getType());
                 return ValueType.MULTI_SELECT;
             } else if (typeElement.getKind() == ElementKind.CLASS) {
-                ValueType type = compileBasicClassType(typeElement, fieldElement, fieldInfo);
+                ValueType type = compileBasicClassType(typeElement, fieldElement, fieldInfo, processingEnv);
                 if (type != null) {
                     String fieldReferenceName = ((TypeElement) fieldElement.getEnclosingElement()).getQualifiedName() + ":" + fieldElement.getSimpleName();
                     throw new CompilerException("Field [" + fieldReferenceName + "] Collection basic type [" + typeElement + "] not supported, if you want multiple select, try use @Lookup");
@@ -210,13 +228,13 @@ public class TypeCompileUtils {
         if (ElementCompileUtils.isAssignableFrom(Iterable.class, typeElement, processingEnv)) {
             return compileCollection((DeclaredType) fieldType, processingEnv, fieldInfo, props, compiledTypes, fieldElement);
         } else if (ElementCompileUtils.isAssignableFrom(Range.class, typeElement, processingEnv)) {
-            return compileRange((DeclaredType) fieldType);
+            return compileRange((DeclaredType) fieldType, fieldElement, processingEnv);
         } else {
             switch (typeElement.getKind()) {
                 case ENUM:
                     return compileEnumType(typeElement, processingEnv, fieldInfo);
                 case CLASS:
-                    ValueType type = compileBasicClassType(typeElement, fieldElement, fieldInfo);
+                    ValueType type = compileBasicClassType(typeElement, fieldElement, fieldInfo, processingEnv);
                     if (type != null) {
                         return type;
                     }
@@ -295,44 +313,23 @@ public class TypeCompileUtils {
                 return ValueType.DIGIT;
             case BOOLEAN:
                 compileBooleanField(fieldElement, fieldInfo);
-                return ValueType.SWITCH;
+                return ValueType.BOOLEAN;
             default:
                 return ValueType.AUTO;
         }
     }
 
-    private static ValueType compileBasicClassType(TypeElement typeElement, VariableElement fieldElement, FieldInfo fieldInfo) {
+    private static ValueType compileBasicClassType(TypeElement typeElement, VariableElement fieldElement, FieldInfo fieldInfo, ProcessingEnvironment processingEnv) {
         Field fieldAnnotation = fieldElement.getAnnotation(Field.class);
         switch (typeElement.getQualifiedName().toString()) {
-            case "java.lang.Long":
-            case "java.lang.Integer":
-            case "java.lang.Short":
-            case "java.lang.Byte":
-            case "java.lang.Double":
-            case "java.lang.Float":
-            case "java.math.BigInteger":
-            case "java.math.BigDecimal":
-                if (fieldAnnotation != null && fieldAnnotation.type() == ValueType.MONEY) {
-                    return ValueType.MONEY;
-                }
-                return ValueType.DIGIT;
             case "java.lang.Boolean":
                 compileBooleanField(fieldElement, fieldInfo);
-                return ValueType.SWITCH;
+                return ValueType.BOOLEAN;
             case "java.lang.CharSequence":
             case "java.lang.String":
-                if (fieldAnnotation != null && fieldAnnotation.type() == ValueType.TEXTAREA) {
-                    return ValueType.TEXTAREA;
-                }
-                return ValueType.TEXT;
-            case "java.time.LocalTime":
-                return ValueType.TIME;
-            case "java.time.LocalDate":
-                return ValueType.DATE;
-            case "java.util.Date":
                 if (fieldAnnotation != null) {
-                    if (fieldAnnotation.type() == ValueType.DATE_TIME) {
-                        return ValueType.DATE_TIME;
+                    if (fieldAnnotation.type() == ValueType.TEXTAREA) {
+                        return ValueType.TEXTAREA;
                     }
                     if (fieldAnnotation.type() == ValueType.DATE_WEEK) {
                         return ValueType.DATE_WEEK;
@@ -347,10 +344,25 @@ public class TypeCompileUtils {
                         return ValueType.DATE_YEAR;
                     }
                 }
+                return ValueType.TEXT;
+            case "java.time.LocalTime":
+                return ValueType.TIME;
+            case "java.time.LocalDate":
+                return ValueType.DATE;
+            case "java.util.Date":
+                if (fieldAnnotation != null && fieldAnnotation.type() == ValueType.DATE_TIME) {
+                    return ValueType.DATE_TIME;
+                }
                 return ValueType.DATE;
             case "java.time.LocalDateTime":
                 return ValueType.DATE_TIME;
             default:
+                if (ElementCompileUtils.isAssignableFrom(Number.class, typeElement, processingEnv)) {
+                    if (fieldAnnotation != null && fieldAnnotation.type() == ValueType.MONEY) {
+                        return ValueType.MONEY;
+                    }
+                    return ValueType.DIGIT;
+                }
                 return null;
         }
     }

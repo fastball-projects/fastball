@@ -50,6 +50,22 @@ public enum ValueType {
      */
     DATE_TIME_RANGE("dateTimeRange"),
     /**
+     * 周区间
+     */
+    DATE_WEEK_RANGE("dateWeekRange"),
+    /**
+     * 月区间
+     */
+    DATE_MONTH_RANGE("dateMonthRange"),
+    /**
+     * 季度区间
+     */
+    DATE_QUARTER_RANGE("dateQuarterRange"),
+    /**
+     * 年份区间
+     */
+    DATE_YEAR_RANGE("dateYearRange"),
+    /**
      * 时间
      */
     TIME("time"),
@@ -120,7 +136,7 @@ public enum ValueType {
     /**
      * 开关
      */
-    SWITCH("switch"),
+    BOOLEAN("switch"),
     /**
      * 相对于当前时间
      */

@@ -27,4 +27,12 @@ public class Range<T> {
     public Range(T[] data) {
         this.data = data;
     }
+
+    public T getStart() {
+        return data != null && data.length > 0 ? data[0] : null;
+    }
+
+    public T getEnd() {
+        return data != null && data.length > 1 ? data[1] : null;
+    }
 }

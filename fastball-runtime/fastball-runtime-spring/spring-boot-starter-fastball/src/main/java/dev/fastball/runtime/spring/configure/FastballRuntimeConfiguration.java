@@ -10,7 +10,6 @@ import dev.fastball.core.component.runtime.RecordActionFilterRegistry;
 import dev.fastball.runtime.spring.FastballComponentController;
 import dev.fastball.runtime.spring.FastballComponentPostProcessor;
 import dev.fastball.runtime.spring.FastballComponentRegistryPostProcessor;
-import jdk.internal.joptsimple.internal.Strings;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -47,7 +46,7 @@ public class FastballRuntimeConfiguration implements WebMvcConfigurer {
         javaTimeModule.addDeserializer(LocalTime.class, new JsonDeserializer<LocalTime>() {
             @Override
             public LocalTime deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-                if (Strings.isNullOrEmpty(jsonParser.getValueAsString())) {
+                if (jsonParser.getValueAsString() != null && !jsonParser.getValueAsString().isEmpty()) {
                     return null;
                 }
                 return LocalTime.parse(jsonParser.getValueAsString(), DateTimeFormatter.ofPattern(DEFAULT_TIME_FORMATTER));

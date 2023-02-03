@@ -170,6 +170,12 @@ public class ElementCompileUtils {
         if (clazz.getCanonicalName().equals(element.getQualifiedName().toString())) {
             return true;
         }
+        if (element.getSuperclass() != null) {
+            TypeElement superType = (TypeElement) processingEnv.getTypeUtils().asElement(element.getSuperclass());
+            if (superType != null && isAssignableFrom(clazz, superType, processingEnv)) {
+                return true;
+            }
+        }
         for (TypeMirror anInterface : element.getInterfaces()) {
             TypeElement superInterface = (TypeElement) processingEnv.getTypeUtils().asElement(anInterface);
             if (clazz.getCanonicalName().equals(superInterface.getQualifiedName().toString())) {
