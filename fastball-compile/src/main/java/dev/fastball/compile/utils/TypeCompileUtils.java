@@ -1,6 +1,7 @@
 package dev.fastball.compile.utils;
 
 import dev.fastball.compile.exception.CompilerException;
+import dev.fastball.core.annotation.*;
 import dev.fastball.core.component.Range;
 import dev.fastball.core.info.basic.*;
 import dev.fastball.core.info.component.ComponentProps;
