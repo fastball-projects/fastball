@@ -7,7 +7,7 @@
     <groupId>dev.fastball</groupId>
     <artifactId>fastball-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.1.1-SNAPSHOT</version>
+    <version>0.2.0</version>
     <modules>
         <module>fastball-maven-plugin</module>
         <module>fastball-core</module>
@@ -39,6 +39,8 @@
         <javax.validation.version>2.0.1.Final</javax.validation.version>
         <jakarta.validation.version>3.0.2</jakarta.validation.version>
         <guava.version>31.1-jre</guava.version>
+
+        <auto-value.version>0.2.0</auto-value.version>
 
         <slf4j.version>1.7.36</slf4j.version>
         <spring.version>5.3.24</spring.version>
@@ -138,49 +140,49 @@
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>auto-value</artifactId>
-                <version>0.1.0-SNAPSHOT</version>
+                <version>${auto-value.version}</version>
             </dependency>
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-core</artifactId>
-                <version>0.1.1-SNAPSHOT</version>
+                <version>0.2.0</version>
             </dependency>
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-compile</artifactId>
-                <version>0.1.1-SNAPSHOT</version>
+                <version>0.2.0</version>
             </dependency>
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-generator</artifactId>
-                <version>0.1.1-SNAPSHOT</version>
+                <version>0.2.0</version>
             </dependency>
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-runtime-spring-configure</artifactId>
-                <version>0.1.1-SNAPSHOT</version>
+                <version>0.2.0</version>
             </dependency>
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>spring-boot-starter-fastball</artifactId>
-                <version>0.1.1-SNAPSHOT</version>
+                <version>0.2.0</version>
             </dependency>
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-portal</artifactId>
-                <version>0.1.1-SNAPSHOT</version>
+                <version>0.2.0</version>
             </dependency>
 
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-maven-plugin</artifactId>
-                <version>0.1.1-SNAPSHOT</version>
+                <version>0.2.0</version>
             </dependency>
 
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-runtime-spring-devtools</artifactId>
-                <version>0.1.1-SNAPSHOT</version>
+                <version>0.2.0</version>
             </dependency>
             <!-- Self project end -->
         </dependencies>
