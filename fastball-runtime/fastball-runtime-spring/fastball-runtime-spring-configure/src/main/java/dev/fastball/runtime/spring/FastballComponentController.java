@@ -3,6 +3,7 @@ package dev.fastball.runtime.spring;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.fastball.core.Result;
 import dev.fastball.core.component.DataRecord;
 import dev.fastball.core.component.DataResult;
 import dev.fastball.core.component.LookupActionComponent;
@@ -40,14 +41,21 @@ public class FastballComponentController {
     public Object invokeComponentAction(@PathVariable String componentKey, @PathVariable String actionKey, ServletRequest request) throws IOException, InvocationTargetException, IllegalAccessException {
         ComponentBean componentBean = componentRegistry.getComponentBean(componentKey);
         UIApiMethod actionMethod = componentBean.getMethodMap().get(actionKey);
-        Object result = invokeActionMethod(componentBean.getComponent(), actionMethod.getMethod(), request);
+        Object data = invokeActionMethod(componentBean.getComponent(), actionMethod.getMethod(), request);
+        Result<?> result;
+        if(data instanceof Result) {
+            result = (Result<?>) data;
+            data = result.getData();
+        } else {
+            result = Result.success(data);
+        }
         if (actionMethod.isNeedRecordFilter()) {
-            if (result instanceof DataResult) {
-                DataResult<?> dataResult = (DataResult<?>) result;
+            if (data instanceof DataResult) {
+                DataResult<?> dataResult = (DataResult<?>) data;
                 dataResult.getData().stream().filter(DataRecord.class::isInstance)
                         .forEach(dataRecord -> doRecordActionFilter((DataRecord) dataRecord, componentBean));
-            } else if (result instanceof DataRecord) {
-                doRecordActionFilter((DataRecord) result, componentBean);
+            } else if (data instanceof DataRecord) {
+                doRecordActionFilter((DataRecord) data, componentBean);
             }
         }
         return result;

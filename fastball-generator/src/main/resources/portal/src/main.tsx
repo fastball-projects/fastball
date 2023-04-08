@@ -1,14 +1,16 @@
 import React, { useState } from 'react'
 import ReactDOM from 'react-dom/client'
-import { HashRouter, Routes, Route, Outlet, Link, RouteProps } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Outlet, Link, RouteProps } from "react-router-dom";
 import ProLayout from '@ant-design/pro-layout';
 import { Button, Result } from 'antd';
 import routes from './routes'
 import { RouteComponentProps } from '../types'
 import { routeBuilder } from './route-builder'
+import Login from './login'
 
 const HomePage: React.FC<RouteComponentProps> = ({ routes }) => (
   <Routes>
+    <Route path="/login" element={<Login />} />
     <Route path="/" element={<Layout routes={routes} />}>
       {routes.map(routeBuilder)}
       <Route path="*" element={<Page404 />} />
@@ -61,7 +63,7 @@ const Layout: React.FC<RouteComponentProps> = ({ routes }) => {
 }
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-  <HashRouter>
+  <BrowserRouter>
     <HomePage routes={routes} />
-  </HashRouter>
+  </BrowserRouter>
 )

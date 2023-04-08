@@ -7,7 +7,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ant-design/icons": "^5.0.1",
+    "@ant-design/pro-components": "^2.4.4",
     "@ant-design/pro-layout": "^7.4.0",
+    "@ant-design/use-emotion-css": "^1.0.4",
     "antd": "^5.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
