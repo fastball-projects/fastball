@@ -16,5 +16,5 @@ public @interface Lookup {
 
     String labelField();
 
-    String valueField();
+    String valueField() default "id";
 }
