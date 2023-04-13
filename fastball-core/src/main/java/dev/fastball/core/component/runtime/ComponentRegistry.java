@@ -5,6 +5,7 @@ import dev.fastball.core.annotation.UIApi;
 import dev.fastball.core.annotation.UIComponent;
 import dev.fastball.core.component.Component;
 import dev.fastball.core.component.RecordActionFilter;
+import org.springframework.aop.support.AopUtils;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -23,7 +24,7 @@ public class ComponentRegistry {
     }
 
     public void register(Component component) {
-        Class<? extends Component> componentClass = component.getClass();
+        Class<? extends Component> componentClass = (Class<? extends Component>) AopUtils.getTargetClass(component);
         ComponentBean componentBean = new ComponentBean();
         componentBean.setComponent(component);
         UIComponent frontendComponentAnnotation = componentClass.getAnnotation(UIComponent.class);
