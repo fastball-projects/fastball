@@ -63,7 +63,6 @@ public class TypeCompileUtils {
     }
 
     public static <T extends FieldInfo> void compileField(VariableElement fieldElement, ProcessingEnvironment processingEnv, ComponentProps props, T fieldInfo, BiConsumer<VariableElement, T> afterBuild, Set<TypeMirror> compiledTypes) {
-        fieldInfo.setColProps(Collections.singletonMap("span", 12));
         fieldInfo.dataIndex(fieldElement.getSimpleName().toString());
         Field fieldAnnotation = fieldElement.getAnnotation(Field.class);
         if (fieldAnnotation != null) {
@@ -212,7 +211,7 @@ public class TypeCompileUtils {
                     String fieldReferenceName = ((TypeElement) fieldElement.getEnclosingElement()).getQualifiedName() + ":" + fieldElement.getSimpleName();
                     throw new CompilerException("Field [" + fieldReferenceName + "] Collection basic type [" + typeElement + "] not supported, if you want multiple select, try use @Lookup");
                 } else {
-                    fieldInfo.setColProps(Collections.singletonMap("span", 24));
+                    fieldInfo.setEntireRow(true);
                     fieldInfo.setFormItemProps(Collections.singletonMap("alwaysShowItemLabel", true));
                     compileSubFields(typeElement, processingEnv, fieldInfo, props, compiledTypes);
                     return ValueType.ARRAY;
@@ -371,7 +370,7 @@ public class TypeCompileUtils {
     private static void compileSubFields(TypeElement typeElement, ProcessingEnvironment processingEnv, FieldInfo fieldInfo, ComponentProps props, Set<TypeMirror> compiledTypes) {
         List<FieldInfo> subFields = compileTypeFields(typeElement, processingEnv, props, FieldInfo::new, null, compiledTypes);
         fieldInfo.setSubFields(subFields);
-        fieldInfo.setColProps(Collections.singletonMap("span", 24));
+        fieldInfo.setEntireRow(true);
     }
 
     private static <T extends FieldInfo> void compilePopup(T fieldInfo, VariableElement fieldElement, ComponentProps props) {

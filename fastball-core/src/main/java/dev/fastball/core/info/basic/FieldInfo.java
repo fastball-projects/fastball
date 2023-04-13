@@ -36,7 +36,7 @@ public class FieldInfo {
 
     private Object formItemProps;
 
-    private Map<String, Integer> colProps;
+    private boolean entireRow;
 
     private LookupInfo lookup;
 
