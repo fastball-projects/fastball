@@ -27,7 +27,7 @@ public @interface Popup {
      *
      * @return 弹出窗口的宽度
      */
-    int width() default 0;
+    String width() default "75%";
 
     String title() default "";
 

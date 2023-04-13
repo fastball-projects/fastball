@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PopupInfo {
-    private Integer width;
+    private String width;
 
     private String title;
 
