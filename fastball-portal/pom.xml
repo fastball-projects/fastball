@@ -10,25 +10,24 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>fastball-portal</artifactId>
+    <packaging>pom</packaging>
 
-    <dependencies>
-        <dependency>
-            <groupId>dev.fastball</groupId>
-            <artifactId>spring-boot-starter-fastball</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>dev.fastball</groupId>
-            <artifactId>fastball-generator</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>dev.fastball</groupId>
-            <artifactId>fastball-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.reflections</groupId>
-            <artifactId>reflections</artifactId>
-            <version>0.10.2</version>
-        </dependency>
-    </dependencies>
+
+    <modules>
+        <module>fastball-portal-core</module>
+        <module>fastball-portal-jpa</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
 </project>

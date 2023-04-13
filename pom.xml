@@ -49,6 +49,7 @@
         <commons-exec.version>1.3</commons-exec.version>
         <jackson.version>2.14.1</jackson.version>
         <lombok.version>1.18.24</lombok.version>
+        <jjwt.version>0.11.5</jjwt.version>
     </properties>
 
     <dependencyManagement>
@@ -78,6 +79,17 @@
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-jackson</artifactId>
+                <version>${jjwt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-impl</artifactId>
+                <version>${jjwt.version}</version>
             </dependency>
             <!-- Common end -->
 
@@ -182,6 +194,18 @@
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-runtime-spring-devtools</artifactId>
+                <version>0.3.0-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>dev.fastball</groupId>
+                <artifactId>fastball-portal-core</artifactId>
+                <version>0.3.0-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>dev.fastball</groupId>
+                <artifactId>fastball-portal-jpa</artifactId>
                 <version>0.3.0-SNAPSHOT</version>
             </dependency>
             <!-- Self project end -->
