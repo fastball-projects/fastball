@@ -1,8 +1,8 @@
 package dev.fastball.portal.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import dev.fastball.orm.jpa.JpaBaseEntity;
 import dev.fastball.portal.model.entity.RoleEntity;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;

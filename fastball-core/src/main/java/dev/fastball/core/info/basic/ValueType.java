@@ -180,7 +180,17 @@ public enum ValueType {
     /**
      * 嵌套表单列表, 可维护多条数据, 类似 Entity[], Entity 是复杂对象, 例如嵌套表单
      */
-    ARRAY("Array");
+    ARRAY("Array"),
+
+    /**
+     * 地址组件
+     */
+    ADDRESS("Address"),
+
+    /**
+     * 子表
+     */
+    SUB_TABLE("SubTable");
 
     ValueType(String type) {
         this.type = type;

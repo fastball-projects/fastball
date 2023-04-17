@@ -3,7 +3,7 @@ package dev.fastball.portal.model.entity;
 import dev.fastball.portal.dict.UserStatus;
 import dev.fastball.portal.model.context.User;
 
-public interface UserEntity extends User, BasicEntity {
+public interface UserEntity extends User {
 
     String getPassword();
 

@@ -1,14 +1,11 @@
 package dev.fastball.portal.entity;
 
-import dev.fastball.portal.converter.MapJsonConverter;
+import dev.fastball.orm.jpa.JpaBaseEntity;
+import dev.fastball.orm.jpa.converter.MapJsonConverter;
 import dev.fastball.portal.model.entity.MenuEntity;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
-import org.springframework.data.convert.ValueConverter;
 
 import javax.persistence.Convert;
 import javax.persistence.Entity;

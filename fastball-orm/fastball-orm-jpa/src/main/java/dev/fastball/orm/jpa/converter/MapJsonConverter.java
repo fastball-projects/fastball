@@ -1,4 +1,4 @@
-package dev.fastball.portal.converter;
+package dev.fastball.orm.jpa.converter;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;

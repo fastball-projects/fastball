@@ -4,7 +4,7 @@ import dev.fastball.portal.model.context.Menu;
 
 import java.util.Map;
 
-public interface MenuEntity extends BasicEntity, Menu {
+public interface MenuEntity extends Menu {
 
     void setParentId(String parentId);
 

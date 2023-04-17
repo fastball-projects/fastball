@@ -114,8 +114,11 @@ public class TypeCompileUtils {
         } else if (type.getKind() == TypeKind.ARRAY) {
             valueType = compileArray((ArrayType) type, processingEnv, fieldInfo, props, compiledTypes, fieldElement);
         }
+        Field fieldAnnotation = fieldElement.getAnnotation(Field.class);
         if (valueType == null) {
-            if (type.getKind().isPrimitive()) {
+            if (fieldAnnotation != null && fieldAnnotation.type() != ValueType.AUTO) {
+                valueType = fieldAnnotation.type();
+            } else if (type.getKind().isPrimitive()) {
                 valueType = compilePrimitiveType(type, fieldElement, fieldInfo);
             } else if (type.getKind() == TypeKind.DECLARED) {
                 valueType = compileDeclaredType(fieldElement, processingEnv, fieldInfo, props, compiledTypes);
@@ -124,6 +127,7 @@ public class TypeCompileUtils {
         if (valueType == null) {
             valueType = ValueType.AUTO;
         }
+
         // TODO 临时避免同级同类型字段消失, 可以优化 cache
         compiledTypes.remove(type);
         fieldInfo.setValueType(valueType.getType());
@@ -214,7 +218,7 @@ public class TypeCompileUtils {
                     fieldInfo.setEntireRow(true);
                     fieldInfo.setFormItemProps(Collections.singletonMap("alwaysShowItemLabel", true));
                     compileSubFields(typeElement, processingEnv, fieldInfo, props, compiledTypes);
-                    return ValueType.ARRAY;
+                    return ValueType.SUB_TABLE;
                 }
             }
         }

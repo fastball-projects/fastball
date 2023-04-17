@@ -15,6 +15,8 @@
         <module>fastball-portal</module>
         <module>fastball-runtime</module>
         <module>fastball-generator</module>
+        <module>fastball-orm</module>
+        <module>fastball-orm/fastball-orm-jpa</module>
     </modules>
 
     <distributionManagement>
@@ -54,6 +56,14 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
             <!-- Common start -->
             <dependency>
                 <groupId>com.fasterxml.jackson</groupId>
@@ -211,6 +221,12 @@
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-portal-jpa</artifactId>
+                <version>0.3.0-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>dev.fastball</groupId>
+                <artifactId>fastball-orm-jpa</artifactId>
                 <version>0.3.0-SNAPSHOT</version>
             </dependency>
             <!-- Self project end -->
