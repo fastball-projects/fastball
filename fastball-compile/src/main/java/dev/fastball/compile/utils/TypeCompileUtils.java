@@ -81,6 +81,7 @@ public class TypeCompileUtils {
         }
     }
 
+    // FIXME 这样设计有问题, 某些场景主动声明 fieldType 会不生效, 回头要改一下
     public static ValueType compileType(FieldInfo fieldInfo, VariableElement fieldElement, ProcessingEnvironment processingEnv, ComponentProps props, Set<TypeMirror> compiledTypes) {
         TypeMirror type = fieldElement.asType();
         if (compiledTypes.contains(type)) {
@@ -114,15 +115,10 @@ public class TypeCompileUtils {
         } else if (type.getKind() == TypeKind.ARRAY) {
             valueType = compileArray((ArrayType) type, processingEnv, fieldInfo, props, compiledTypes, fieldElement);
         }
-        Field fieldAnnotation = fieldElement.getAnnotation(Field.class);
-        if (valueType == null) {
-            if (fieldAnnotation != null && fieldAnnotation.type() != ValueType.AUTO) {
-                valueType = fieldAnnotation.type();
-            } else if (type.getKind().isPrimitive()) {
-                valueType = compilePrimitiveType(type, fieldElement, fieldInfo);
-            } else if (type.getKind() == TypeKind.DECLARED) {
-                valueType = compileDeclaredType(fieldElement, processingEnv, fieldInfo, props, compiledTypes);
-            }
+        if (type.getKind().isPrimitive()) {
+            valueType = compilePrimitiveType(type, fieldElement, fieldInfo);
+        } else if (type.getKind() == TypeKind.DECLARED) {
+            valueType = compileDeclaredType(fieldElement, processingEnv, fieldInfo, props, compiledTypes);
         }
         if (valueType == null) {
             valueType = ValueType.AUTO;
@@ -218,6 +214,10 @@ public class TypeCompileUtils {
                     fieldInfo.setEntireRow(true);
                     fieldInfo.setFormItemProps(Collections.singletonMap("alwaysShowItemLabel", true));
                     compileSubFields(typeElement, processingEnv, fieldInfo, props, compiledTypes);
+                    Field fieldAnnotation = fieldElement.getAnnotation(Field.class);
+                    if (fieldAnnotation != null && fieldAnnotation.type() == ValueType.ARRAY) {
+                        return ValueType.ARRAY;
+                    }
                     return ValueType.SUB_TABLE;
                 }
             }
