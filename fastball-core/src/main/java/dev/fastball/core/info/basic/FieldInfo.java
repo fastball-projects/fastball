@@ -48,7 +48,7 @@ public class FieldInfo {
 
     private List<ValidationRuleInfo> validationRules;
 
-    private List<FieldInfo> subFields;
+    private List<? extends FieldInfo> subFields;
 
     public FieldInfo(String dataIndex) {
         this.dataIndex = Collections.singletonList(dataIndex);

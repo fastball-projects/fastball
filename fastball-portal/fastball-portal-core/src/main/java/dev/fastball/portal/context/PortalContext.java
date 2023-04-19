@@ -38,7 +38,7 @@ public class PortalContext implements ApplicationContextAware {
     }
 
     @Cacheable("current_user_permission_set")
-    private static Set<String> userPermissionCodeSet(String userId) {
+    private static Set<String> userPermissionCodeSet(Long userId) {
         return fastballPortalService.getUserPermission(userId).stream()
                 .map(Permission::getCode)
                 .collect(Collectors.toSet());

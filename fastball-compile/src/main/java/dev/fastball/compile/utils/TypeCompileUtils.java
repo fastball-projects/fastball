@@ -58,11 +58,6 @@ public class TypeCompileUtils {
 
     public static <T extends FieldInfo> T compileField(VariableElement fieldElement, ProcessingEnvironment processingEnv, ComponentProps props, Supplier<T> fieldBuilder, BiConsumer<VariableElement, T> afterBuild, Set<TypeMirror> compiledTypes) {
         T fieldInfo = fieldBuilder.get();
-        compileField(fieldElement, processingEnv, props, fieldInfo, afterBuild, compiledTypes);
-        return fieldInfo;
-    }
-
-    public static <T extends FieldInfo> void compileField(VariableElement fieldElement, ProcessingEnvironment processingEnv, ComponentProps props, T fieldInfo, BiConsumer<VariableElement, T> afterBuild, Set<TypeMirror> compiledTypes) {
         fieldInfo.dataIndex(fieldElement.getSimpleName().toString());
         Field fieldAnnotation = fieldElement.getAnnotation(Field.class);
         if (fieldAnnotation != null) {
@@ -74,15 +69,16 @@ public class TypeCompileUtils {
             fieldInfo.setDisplay(DisplayType.Show);
             fieldInfo.setTitle(fieldElement.getSimpleName().toString());
         }
-        compileType(fieldInfo, fieldElement, processingEnv, props, compiledTypes);
+        compileType(fieldInfo, fieldElement, processingEnv, props, fieldBuilder, afterBuild, compiledTypes);
         fieldInfo.setValidationRules(compileFieldJsr303(fieldElement));
         if (afterBuild != null) {
             afterBuild.accept(fieldElement, fieldInfo);
         }
+        return fieldInfo;
     }
 
     // FIXME 这样设计有问题, 某些场景主动声明 fieldType 会不生效, 回头要改一下
-    public static ValueType compileType(FieldInfo fieldInfo, VariableElement fieldElement, ProcessingEnvironment processingEnv, ComponentProps props, Set<TypeMirror> compiledTypes) {
+    public static <T extends FieldInfo> ValueType compileType(T fieldInfo, VariableElement fieldElement, ProcessingEnvironment processingEnv, ComponentProps props, Supplier<T> fieldBuilder, BiConsumer<VariableElement, T> afterBuild, Set<TypeMirror> compiledTypes) {
         TypeMirror type = fieldElement.asType();
         if (compiledTypes.contains(type)) {
             return ValueType.CIRCULAR;
@@ -110,15 +106,17 @@ public class TypeCompileUtils {
             compileTreeLookup(fieldInfo, fieldElement, processingEnv);
             valueType = ValueType.TREE_SELECT;
         } else if (fieldElement.getAnnotation(ShowField.class) != null) {
-            compileShowField(fieldInfo, fieldElement, processingEnv, props, compiledTypes);
+            compileShowField(fieldInfo, fieldElement, processingEnv, props, fieldBuilder, afterBuild, compiledTypes);
             valueType = ValueType.TREE_SELECT;
         } else if (type.getKind() == TypeKind.ARRAY) {
-            valueType = compileArray((ArrayType) type, processingEnv, fieldInfo, props, compiledTypes, fieldElement);
+            valueType = compileArray((ArrayType) type, processingEnv, fieldInfo, props, fieldBuilder, afterBuild, compiledTypes, fieldElement);
         }
-        if (type.getKind().isPrimitive()) {
-            valueType = compilePrimitiveType(type, fieldElement, fieldInfo);
-        } else if (type.getKind() == TypeKind.DECLARED) {
-            valueType = compileDeclaredType(fieldElement, processingEnv, fieldInfo, props, compiledTypes);
+        if (valueType == null) {
+            if (type.getKind().isPrimitive()) {
+                valueType = compilePrimitiveType(type, fieldElement, fieldInfo);
+            } else if (type.getKind() == TypeKind.DECLARED) {
+                valueType = compileDeclaredType(fieldElement, processingEnv, fieldInfo, props, fieldBuilder, afterBuild, compiledTypes);
+            }
         }
         if (valueType == null) {
             valueType = ValueType.AUTO;
@@ -174,30 +172,32 @@ public class TypeCompileUtils {
         }
     }
 
-    private static ValueType compileCollection(DeclaredType fieldType, ProcessingEnvironment processingEnv, FieldInfo fieldInfo, ComponentProps props, Set<TypeMirror> compiledTypes, VariableElement fieldElement) {
-        return compileCollectionType(fieldType.getTypeArguments().get(0), processingEnv, fieldInfo, props, compiledTypes, fieldElement);
+    private static <T extends FieldInfo> ValueType compileCollection(DeclaredType fieldType, ProcessingEnvironment processingEnv, T fieldInfo, ComponentProps props, Supplier<T> fieldBuilder, BiConsumer<VariableElement, T> afterBuild, Set<TypeMirror> compiledTypes, VariableElement fieldElement) {
+        return compileCollectionType(fieldType.getTypeArguments().get(0), processingEnv, fieldInfo, props, fieldBuilder, afterBuild, compiledTypes, fieldElement);
     }
 
-    private static ValueType compileArray(ArrayType arrayType, ProcessingEnvironment processingEnv, FieldInfo fieldInfo, ComponentProps props, Set<TypeMirror> compiledTypes, VariableElement fieldElement) {
+    private static <T extends FieldInfo> ValueType compileArray(ArrayType arrayType, ProcessingEnvironment processingEnv, T fieldInfo, ComponentProps props, Supplier<T> fieldBuilder, BiConsumer<VariableElement, T> afterBuild, Set<TypeMirror> compiledTypes, VariableElement fieldElement) {
         TypeMirror componentType = arrayType.getComponentType();
-        return compileCollectionType(componentType, processingEnv, fieldInfo, props, compiledTypes, fieldElement);
+        return compileCollectionType(componentType, processingEnv, fieldInfo, props, fieldBuilder, afterBuild, compiledTypes, fieldElement);
     }
 
-    private static ValueType compileCollectionType(TypeMirror componentType, ProcessingEnvironment processingEnv, FieldInfo fieldInfo, ComponentProps props, Set<TypeMirror> compiledTypes, VariableElement fieldElement) {
+    private static <T extends FieldInfo> ValueType compileCollectionType(TypeMirror componentType, ProcessingEnvironment processingEnv, T fieldInfo, ComponentProps props, Supplier<T> fieldBuilder, BiConsumer<VariableElement, T> afterBuild, Set<TypeMirror> compiledTypes, VariableElement fieldElement) {
         if (componentType.getKind().isPrimitive()) {
             String fieldReferenceName = ((TypeElement) fieldElement.getEnclosingElement()).getQualifiedName() + ":" + fieldElement.getSimpleName();
             throw new CompilerException("Field [" + fieldReferenceName + "] Collection primitive type [" + componentType + "] not supported, if you want multiple select, try use @Lookup");
         } else if (componentType.getKind() == TypeKind.ARRAY) {
-            FieldInfo valueField = new FieldInfo(SIMPLE_FORM_LIST_VALUE_FIELD);
-            ValueType valueType = compileArray((ArrayType) componentType, processingEnv, valueField, props, compiledTypes, fieldElement);
+            T valueField = fieldBuilder.get();
+            valueField.dataIndex(SIMPLE_FORM_LIST_VALUE_FIELD);
+            ValueType valueType = compileArray((ArrayType) componentType, processingEnv, valueField, props, fieldBuilder, afterBuild, compiledTypes, fieldElement);
             valueField.setValueType(valueType.getType());
             fieldInfo.setSubFields(Collections.singletonList(valueField));
             return ValueType.SIMPLE_ARRAY;
         } else if (componentType.getKind() == TypeKind.DECLARED) {
             TypeElement typeElement = (TypeElement) ((DeclaredType) componentType).asElement();
             if (ElementCompileUtils.isAssignableFrom(Iterable.class, typeElement, processingEnv)) {
-                FieldInfo valueField = new FieldInfo(SIMPLE_FORM_LIST_VALUE_FIELD);
-                ValueType valueType = compileCollectionType(componentType, processingEnv, valueField, props, compiledTypes, fieldElement);
+                T valueField = fieldBuilder.get();
+                valueField.dataIndex(SIMPLE_FORM_LIST_VALUE_FIELD);
+                ValueType valueType = compileCollectionType(componentType, processingEnv, valueField, props, fieldBuilder, afterBuild, compiledTypes, fieldElement);
                 valueField.setValueType(valueType.getType());
                 fieldInfo.setSubFields(Collections.singletonList(valueField));
                 return ValueType.SIMPLE_ARRAY;
@@ -213,7 +213,7 @@ public class TypeCompileUtils {
                 } else {
                     fieldInfo.setEntireRow(true);
                     fieldInfo.setFormItemProps(Collections.singletonMap("alwaysShowItemLabel", true));
-                    compileSubFields(typeElement, processingEnv, fieldInfo, props, compiledTypes);
+                    compileSubFields(typeElement, processingEnv, fieldInfo, props, fieldBuilder, afterBuild, compiledTypes);
                     Field fieldAnnotation = fieldElement.getAnnotation(Field.class);
                     if (fieldAnnotation != null && fieldAnnotation.type() == ValueType.ARRAY) {
                         return ValueType.ARRAY;
@@ -226,11 +226,11 @@ public class TypeCompileUtils {
         throw new CompilerException("Field [" + fieldReferenceName + "] Collection type [" + componentType + "] not supported");
     }
 
-    private static ValueType compileDeclaredType(VariableElement fieldElement, ProcessingEnvironment processingEnv, FieldInfo fieldInfo, ComponentProps props, Set<TypeMirror> compiledTypes) {
+    private static <T extends FieldInfo> ValueType compileDeclaredType(VariableElement fieldElement, ProcessingEnvironment processingEnv, T fieldInfo, ComponentProps props, Supplier<T> fieldBuilder, BiConsumer<VariableElement, T> afterBuild, Set<TypeMirror> compiledTypes) {
         TypeMirror fieldType = fieldElement.asType();
         TypeElement typeElement = (TypeElement) ((DeclaredType) fieldType).asElement();
         if (ElementCompileUtils.isAssignableFrom(Iterable.class, typeElement, processingEnv)) {
-            return compileCollection((DeclaredType) fieldType, processingEnv, fieldInfo, props, compiledTypes, fieldElement);
+            return compileCollection((DeclaredType) fieldType, processingEnv, fieldInfo, props, fieldBuilder, afterBuild, compiledTypes, fieldElement);
         } else if (ElementCompileUtils.isAssignableFrom(Range.class, typeElement, processingEnv)) {
             return compileRange((DeclaredType) fieldType, fieldElement, processingEnv);
         } else {
@@ -242,7 +242,7 @@ public class TypeCompileUtils {
                     if (type != null) {
                         return type;
                     }
-                    compileSubFields(typeElement, processingEnv, fieldInfo, props, compiledTypes);
+                    compileSubFields(typeElement, processingEnv, fieldInfo, props, fieldBuilder, afterBuild, compiledTypes);
                     return ValueType.SUB_FIELDS;
                 default:
                     return null;
@@ -274,7 +274,7 @@ public class TypeCompileUtils {
         return ValueType.SELECT;
     }
 
-    private static ValueType compileShowField(FieldInfo fieldInfo, VariableElement fieldElement, ProcessingEnvironment processingEnv, ComponentProps props, Set<TypeMirror> compiledTypes) {
+    private static <T extends FieldInfo> ValueType compileShowField(T fieldInfo, VariableElement fieldElement, ProcessingEnvironment processingEnv, ComponentProps props, Supplier<T> fieldBuilder, BiConsumer<VariableElement, T> afterBuild, Set<TypeMirror> compiledTypes) {
         TypeElement typeElement = (TypeElement) ((DeclaredType) fieldElement.asType()).asElement();
         ShowField showFieldAnnotation = fieldElement.getAnnotation(ShowField.class);
         if (showFieldAnnotation != null) {
@@ -283,7 +283,7 @@ public class TypeCompileUtils {
                 String fieldReferenceName = ((TypeElement) fieldElement.getEnclosingElement()).getQualifiedName() + ":" + fieldElement.getSimpleName();
                 throw new CompilerException("Field [" + fieldReferenceName + "] has annotation @ShowField([" + String.join(",", showFieldAnnotation.value()) + "]), but field path not found field");
             }
-            ValueType valueType = compileType(fieldInfo, mainFieldElement, processingEnv, props, compiledTypes);
+            ValueType valueType = compileType(fieldInfo, mainFieldElement, processingEnv, props, fieldBuilder, afterBuild, compiledTypes);
             List<String> dataIndex = new ArrayList<>();
             dataIndex.addAll(fieldInfo.getDataIndex());
             dataIndex.addAll(Arrays.asList(showFieldAnnotation.value()));
@@ -371,8 +371,8 @@ public class TypeCompileUtils {
         }
     }
 
-    private static void compileSubFields(TypeElement typeElement, ProcessingEnvironment processingEnv, FieldInfo fieldInfo, ComponentProps props, Set<TypeMirror> compiledTypes) {
-        List<FieldInfo> subFields = compileTypeFields(typeElement, processingEnv, props, FieldInfo::new, null, compiledTypes);
+    private static <T extends FieldInfo> void compileSubFields(TypeElement typeElement, ProcessingEnvironment processingEnv, T fieldInfo, ComponentProps props, Supplier<T> fieldBuilder, BiConsumer<VariableElement, T> afterBuild, Set<TypeMirror> compiledTypes) {
+        List<T> subFields = compileTypeFields(typeElement, processingEnv, props, fieldBuilder, afterBuild, compiledTypes);
         fieldInfo.setSubFields(subFields);
         fieldInfo.setEntireRow(true);
     }

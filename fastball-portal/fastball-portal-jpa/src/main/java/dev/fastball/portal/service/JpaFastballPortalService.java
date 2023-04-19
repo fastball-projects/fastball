@@ -14,6 +14,7 @@ import dev.fastball.portal.repo.UserRepo;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -42,23 +43,23 @@ public class JpaFastballPortalService implements FastballPortalService {
     }
 
     @Override
-    public List<Permission> getUserPermission(String userId) {
+    public List<Permission> getUserPermission(Long userId) {
         return permissionRepo.findByUserId(userId).stream().map(p -> (Permission) p).collect(Collectors.toList());
     }
 
     @Override
-    public List<Permission> getUserPermission(String userId, PermissionType permissionType) {
+    public List<Permission> getUserPermission(Long userId, PermissionType permissionType) {
         return permissionRepo.findByUserIdAndType(userId, permissionType.toString()).stream().map(p -> (Permission) p).collect(Collectors.toList());
     }
 
     @Override
-    public List<Menu> getUserMenu(String userId) {
-        List<String> menuIdList = getUserPermission(userId, PermissionType.Menu).stream().map(Permission::getTarget).collect(Collectors.toList());
+    public List<Menu> getUserMenu(Long userId) {
+        List<Long> menuIdList = getUserPermission(userId, PermissionType.Menu).stream().map(Permission::getTarget).filter(Objects::nonNull).mapToLong(Long::valueOf).boxed().collect(Collectors.toList());
         return menuRepo.findAllById(menuIdList).stream().map(menu -> (Menu) menu).collect(Collectors.toList());
     }
 
     @Override
-    public List<Role> getUserRole(String userId) {
+    public List<Role> getUserRole(Long userId) {
         JpaUserEntity user = userRepo.findById(userId).orElseThrow(UserNotFoundException::new);
         return user.getRoles().stream().map(role -> (Role) role).collect(Collectors.toList());
     }

@@ -163,6 +163,9 @@
             </dependency>
             <!-- Maven end -->
 
+            <!-- Other start -->
+            <!-- Other end -->
+
             <!-- Self project start -->
             <dependency>
                 <groupId>dev.fastball</groupId>

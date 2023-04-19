@@ -17,11 +17,11 @@ public interface FastballPortalService {
 
     User loadByMobile(String mobile);
 
-    List<Permission> getUserPermission(String userId);
+    List<Permission> getUserPermission(Long userId);
 
-    List<Permission> getUserPermission(String userId, PermissionType permissionType);
+    List<Permission> getUserPermission(Long userId, PermissionType permissionType);
 
-    List<Menu> getUserMenu(String userId);
+    List<Menu> getUserMenu(Long userId);
 
-    List<Role> getUserRole(String userId);
+    List<Role> getUserRole(Long userId);
 }
