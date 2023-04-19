@@ -35,9 +35,13 @@ public class FastballComponentCompileProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         if (!preCompileDone) {
-            processPreCompile(roundEnv);
-            preCompileDone = true;
-            firstElement.addAll(roundEnv.getRootElements());
+            if (loadGeneratorStream(FastballPreCompileGenerator.class).findAny().isPresent()) {
+                processPreCompile(roundEnv);
+                preCompileDone = true;
+                firstElement.addAll(roundEnv.getRootElements());
+            } else {
+                processCompile(roundEnv);
+            }
             return false;
         } else {
             processCompile(roundEnv);
