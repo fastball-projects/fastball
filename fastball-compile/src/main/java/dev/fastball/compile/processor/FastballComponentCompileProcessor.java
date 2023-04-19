@@ -1,13 +1,9 @@
 package dev.fastball.compile.processor;
 
 import dev.fastball.compile.CompileContext;
-import dev.fastball.compile.ComponentCompiler;
-import dev.fastball.compile.ComponentCompilerLoader;
-import dev.fastball.compile.exception.CompilerException;
-import dev.fastball.core.info.component.ComponentInfo;
-import dev.fastball.core.info.component.ComponentInfo_AutoValue;
+import dev.fastball.compile.FastballCompileGenerator;
+import dev.fastball.compile.FastballPreCompileGenerator;
 import dev.fastball.core.material.MaterialRegistry;
-import dev.fastball.core.utils.JsonUtils;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
@@ -15,18 +11,13 @@ import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.TypeElement;
-import javax.tools.FileObject;
-import javax.tools.StandardLocation;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.List;
 import java.util.Objects;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static dev.fastball.core.Constants.FASTBALL_RESOURCE_PREFIX;
-import static dev.fastball.core.Constants.FASTBALL_VIEW_SUFFIX;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * @author gr@fastball.dev
@@ -38,46 +29,39 @@ public class FastballComponentCompileProcessor extends AbstractProcessor {
 
     MaterialRegistry materialRegistry = new MaterialRegistry(FastballComponentCompileProcessor.class.getClassLoader());
 
+    private boolean preCompileDone = false;
+
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        for (TypeElement componentElement : loadElements(roundEnv)) {
-            for (ComponentCompiler<?> compiler : ComponentCompilerLoader.getLoaders()) {
-                CompileContext compileContext = new CompileContext(processingEnv, roundEnv, materialRegistry, componentElement);
-                if (!compiler.support(compileContext)) {
-                    continue;
-                }
-                ComponentInfo<?> componentInfo = compiler.compile(compileContext);
-
-                String viewFilePath = componentElement.getQualifiedName().toString().replaceAll("\\.", "/");
-                String relativeName = FASTBALL_RESOURCE_PREFIX + viewFilePath + FASTBALL_VIEW_SUFFIX;
-                try {
-                    FileObject file = processingEnv.getFiler().getResource(StandardLocation.CLASS_OUTPUT, "", relativeName);
-                    if (file != null) {
-                        try (InputStream inputStream = file.openInputStream()) {
-                            ComponentInfo<?> existedComponentInfo = JsonUtils.fromJson(inputStream, ComponentInfo_AutoValue.class);
-                            // if view file is customized, skip generate
-                            if (existedComponentInfo.customized() == Boolean.TRUE) {
-                                continue;
-                            }
-                        }
-                    }
-                    // if file not found
-                } catch (IOException ignore) {
-                }
-                try {
-                    FileObject file = processingEnv.getFiler().createResource(StandardLocation.CLASS_OUTPUT, "", relativeName);
-                    try (OutputStream out = file.openOutputStream()) {
-                        JsonUtils.writeJson(out, componentInfo);
-                    }
-                } catch (IOException e) {
-                    throw new CompilerException(e);
-                }
-            }
+        if (preCompileDone) {
+            processCompile(roundEnv);
+        } else {
+            processPreCompile(roundEnv);
+            preCompileDone = true;
         }
         return false;
     }
 
-    protected List<TypeElement> loadElements(RoundEnvironment roundEnv) {
-        return getSupportedAnnotationTypes().stream().map(annotationName -> processingEnv.getElementUtils().getTypeElement(annotationName)).filter(Objects::nonNull).flatMap(annotationType -> roundEnv.getElementsAnnotatedWith(annotationType).stream()).map(TypeElement.class::cast).collect(Collectors.toList());
+    private void processPreCompile(RoundEnvironment roundEnv) {
+        loadGeneratorStream(FastballPreCompileGenerator.class).forEach(generator ->
+                loadElements(roundEnv, generator.getSupportedAnnotationTypes())
+                        .forEach(element -> generator.generate(element, processingEnv))
+        );
+    }
+
+    private void processCompile(RoundEnvironment roundEnv) {
+        loadGeneratorStream(FastballCompileGenerator.class).forEach(generator ->
+                loadElements(roundEnv, generator.getSupportedAnnotationTypes()).stream()
+                        .map(element -> new CompileContext(processingEnv, roundEnv, materialRegistry, element))
+                        .forEach(generator::generate)
+        );
+    }
+
+    private <T> Stream<T> loadGeneratorStream(Class<T> clazz) {
+        return StreamSupport.stream(ServiceLoader.load(clazz, clazz.getClassLoader()).spliterator(), false);
+    }
+
+    private List<TypeElement> loadElements(RoundEnvironment roundEnv, Set<String> supportedAnnotationTypes) {
+        return supportedAnnotationTypes.stream().map(annotationName -> processingEnv.getElementUtils().getTypeElement(annotationName)).filter(Objects::nonNull).flatMap(annotationType -> roundEnv.getElementsAnnotatedWith(annotationType).stream()).map(TypeElement.class::cast).collect(Collectors.toList());
     }
 }

@@ -1,7 +1,10 @@
 package dev.fastball.portal.config;
 
 import dev.fastball.portal.entity.JpaUserEntity;
-import dev.fastball.portal.repo.*;
+import dev.fastball.portal.repo.MenuRepo;
+import dev.fastball.portal.repo.PermissionRepo;
+import dev.fastball.portal.repo.RoleRepo;
+import dev.fastball.portal.repo.UserRepo;
 import dev.fastball.portal.service.FastballPortalService;
 import dev.fastball.portal.service.JpaFastballPortalService;
 import org.springframework.boot.autoconfigure.AutoConfiguration;

@@ -1,6 +1,5 @@
 package dev.fastball.portal.repo;
 
-import dev.fastball.portal.dict.PermissionType;
 import dev.fastball.portal.entity.JpaPermissionEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
