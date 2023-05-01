@@ -19,14 +19,36 @@
         <module>fastball-orm/fastball-orm-jpa</module>
     </modules>
 
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <properties>
+                <repo.snapshot.id>fx</repo.snapshot.id>
+                <repo.snapshot.url>http://82.157.239.41:7777/repository/snapshots/</repo.snapshot.url>
+                <repo.release.id>fx</repo.release.id>
+                <repo.release.url>http://82.157.239.41:7777/repository/releases/</repo.release.url>
+            </properties>
+        </profile>
+        <profile>
+            <id>release</id>
+            <properties>
+                <repo.snapshot.id>ossrh</repo.snapshot.id>
+                <repo.snapshot.url>https://s01.oss.sonatype.org/content/repositories/snapshots</repo.snapshot.url>
+                <repo.release.id>ossrh</repo.release.id>
+                <repo.release.url>https://s01.oss.sonatype.org/content/repositories/releases/</repo.release.url>
+            </properties>
+        </profile>
+    </profiles>
+
+
     <distributionManagement>
         <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+            <id>${repo.release.id}</id>
+            <url>${repo.snapshot.url}</url>
         </snapshotRepository>
         <repository>
-            <id>ossrh</id>
-            <url>https://s01.oss.sonatype.org/content/repositories/releases/</url>
+            <id>${repo.release.id}</id>
+            <url>${repo.release.url}</url>
         </repository>
     </distributionManagement>
 
