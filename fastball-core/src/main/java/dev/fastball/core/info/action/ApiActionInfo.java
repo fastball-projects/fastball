@@ -15,4 +15,6 @@ import lombok.experimental.SuperBuilder;
 @EqualsAndHashCode(callSuper = true)
 public class ApiActionInfo extends ActionInfo {
     protected final ActionType type = ActionType.API;
+    private boolean uploadFileAction;
+    private boolean downloadFileAction;
 }

@@ -20,4 +20,5 @@ public class UIApiMethod {
     private String key;
     private Method method;
     private boolean needRecordFilter;
+    private boolean downloadApi;
 }

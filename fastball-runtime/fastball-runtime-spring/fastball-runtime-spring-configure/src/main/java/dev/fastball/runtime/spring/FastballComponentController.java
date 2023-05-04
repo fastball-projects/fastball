@@ -1,22 +1,27 @@
 package dev.fastball.runtime.spring;
 
+import com.alibaba.excel.EasyExcel;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.fastball.core.Result;
-import dev.fastball.core.component.DataRecord;
-import dev.fastball.core.component.DataResult;
-import dev.fastball.core.component.LookupActionComponent;
-import dev.fastball.core.component.RecordActionFilter;
+import dev.fastball.core.component.*;
 import dev.fastball.core.component.runtime.*;
+import dev.fastball.core.intergration.storage.ObjectStorageService;
+import dev.fastball.core.intergration.storage.ObjectStorageUpload;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.apache.commons.compress.utils.IOUtils;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -36,14 +41,20 @@ public class FastballComponentController {
     private final LookupActionRegistry lookupActionRegistry;
     private final RecordActionFilterRegistry recordActionFilterRegistry;
     private final ObjectMapper objectMapper;
+    private final ObjectStorageService objectStorageService;
 
-    @PostMapping("/component/{componentKey}/action/{actionKey}")
-    public Object invokeComponentAction(@PathVariable String componentKey, @PathVariable String actionKey, ServletRequest request) throws IOException, InvocationTargetException, IllegalAccessException {
+    @PostMapping("/storage/generateUploadUrl")
+    public Result<ObjectStorageUpload> generateUploadUrl() {
+        return Result.success(ObjectStorageUpload.builder().url(objectStorageService.generateUploadUrl()).build());
+    }
+
+    @PostMapping(value = "/component/{componentKey}/action/{actionKey}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public Object invokeComponentAction(@PathVariable String componentKey, @PathVariable String actionKey, @RequestPart("data") String dataJson, @RequestPart(value = "file", required = false) MultipartFile file) throws IOException, InvocationTargetException, IllegalAccessException {
         ComponentBean componentBean = componentRegistry.getComponentBean(componentKey);
         UIApiMethod actionMethod = componentBean.getMethodMap().get(actionKey);
-        Object data = invokeActionMethod(componentBean.getComponent(), actionMethod.getMethod(), request);
+        Object data = invokeActionMethod(componentBean.getComponent(), actionMethod.getMethod(), dataJson, file, null);
         Result<?> result;
-        if(data instanceof Result) {
+        if (data instanceof Result) {
             result = (Result<?>) data;
             data = result.getData();
         } else {
@@ -59,6 +70,21 @@ public class FastballComponentController {
             }
         }
         return result;
+    }
+
+    @PostMapping(value = "/component/{componentKey}/downloadAction/{actionKey}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public void invokeComponentDownloadAction(@PathVariable String componentKey, @PathVariable String actionKey, @RequestPart("data") String dataJson, @RequestPart(value = "file", required = false) MultipartFile file, HttpServletResponse response) throws IOException, InvocationTargetException, IllegalAccessException {
+        ComponentBean componentBean = componentRegistry.getComponentBean(componentKey);
+        UIApiMethod actionMethod = componentBean.getMethodMap().get(actionKey);
+        Object result = invokeActionMethod(componentBean.getComponent(), actionMethod.getMethod(), dataJson, file, response);
+        if (result instanceof DownloadFile) {
+            DownloadFile downloadFile = ((DownloadFile) result);
+            response.setContentType(downloadFile.getContentType());
+            response.addHeader("Content-Disposition", "attachment; filename=" + downloadFile.getFileName());
+            response.addHeader("Cache-Control", "max-age=0");
+            response.setCharacterEncoding("utf-8");
+            IOUtils.copy(downloadFile.getInputStream(), response.getOutputStream());
+        }
     }
 
     @PostMapping("/lookup/{lookupKey}")
@@ -83,10 +109,18 @@ public class FastballComponentController {
         record.setRecordActionAvailableFlags(recordActionAvailableFlags);
     }
 
-
     private Object invokeActionMethod(Object bean, Method actionMethod, ServletRequest request) throws IOException, InvocationTargetException, IllegalAccessException {
-        Parameter[] parameterList = actionMethod.getParameters();
         JsonNode jsonNode = objectMapper.readTree(request.getInputStream());
+        return invokeActionMethod(bean, actionMethod, jsonNode, null, null);
+    }
+
+    private Object invokeActionMethod(Object bean, Method actionMethod, String dataJson, MultipartFile file, HttpServletResponse response) throws IOException, InvocationTargetException, IllegalAccessException {
+        JsonNode jsonNode = objectMapper.readTree(dataJson);
+        return invokeActionMethod(bean, actionMethod, jsonNode, file, response);
+    }
+
+    private Object invokeActionMethod(Object bean, Method actionMethod, JsonNode jsonNode, MultipartFile file, HttpServletResponse response) throws IOException, InvocationTargetException, IllegalAccessException {
+        Parameter[] parameterList = actionMethod.getParameters();
         Object[] params = new Object[parameterList.length];
         for (int i = 0; i < Math.min(jsonNode.size(), params.length); i++) {
             Parameter parameter = parameterList[i];
@@ -97,6 +131,19 @@ public class FastballComponentController {
                 }
             });
             params[i] = param;
+        }
+        if (file != null) {
+            for (int i = 0; i < parameterList.length; i++) {
+                if (parameterList[i].getType() == MultipartFile.class) {
+                    params[i] = file;
+                }
+                if (parameterList[i].getType() == InputStream.class) {
+                    params[i] = file.getInputStream();
+                }
+                if (parameterList[i].getType() == Byte[].class) {
+                    params[i] = file.getBytes();
+                }
+            }
         }
         return actionMethod.invoke(bean, params);
     }

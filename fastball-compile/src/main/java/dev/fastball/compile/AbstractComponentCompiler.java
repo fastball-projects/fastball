@@ -12,13 +12,17 @@ import dev.fastball.core.info.component.ComponentInfo;
 import dev.fastball.core.info.component.ComponentInfo_AutoValue;
 import dev.fastball.core.info.component.ComponentProps;
 
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
+import java.io.File;
+import java.io.InputStream;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -45,9 +49,9 @@ public abstract class AbstractComponentCompiler<T extends Component, P extends C
 
         P props = buildProps(compileContext);
         props.componentKey(ElementCompileUtils.getComponentKey(compileContext.getComponentElement()));
-        compileProps(props, compileContext);
-        compileViewActions(props, compileContext);
+        compileActions(props, compileContext);
         compileRecordActions(props, compileContext);
+        compileProps(props, compileContext);
         componentInfo.props(props);
         componentInfo.material(compileContext.getMaterialRegistry().getMaterial(this.getClass()));
         componentInfo.className(compileContext.getComponentElement().getQualifiedName().toString());
@@ -99,40 +103,66 @@ public abstract class AbstractComponentCompiler<T extends Component, P extends C
         throw new CompilerException("can't happened");
     }
 
-    private void compileViewActions(P props, CompileContext compileContext) {
+    private void compileActions(P props, CompileContext compileContext) {
+        List<ActionInfo> actionInfoList = compileContext.getMethodMap().values().stream()
+                .map(method -> buildApiActionInfo(method, compileContext.getProcessingEnv())).filter(Objects::nonNull).collect(Collectors.toList());
         ViewActions viewActions = compileContext.getComponentElement().getAnnotation(ViewActions.class);
+        props.actions(actionInfoList);
         if (viewActions == null) {
             return;
         }
-        List<ActionInfo> viewActionInfoList = new ArrayList<>();
-        for (ViewAction action : viewActions.value()) {
+        ViewAction[] actions = viewActions.actions().length > 0 ? viewActions.actions() : viewActions.value();
+        for (ViewAction action : actions) {
             ActionInfo viewActionInfo = buildViewActionInfo(action, props);
-            viewActionInfoList.add(viewActionInfo);
+            actionInfoList.add(viewActionInfo);
         }
-        props.actions(viewActionInfoList);
     }
 
     protected void compileRecordActions(P props, CompileContext compileContext) {
-        List<ActionInfo> recordActions = ElementCompileUtils
-                .getMethods(compileContext.getComponentElement(), compileContext.getProcessingEnv()).values().stream()
-                .map(this::buildApiRecordActionInfo).filter(Objects::nonNull).collect(Collectors.toList());
+        List<ActionInfo> recordActions = compileContext.getMethodMap().values().stream()
+                .map(method -> buildApiRecordActionInfo(method, compileContext.getProcessingEnv())).filter(Objects::nonNull).collect(Collectors.toList());
         RecordViewActions recordViewActions = compileContext.getComponentElement().getAnnotation(RecordViewActions.class);
-        if (recordViewActions != null) {
-            for (ViewAction action : recordViewActions.value()) {
-                ActionInfo actionInfo = buildViewActionInfo(action, props);
-                recordActions.add(actionInfo);
-            }
+        ViewActions viewActions = compileContext.getComponentElement().getAnnotation(ViewActions.class);
+        ViewAction[] actions;
+        if (viewActions != null && viewActions.recordActions().length > 0) {
+            actions = viewActions.actions();
+        } else if (recordViewActions != null) {
+            actions = recordViewActions.value();
+        } else {
+            return;
+        }
+        for (ViewAction action : actions) {
+            ActionInfo actionInfo = buildViewActionInfo(action, props);
+            recordActions.add(actionInfo);
         }
         props.recordActions(recordActions);
     }
 
-    protected ActionInfo buildApiRecordActionInfo(ExecutableElement method) {
+    protected ActionInfo buildApiRecordActionInfo(ExecutableElement method, ProcessingEnvironment processingEnv) {
         RecordAction actionAnnotation = method.getAnnotation(RecordAction.class);
         if (actionAnnotation == null) {
             return null;
         }
+        boolean hasFileParam = method.getParameters().stream().anyMatch(param -> isUploadField(param.asType(), processingEnv));
+
         return ApiActionInfo.builder()
                 .refresh(actionAnnotation.refresh())
+                .uploadFileAction(hasFileParam)
+                .closePopupOnSuccess(actionAnnotation.closePopupOnSuccess())
+                .actionName(actionAnnotation.name())
+                .actionKey(actionAnnotation.key().isEmpty() ? method.getSimpleName().toString() : actionAnnotation.key())
+                .build();
+    }
+
+    protected ActionInfo buildApiActionInfo(ExecutableElement method, ProcessingEnvironment processingEnv) {
+        Action actionAnnotation = method.getAnnotation(Action.class);
+        if (actionAnnotation == null) {
+            return null;
+        }
+        boolean hasFileParam = method.getParameters().stream().anyMatch(param -> isUploadField(param.asType(), processingEnv));
+        return ApiActionInfo.builder()
+                .refresh(actionAnnotation.refresh())
+                .uploadFileAction(hasFileParam)
                 .closePopupOnSuccess(actionAnnotation.closePopupOnSuccess())
                 .actionName(actionAnnotation.name())
                 .actionKey(actionAnnotation.key().isEmpty() ? method.getSimpleName().toString() : actionAnnotation.key())
@@ -163,4 +193,13 @@ public abstract class AbstractComponentCompiler<T extends Component, P extends C
         actionInfo.setClosePopupOnSuccess(viewAction.closePopupOnSuccess());
         return actionInfo;
     }
+
+    private boolean isUploadField(TypeMirror type, ProcessingEnvironment processingEnv) {
+        if (type.getKind() != TypeKind.DECLARED) {
+            return false;
+        }
+        String typeName = ((TypeElement) ((DeclaredType) type).asElement()).getQualifiedName().toString();
+        return typeName.equals(InputStream.class.getCanonicalName()) || typeName.equals("org.springframework.web.multipart.MultipartFile");
+    }
+
 }

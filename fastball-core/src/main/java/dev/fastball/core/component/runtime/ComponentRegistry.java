@@ -47,13 +47,20 @@ public class ComponentRegistry {
                     UIApi uiApi = method.getDeclaredAnnotation(UIApi.class);
                     Method declaredMethod = Arrays.stream(componentClass.getDeclaredMethods())
                             .filter(m -> !m.isBridge() && m.getName().equals(method.getName()))
-                            .findFirst().orElseThrow(() -> new RuntimeException("never happened"));
-                    actionMethodMap.put(declaredMethod.getName(), buildUIApiMethod(declaredMethod, uiApi));
+                            .findFirst().orElseGet(() -> method.isDefault() ? method : null);
+                    if(declaredMethod == null) {
+                        throw new RuntimeException("never happened");
+                    }
+                    UIApiMethod uiApiMethod = buildUIApiMethod(declaredMethod, uiApi);
+                    actionMethodMap.put(uiApiMethod.getKey(), uiApiMethod);
                 });
         Arrays.stream(componentClass.getDeclaredMethods())
                 .filter(method -> Arrays.stream(method.getDeclaredAnnotations())
                         .anyMatch(annotation -> annotation.annotationType().getDeclaredAnnotation(UIApi.class) != null)
-                ).forEach(method -> actionMethodMap.put(method.getName(), buildUIApiMethod(method, null)));
+                ).forEach(method -> {
+                    UIApiMethod uiApiMethod = buildUIApiMethod(method, null);
+                    actionMethodMap.put(uiApiMethod.getKey(), uiApiMethod);
+                });
         return actionMethodMap;
     }
 

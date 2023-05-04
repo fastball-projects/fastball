@@ -11,16 +11,8 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ViewActions {
+public @interface Actions {
+    ViewAction[] actions();
 
-    /**
-     * @return 组件级别的操作
-     * @deprecated use {@link ViewActions#actions()}
-     */
-    @Deprecated
-    ViewAction[] value();
-
-    ViewAction[] actions() default {};
-
-    ViewAction[] recordActions() default {};
+    ViewAction[] recordActions();
 }

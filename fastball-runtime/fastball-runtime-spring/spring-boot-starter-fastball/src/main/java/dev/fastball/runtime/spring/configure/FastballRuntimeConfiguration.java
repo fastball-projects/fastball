@@ -7,6 +7,9 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import dev.fastball.core.component.runtime.ComponentRegistry;
 import dev.fastball.core.component.runtime.LookupActionRegistry;
 import dev.fastball.core.component.runtime.RecordActionFilterRegistry;
+import dev.fastball.core.intergration.storage.ObjectStorageService;
+import dev.fastball.features.minio.MinioConfigProperties;
+import dev.fastball.features.minio.MinioObjectStorageService;
 import dev.fastball.runtime.spring.FastballComponentController;
 import dev.fastball.runtime.spring.FastballComponentPostProcessor;
 import dev.fastball.runtime.spring.FastballComponentRegistryPostProcessor;
@@ -76,7 +79,6 @@ public class FastballRuntimeConfiguration implements WebMvcConfigurer {
         return new LookupActionRegistry();
     }
 
-
     @Bean
     @ConditionalOnMissingBean
     public RecordActionFilterRegistry recordActionFilterRegistry() {
@@ -85,8 +87,8 @@ public class FastballRuntimeConfiguration implements WebMvcConfigurer {
 
     @Bean
     @ConditionalOnMissingBean
-    public FastballComponentController componentController(ComponentRegistry componentRegistry, LookupActionRegistry lookupActionRegistry, RecordActionFilterRegistry recordActionFilterRegistry, ObjectMapper objectMapper) {
-        return new FastballComponentController(componentRegistry, lookupActionRegistry, recordActionFilterRegistry, objectMapper);
+    public FastballComponentController componentController(ComponentRegistry componentRegistry, LookupActionRegistry lookupActionRegistry, RecordActionFilterRegistry recordActionFilterRegistry, ObjectMapper objectMapper, ObjectStorageService objectStorageService) {
+        return new FastballComponentController(componentRegistry, lookupActionRegistry, recordActionFilterRegistry, objectMapper, objectStorageService);
     }
 
     @Bean

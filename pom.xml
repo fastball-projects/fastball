@@ -7,7 +7,7 @@
     <groupId>dev.fastball</groupId>
     <artifactId>fastball-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.3.0-SNAPSHOT</version>
+    <version>0.3.1-SNAPSHOT</version>
     <modules>
         <module>fastball-maven-plugin</module>
         <module>fastball-core</module>
@@ -17,6 +17,8 @@
         <module>fastball-generator</module>
         <module>fastball-orm</module>
         <module>fastball-orm/fastball-orm-jpa</module>
+        <module>fastball-features</module>
+        <module>fastball-features/fastball-minio</module>
     </modules>
 
     <profiles>
@@ -55,6 +57,7 @@
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
+        <maven.source.skip>false</maven.source.skip>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <plexus-component-metadata.version>2.1.0</plexus-component-metadata.version>
         <maven-plugin-annotations.version>3.3</maven-plugin-annotations.version>
@@ -75,6 +78,8 @@
         <lombok.version>1.18.24</lombok.version>
         <jjwt.version>0.11.5</jjwt.version>
         <auto-service.version>1.0.1</auto-service.version>
+        <minio.version>8.5.2</minio.version>
+        <easyexcel.version>3.2.1</easyexcel.version>
     </properties>
 
     <dependencyManagement>
@@ -85,6 +90,19 @@
                 <version>${spring-boot.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>io.minio</groupId>
+                <artifactId>minio</artifactId>
+                <version>${minio.version}</version>
+            </dependency>
+
+
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>easyexcel</artifactId>
+                <version>${easyexcel.version}</version>
             </dependency>
 
             <!-- Common start -->
@@ -203,64 +221,80 @@
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-core</artifactId>
-                <version>0.3.0-SNAPSHOT</version>
+                <version>0.3.1-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-compile</artifactId>
-                <version>0.3.0-SNAPSHOT</version>
+                <version>0.3.1-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-generator</artifactId>
-                <version>0.3.0-SNAPSHOT</version>
+                <version>0.3.1-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-runtime-spring-configure</artifactId>
-                <version>0.3.0-SNAPSHOT</version>
+                <version>0.3.1-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>spring-boot-starter-fastball</artifactId>
-                <version>0.3.0-SNAPSHOT</version>
+                <version>0.3.1-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-portal</artifactId>
-                <version>0.3.0-SNAPSHOT</version>
+                <version>0.3.1-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-maven-plugin</artifactId>
-                <version>0.3.0-SNAPSHOT</version>
+                <version>0.3.1-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-runtime-spring-devtools</artifactId>
-                <version>0.3.0-SNAPSHOT</version>
+                <version>0.3.1-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-portal-core</artifactId>
-                <version>0.3.0-SNAPSHOT</version>
+                <version>0.3.1-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-portal-jpa</artifactId>
-                <version>0.3.0-SNAPSHOT</version>
+                <version>0.3.1-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-orm-jpa</artifactId>
-                <version>0.3.0-SNAPSHOT</version>
+                <version>0.3.1-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>dev.fastball</groupId>
+                <artifactId>fastball-minio</artifactId>
+                <version>0.3.1-SNAPSHOT</version>
             </dependency>
             <!-- Self project end -->
         </dependencies>
     </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.3.1</version>
+            </plugin>
+        </plugins>
+    </build>
 </project>

@@ -8,9 +8,12 @@ import java.lang.annotation.Target;
 /**
  * @author gr@fastball.dev
  * @since 2023/1/29
+ * @deprecated use {@link ViewActions#recordActions()}
  */
+@Deprecated
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RecordViewActions {
+    @Deprecated
     ViewAction[] value();
 }
