@@ -178,7 +178,7 @@ public abstract class AbstractComponentCompiler<T extends Component, P extends C
                 if (popupInfo == null) {
                     throw new CompilerException("@ViewAction(type=Popup) but @ViewAction.popup.value not config.");
                 }
-                actionInfo = PopupActionInfo.builder().popupInfo(popupInfo).build();
+                actionInfo = PopupActionInfo.builder().popupInfo(popupInfo).closePopupOnSuccess(popup.closePopupOnSuccess()).build();
                 break;
             case Link:
                 throw new CompilerException("@ViewAction(type=Link) not supported yet");
