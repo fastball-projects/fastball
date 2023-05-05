@@ -121,6 +121,7 @@ public abstract class AbstractComponentCompiler<T extends Component, P extends C
     protected void compileRecordActions(P props, CompileContext compileContext) {
         List<ActionInfo> recordActions = compileContext.getMethodMap().values().stream()
                 .map(method -> buildApiRecordActionInfo(method, compileContext.getProcessingEnv())).filter(Objects::nonNull).collect(Collectors.toList());
+        props.recordActions(recordActions);
         RecordViewActions recordViewActions = compileContext.getComponentElement().getAnnotation(RecordViewActions.class);
         ViewActions viewActions = compileContext.getComponentElement().getAnnotation(ViewActions.class);
         ViewAction[] actions;
@@ -135,7 +136,6 @@ public abstract class AbstractComponentCompiler<T extends Component, P extends C
             ActionInfo actionInfo = buildViewActionInfo(action, props);
             recordActions.add(actionInfo);
         }
-        props.recordActions(recordActions);
     }
 
     protected ActionInfo buildApiRecordActionInfo(ExecutableElement method, ProcessingEnvironment processingEnv) {
