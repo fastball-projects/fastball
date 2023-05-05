@@ -91,8 +91,14 @@ public class FastballComponentCompileProcessor extends AbstractProcessor {
     }
 
     private List<TypeElement> loadElements(Set<? extends Element> elements, Set<String> supportedAnnotationTypes) {
-        return supportedAnnotationTypes.stream().map(annotationName -> processingEnv.getElementUtils().getTypeElement(annotationName)).filter(Objects::nonNull).flatMap(annotationType -> elements.stream().filter(element ->
-                processingEnv.getElementUtils().getAllAnnotationMirrors(element).stream().anyMatch(a -> annotationType.equals(a.getAnnotationType().asElement()))
-        )).map(TypeElement.class::cast).collect(Collectors.toList());
+        return supportedAnnotationTypes.stream()
+                .flatMap(annotationType -> elements.stream()
+                        .filter(element ->
+                                processingEnv.getElementUtils()
+                                        .getAllAnnotationMirrors(element).stream()
+                                        .anyMatch(a -> annotationType.equals(a.getAnnotationType().toString()))
+                        ))
+                .map(TypeElement.class::cast)
+                .collect(Collectors.toList());
     }
 }
