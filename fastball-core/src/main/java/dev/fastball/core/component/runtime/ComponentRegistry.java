@@ -33,8 +33,8 @@ public class ComponentRegistry {
             componentKey = componentClass.getSimpleName();
         }
 
-        componentBean.setMethodMap(getApiMethodMapper(component.getClass()));
-        componentBean.setRecordActionFilterClasses(getRecordActionFilter(component.getClass()));
+        componentBean.setMethodMap(getApiMethodMapper(componentClass));
+        componentBean.setRecordActionFilterClasses(getRecordActionFilter(componentClass));
         componentBeanMap.put(componentKey, componentBean);
     }
 
