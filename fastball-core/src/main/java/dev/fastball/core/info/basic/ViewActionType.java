@@ -18,4 +18,8 @@ public enum ViewActionType {
      * 跳转链接
      */
     Link,
+    /**
+     * 打印
+     */
+    Print
 }

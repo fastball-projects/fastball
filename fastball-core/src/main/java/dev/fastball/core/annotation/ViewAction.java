@@ -57,6 +57,13 @@ public @interface ViewAction {
      */
     GotoLink gotoLink() default @GotoLink;
 
+    /**
+     * 当 type=Print 时配置
+     *
+     * @return 打印动作的相关配置
+     */
+    Print print() default @Print(@RefComponent(Component.class));
+
     boolean refresh() default true;
 
     boolean closePopupOnSuccess() default true;

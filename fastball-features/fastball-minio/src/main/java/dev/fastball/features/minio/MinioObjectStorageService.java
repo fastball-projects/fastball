@@ -8,6 +8,7 @@ import dev.fastball.core.intergration.storage.exception.UploadObjectException;
 import io.minio.*;
 import io.minio.errors.*;
 import io.minio.http.Method;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,18 +17,24 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
 
+@Slf4j
 public class MinioObjectStorageService extends AbstractObjectStorageService {
 
     private final MinioConfigProperties configProperties;
 
-    private final MinioClient client;
+    private MinioClient client;
 
     public MinioObjectStorageService(MinioConfigProperties configProperties) {
         this.configProperties = configProperties;
-        this.client = MinioClient.builder()
-                .endpoint(configProperties.getEndpoint())
-                .credentials(configProperties.getAccessKey(), configProperties.getSecretKey())
-                .build();
+        try {
+            this.client = MinioClient.builder()
+                    .endpoint(configProperties.getEndpoint())
+                    .credentials(configProperties.getAccessKey(), configProperties.getSecretKey())
+                    .build();
+        } catch (Exception e) {
+            this.client = null;
+            log.warn("MinIO init failed", e);
+        }
     }
 
     @Override

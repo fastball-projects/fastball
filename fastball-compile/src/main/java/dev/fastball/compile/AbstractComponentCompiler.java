@@ -4,22 +4,23 @@ import dev.fastball.compile.exception.CompilerException;
 import dev.fastball.compile.utils.ElementCompileUtils;
 import dev.fastball.core.annotation.*;
 import dev.fastball.core.component.Component;
+import dev.fastball.core.component.DownloadFile;
 import dev.fastball.core.info.action.ActionInfo;
 import dev.fastball.core.info.action.ApiActionInfo;
 import dev.fastball.core.info.action.PopupActionInfo;
+import dev.fastball.core.info.action.PrintActionInfo;
 import dev.fastball.core.info.basic.PopupInfo;
+import dev.fastball.core.info.basic.RefComponentInfo;
 import dev.fastball.core.info.component.ComponentInfo;
 import dev.fastball.core.info.component.ComponentInfo_AutoValue;
 import dev.fastball.core.info.component.ComponentProps;
 
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
-import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -106,8 +107,8 @@ public abstract class AbstractComponentCompiler<T extends Component, P extends C
     private void compileActions(P props, CompileContext compileContext) {
         List<ActionInfo> actionInfoList = compileContext.getMethodMap().values().stream()
                 .map(method -> buildApiActionInfo(method, compileContext.getProcessingEnv())).filter(Objects::nonNull).collect(Collectors.toList());
-        ViewActions viewActions = compileContext.getComponentElement().getAnnotation(ViewActions.class);
         props.actions(actionInfoList);
+        ViewActions viewActions = compileContext.getComponentElement().getAnnotation(ViewActions.class);
         if (viewActions == null) {
             return;
         }
@@ -143,15 +144,18 @@ public abstract class AbstractComponentCompiler<T extends Component, P extends C
         if (actionAnnotation == null) {
             return null;
         }
-        boolean hasFileParam = method.getParameters().stream().anyMatch(param -> isUploadField(param.asType(), processingEnv));
 
-        return ApiActionInfo.builder()
+        ApiActionInfo.ApiActionInfoBuilder builder = ApiActionInfo.builder()
                 .refresh(actionAnnotation.refresh())
-                .uploadFileAction(hasFileParam)
                 .closePopupOnSuccess(actionAnnotation.closePopupOnSuccess())
                 .actionName(actionAnnotation.name())
-                .actionKey(actionAnnotation.key().isEmpty() ? method.getSimpleName().toString() : actionAnnotation.key())
-                .build();
+                .actionKey(actionAnnotation.key().isEmpty() ? method.getSimpleName().toString() : actionAnnotation.key());
+        builder.uploadFileAction(method.getParameters().stream().anyMatch(param -> isUploadField(param.asType(), processingEnv)));
+        if (method.getReturnType() != null) {
+            TypeElement returnType = (TypeElement) processingEnv.getTypeUtils().asElement(method.getReturnType());
+            builder.downloadFileAction(returnType != null && ElementCompileUtils.isAssignableFrom(DownloadFile.class, returnType, processingEnv));
+        }
+        return builder.build();
     }
 
     protected ActionInfo buildApiActionInfo(ExecutableElement method, ProcessingEnvironment processingEnv) {
@@ -159,14 +163,18 @@ public abstract class AbstractComponentCompiler<T extends Component, P extends C
         if (actionAnnotation == null) {
             return null;
         }
-        boolean hasFileParam = method.getParameters().stream().anyMatch(param -> isUploadField(param.asType(), processingEnv));
-        return ApiActionInfo.builder()
+
+        ApiActionInfo.ApiActionInfoBuilder builder = ApiActionInfo.builder()
                 .refresh(actionAnnotation.refresh())
-                .uploadFileAction(hasFileParam)
                 .closePopupOnSuccess(actionAnnotation.closePopupOnSuccess())
                 .actionName(actionAnnotation.name())
-                .actionKey(actionAnnotation.key().isEmpty() ? method.getSimpleName().toString() : actionAnnotation.key())
-                .build();
+                .actionKey(actionAnnotation.key().isEmpty() ? method.getSimpleName().toString() : actionAnnotation.key());
+        builder.uploadFileAction(method.getParameters().stream().anyMatch(param -> isUploadField(param.asType(), processingEnv)));
+        if (method.getReturnType() != null) {
+            TypeElement returnType = (TypeElement) processingEnv.getTypeUtils().asElement(method.getReturnType());
+            builder.downloadFileAction(returnType != null && ElementCompileUtils.isAssignableFrom(DownloadFile.class, returnType, processingEnv));
+        }
+        return builder.build();
     }
 
     protected ActionInfo buildViewActionInfo(ViewAction viewAction, P props) {
@@ -184,6 +192,11 @@ public abstract class AbstractComponentCompiler<T extends Component, P extends C
                 throw new CompilerException("@ViewAction(type=Link) not supported yet");
             case Menu:
                 throw new CompilerException("@ViewAction(type=Menu) not supported yet");
+            case Print:
+                Print print = viewAction.print();
+                RefComponentInfo printComponent = ElementCompileUtils.getReferencedComponentInfo(props, print.value());
+                actionInfo = PrintActionInfo.builder().printComponent(printComponent).build();
+                break;
             default:
                 throw new CompilerException("@ViewAction(type=" + viewAction.type() + ") not supported yet");
         }

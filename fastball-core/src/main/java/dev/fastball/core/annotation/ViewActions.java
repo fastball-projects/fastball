@@ -18,7 +18,7 @@ public @interface ViewActions {
      * @deprecated use {@link ViewActions#actions()}
      */
     @Deprecated
-    ViewAction[] value();
+    ViewAction[] value() default {};
 
     ViewAction[] actions() default {};
 

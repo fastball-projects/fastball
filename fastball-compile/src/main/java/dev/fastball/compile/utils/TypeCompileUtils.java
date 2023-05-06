@@ -347,6 +347,12 @@ public class TypeCompileUtils {
                     if (fieldAnnotation.type() == ValueType.DATE_YEAR) {
                         return ValueType.DATE_YEAR;
                     }
+                    if (fieldAnnotation.type() == ValueType.IMAGE) {
+                        return ValueType.IMAGE;
+                    }
+                    if (fieldAnnotation.type() == ValueType.AVATAR) {
+                        return ValueType.AVATAR;
+                    }
                 }
                 return ValueType.TEXT;
             case "java.time.LocalTime":

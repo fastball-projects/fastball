@@ -20,5 +20,9 @@ public enum ActionType {
     /**
      * 跳转页面
      */
-    Digit
+    Digit,
+    /**
+     * 打印
+     */
+    Print
 }

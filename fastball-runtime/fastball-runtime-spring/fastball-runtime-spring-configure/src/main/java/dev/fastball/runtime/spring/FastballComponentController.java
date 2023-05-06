@@ -10,6 +10,7 @@ import dev.fastball.core.component.runtime.*;
 import dev.fastball.core.intergration.storage.ObjectStorageService;
 import dev.fastball.core.intergration.storage.ObjectStorageUpload;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.compress.utils.IOUtils;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -33,6 +34,7 @@ import java.util.Map;
  * @author gr@fastball.dev
  * @since 2022/12/15
  */
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/fastball")
@@ -124,13 +126,20 @@ public class FastballComponentController {
         Object[] params = new Object[parameterList.length];
         for (int i = 0; i < Math.min(jsonNode.size(), params.length); i++) {
             Parameter parameter = parameterList[i];
-            Object param = objectMapper.readValue(jsonNode.get(i).toString(), new TypeReference<Object>() {
-                @Override
-                public Type getType() {
-                    return parameter.getParameterizedType();
-                }
-            });
-            params[i] = param;
+            if(jsonNode.get(i) == null) {
+                continue;
+            }
+            try{
+                Object param = objectMapper.readValue(jsonNode.get(i).toString(), new TypeReference<Object>() {
+                    @Override
+                    public Type getType() {
+                        return parameter.getParameterizedType();
+                    }
+                });
+                params[i] = param;
+            }catch (Exception e) {
+                log.warn("Method [{}] param [{}] read json failed", actionMethod, i, e);
+            }
         }
         if (file != null) {
             for (int i = 0; i < parameterList.length; i++) {
