@@ -147,6 +147,7 @@ public abstract class AbstractComponentCompiler<T extends Component, P extends C
 
         ApiActionInfo.ApiActionInfoBuilder builder = ApiActionInfo.builder()
                 .refresh(actionAnnotation.refresh())
+                .confirmMessage(actionAnnotation.confirmMessage())
                 .closePopupOnSuccess(actionAnnotation.closePopupOnSuccess())
                 .actionName(actionAnnotation.name())
                 .actionKey(actionAnnotation.key().isEmpty() ? method.getSimpleName().toString() : actionAnnotation.key());
