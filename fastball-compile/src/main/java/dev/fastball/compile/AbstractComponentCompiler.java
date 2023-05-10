@@ -16,6 +16,8 @@ import dev.fastball.core.info.component.ComponentInfo_AutoValue;
 import dev.fastball.core.info.component.ComponentProps;
 
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
@@ -63,7 +65,7 @@ public abstract class AbstractComponentCompiler<T extends Component, P extends C
     }
 
     protected List<? extends TypeMirror> getGenericTypes(CompileContext compileContext) {
-        DeclaredType declaredType = ElementCompileUtils.getDeclaredInterface(basicComponentClass, compileContext.getComponentElement());
+        DeclaredType declaredType = ElementCompileUtils.getDeclaredInterface(basicComponentClass, compileContext.getComponentElement(), compileContext.getProcessingEnv());
         if (declaredType == null) {
             return Collections.emptyList();
         }
@@ -71,9 +73,7 @@ public abstract class AbstractComponentCompiler<T extends Component, P extends C
     }
 
     protected List<TypeElement> getGenericTypeElements(CompileContext compileContext) {
-        return getGenericTypes(compileContext).stream()
-                .map(type -> (TypeElement) compileContext.getProcessingEnv().getTypeUtils().asElement(type))
-                .collect(Collectors.toList());
+        return getGenericTypes(compileContext).stream().map(type -> (TypeElement) compileContext.getProcessingEnv().getTypeUtils().asElement(type)).collect(Collectors.toList());
     }
 
     @Override
@@ -86,9 +86,7 @@ public abstract class AbstractComponentCompiler<T extends Component, P extends C
         while (genericSuperclass != null) {
             if (genericSuperclass instanceof ParameterizedType) {
                 ParameterizedType parameterizedType = (ParameterizedType) genericSuperclass;
-                if (parameterizedType.getRawType() instanceof Class
-                        && ComponentCompiler.class.isAssignableFrom((Class<?>) parameterizedType.getRawType())
-                ) {
+                if (parameterizedType.getRawType() instanceof Class && ComponentCompiler.class.isAssignableFrom((Class<?>) parameterizedType.getRawType())) {
                     Type componentType = parameterizedType.getActualTypeArguments()[0];
                     if (componentType instanceof Class) {
                         return (Class<T>) componentType;
@@ -105,37 +103,50 @@ public abstract class AbstractComponentCompiler<T extends Component, P extends C
     }
 
     private void compileActions(P props, CompileContext compileContext) {
-        List<ActionInfo> actionInfoList = compileContext.getMethodMap().values().stream()
-                .map(method -> buildApiActionInfo(method, compileContext.getProcessingEnv())).filter(Objects::nonNull).collect(Collectors.toList());
+        List<ActionInfo> actionInfoList = compileContext.getMethodMap().values().stream().map(method -> buildApiActionInfo(method, compileContext.getProcessingEnv())).filter(Objects::nonNull).collect(Collectors.toList());
         props.actions(actionInfoList);
-        ViewActions viewActions = compileContext.getComponentElement().getAnnotation(ViewActions.class);
-        if (viewActions == null) {
-            return;
-        }
-        ViewAction[] actions = viewActions.actions().length > 0 ? viewActions.actions() : viewActions.value();
-        for (ViewAction action : actions) {
-            ActionInfo viewActionInfo = buildViewActionInfo(action, props);
-            actionInfoList.add(viewActionInfo);
-        }
+        compileExtensionViewActions(props, compileContext.getComponentElement(), compileContext.getProcessingEnv(), actionInfoList, false);
     }
 
     protected void compileRecordActions(P props, CompileContext compileContext) {
-        List<ActionInfo> recordActions = compileContext.getMethodMap().values().stream()
-                .map(method -> buildApiRecordActionInfo(method, compileContext.getProcessingEnv())).filter(Objects::nonNull).collect(Collectors.toList());
-        props.recordActions(recordActions);
-        RecordViewActions recordViewActions = compileContext.getComponentElement().getAnnotation(RecordViewActions.class);
-        ViewActions viewActions = compileContext.getComponentElement().getAnnotation(ViewActions.class);
-        ViewAction[] actions;
-        if (viewActions != null && viewActions.recordActions().length > 0) {
-            actions = viewActions.actions();
-        } else if (recordViewActions != null) {
-            actions = recordViewActions.value();
-        } else {
+        List<ActionInfo> actionInfoList = compileContext.getMethodMap().values().stream().map(method -> buildApiRecordActionInfo(method, compileContext.getProcessingEnv())).filter(Objects::nonNull).collect(Collectors.toList());
+        props.recordActions(actionInfoList);
+        compileExtensionViewActions(props, compileContext.getComponentElement(), compileContext.getProcessingEnv(), actionInfoList, true);
+    }
+
+    protected void compileExtensionViewActions(P props, TypeElement element, ProcessingEnvironment processingEnv, List<ActionInfo> actionInfoList, boolean recordAction) {
+        ViewActions viewActions = element.getAnnotation(ViewActions.class);
+        if (viewActions != null && !viewActions.override()) {
+            TypeMirror superclass = element.getSuperclass();
+            if (superclass != null && superclass.getKind() == TypeKind.DECLARED) {
+                Element superElement = processingEnv.getTypeUtils().asElement(superclass);
+                if (superElement.getKind() == ElementKind.CLASS) {
+                    compileExtensionViewActions(props, (TypeElement) superElement, processingEnv, actionInfoList, recordAction);
+                }
+            }
+        }
+        ViewAction[] actions = null;
+        if (recordAction) {
+            if (viewActions != null && viewActions.recordActions().length > 0) {
+                actions = viewActions.recordActions();
+                // FIXME 兼容老 API
+            } else if (element.getAnnotation(RecordViewActions.class) != null) {
+                actions = element.getAnnotation(RecordViewActions.class).value();
+            }
+        } else if (viewActions != null) {
+            if (viewActions.actions().length > 0) {
+                actions = viewActions.actions();
+            } else {
+                // FIXME 兼容老 API
+                actions = viewActions.value();
+            }
+        }
+        if (actions == null) {
             return;
         }
         for (ViewAction action : actions) {
             ActionInfo actionInfo = buildViewActionInfo(action, props);
-            recordActions.add(actionInfo);
+            actionInfoList.add(actionInfo);
         }
     }
 
@@ -145,12 +156,7 @@ public abstract class AbstractComponentCompiler<T extends Component, P extends C
             return null;
         }
 
-        ApiActionInfo.ApiActionInfoBuilder builder = ApiActionInfo.builder()
-                .refresh(actionAnnotation.refresh())
-                .confirmMessage(actionAnnotation.confirmMessage())
-                .closePopupOnSuccess(actionAnnotation.closePopupOnSuccess())
-                .actionName(actionAnnotation.name())
-                .actionKey(actionAnnotation.key().isEmpty() ? method.getSimpleName().toString() : actionAnnotation.key());
+        ApiActionInfo.ApiActionInfoBuilder builder = ApiActionInfo.builder().refresh(actionAnnotation.refresh()).confirmMessage(actionAnnotation.confirmMessage()).closePopupOnSuccess(actionAnnotation.closePopupOnSuccess()).actionName(actionAnnotation.name()).actionKey(actionAnnotation.key().isEmpty() ? method.getSimpleName().toString() : actionAnnotation.key());
         builder.uploadFileAction(method.getParameters().stream().anyMatch(param -> isUploadField(param.asType(), processingEnv)));
         if (method.getReturnType() != null) {
             TypeElement returnType = (TypeElement) processingEnv.getTypeUtils().asElement(method.getReturnType());
@@ -165,11 +171,7 @@ public abstract class AbstractComponentCompiler<T extends Component, P extends C
             return null;
         }
 
-        ApiActionInfo.ApiActionInfoBuilder builder = ApiActionInfo.builder()
-                .refresh(actionAnnotation.refresh())
-                .closePopupOnSuccess(actionAnnotation.closePopupOnSuccess())
-                .actionName(actionAnnotation.name())
-                .actionKey(actionAnnotation.key().isEmpty() ? method.getSimpleName().toString() : actionAnnotation.key());
+        ApiActionInfo.ApiActionInfoBuilder builder = ApiActionInfo.builder().refresh(actionAnnotation.refresh()).closePopupOnSuccess(actionAnnotation.closePopupOnSuccess()).actionName(actionAnnotation.name()).actionKey(actionAnnotation.key().isEmpty() ? method.getSimpleName().toString() : actionAnnotation.key());
         builder.uploadFileAction(method.getParameters().stream().anyMatch(param -> isUploadField(param.asType(), processingEnv)));
         if (method.getReturnType() != null) {
             TypeElement returnType = (TypeElement) processingEnv.getTypeUtils().asElement(method.getReturnType());

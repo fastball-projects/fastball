@@ -12,6 +12,7 @@ import dev.fastball.core.info.component.ComponentProps;
 import dev.fastball.core.info.component.ReferencedComponentInfo;
 
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
@@ -151,19 +152,23 @@ public class ElementCompileUtils {
         return isAssignableFrom(clazz, compileContext.getComponentElement(), compileContext.getProcessingEnv());
     }
 
-    public static DeclaredType getDeclaredInterface(Class<?> clazz, TypeElement element) {
+    public static DeclaredType getDeclaredInterface(Class<?> clazz, TypeElement element, ProcessingEnvironment processingEnv) {
         for (TypeMirror anInterface : element.getInterfaces()) {
             DeclaredType interfaceType = (DeclaredType) anInterface;
             TypeElement superInterface = (TypeElement) interfaceType.asElement();
             if (clazz.getCanonicalName().equals(superInterface.getQualifiedName().toString())) {
                 return interfaceType;
             }
-            interfaceType = getDeclaredInterface(clazz, superInterface);
+            interfaceType = getDeclaredInterface(clazz, superInterface, processingEnv);
             if (interfaceType != null) {
                 return interfaceType;
             }
         }
-        return null;
+        Element superClassElement = processingEnv.getTypeUtils().asElement(element.getSuperclass());
+        if (superClassElement == null || ((TypeElement) superClassElement).getQualifiedName().contentEquals(Object.class.getCanonicalName())) {
+            return null;
+        }
+        return getDeclaredInterface(clazz, (TypeElement) superClassElement, processingEnv);
     }
 
     public static boolean isAssignableFrom(Class<?> clazz, TypeElement element, ProcessingEnvironment processingEnv) {

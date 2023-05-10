@@ -48,10 +48,10 @@ public class ComponentRegistry {
                     Method declaredMethod = Arrays.stream(componentClass.getDeclaredMethods())
                             .filter(m -> !m.isBridge() && m.getName().equals(method.getName()))
                             .findFirst().orElseGet(() -> method.isDefault() ? method : null);
-                    if(declaredMethod == null) {
-                        throw new RuntimeException("never happened");
-                    }
-                    UIApiMethod uiApiMethod = buildUIApiMethod(declaredMethod, uiApi);
+//                    if (declaredMethod == null) {
+//                        throw new RuntimeException("never happened");
+//                    }
+                    UIApiMethod uiApiMethod = buildUIApiMethod(declaredMethod != null ? declaredMethod : method, uiApi);
                     actionMethodMap.put(uiApiMethod.getKey(), uiApiMethod);
                 });
         Arrays.stream(componentClass.getDeclaredMethods())

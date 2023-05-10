@@ -23,4 +23,13 @@ public @interface ViewActions {
     ViewAction[] actions() default {};
 
     ViewAction[] recordActions() default {};
+
+    /**
+     * 是否覆盖已有 ViewAction.
+     * 如为 True, 则会忽略父类上的 ViewActions 声明.
+     * 如为 False, 则会在父类的 ViewActions 声明之后, 增加额外的 ViewAction
+     *
+     * @return 是否覆盖已有 ViewAction
+     */
+    boolean override() default false;
 }
