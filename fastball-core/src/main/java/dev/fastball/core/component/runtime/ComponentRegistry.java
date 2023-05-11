@@ -54,7 +54,7 @@ public class ComponentRegistry {
                     UIApiMethod uiApiMethod = buildUIApiMethod(declaredMethod != null ? declaredMethod : method, uiApi);
                     actionMethodMap.put(uiApiMethod.getKey(), uiApiMethod);
                 });
-        Arrays.stream(componentClass.getDeclaredMethods())
+        Arrays.stream(componentClass.getMethods())
                 .filter(method -> Arrays.stream(method.getDeclaredAnnotations())
                         .anyMatch(annotation -> annotation.annotationType().getDeclaredAnnotation(UIApi.class) != null)
                 ).forEach(method -> {

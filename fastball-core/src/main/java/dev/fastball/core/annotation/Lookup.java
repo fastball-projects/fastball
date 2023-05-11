@@ -17,4 +17,6 @@ public @interface Lookup {
     String labelField();
 
     String valueField() default "id";
+
+    FillField[] extraFillFields() default {};
 }

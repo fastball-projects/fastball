@@ -71,10 +71,19 @@ public class TypeCompileUtils {
         }
         compileType(fieldInfo, fieldElement, processingEnv, props, fieldBuilder, afterBuild, compiledTypes);
         fieldInfo.setValidationRules(compileFieldJsr303(fieldElement));
+        fieldInfo.setExpression(compileExpression(fieldElement));
         if (afterBuild != null) {
             afterBuild.accept(fieldElement, fieldInfo);
         }
         return fieldInfo;
+    }
+
+    private static ExpressionInfo compileExpression(VariableElement fieldElement) {
+        Expression expressionAnnotation = fieldElement.getAnnotation(Expression.class);
+        if(expressionAnnotation == null) {
+            return null;
+        }
+        return new ExpressionInfo(expressionAnnotation.fields(), expressionAnnotation.expression());
     }
 
     // FIXME 这样设计有问题, 某些场景主动声明 fieldType 会不生效, 回头要改一下
@@ -412,6 +421,14 @@ public class TypeCompileUtils {
             lookupActionInfo.lookupKey(ElementCompileUtils.getComponentKey(lookupActionElement));
             lookupActionInfo.labelField(lookupAnnotation.labelField());
             lookupActionInfo.valueField(lookupAnnotation.valueField());
+            lookupActionInfo.extraFillFields(
+                    Arrays.stream(lookupAnnotation.extraFillFields()).map(fillField -> LookupFillFieldInfo.builder()
+                            .fromField(fillField.fromField())
+                            .targetField(fillField.targetField())
+                            .onlyEmpty(fillField.onlyEmpty())
+                            .build()
+                    ).collect(Collectors.toList())
+            );
             field.setLookup(lookupActionInfo);
         }
     }

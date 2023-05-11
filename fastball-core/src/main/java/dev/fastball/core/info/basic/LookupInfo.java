@@ -3,6 +3,9 @@ package dev.fastball.core.info.basic;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import dev.fastball.auto.value.annotation.AutoValue;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * @author gr@fastball.dev
  * @since 2023/01/08
@@ -17,6 +20,8 @@ public interface LookupInfo {
     String labelField();
 
     String valueField();
+
+    List<LookupFillFieldInfo> extraFillFields();
 
     boolean multiple();
 }

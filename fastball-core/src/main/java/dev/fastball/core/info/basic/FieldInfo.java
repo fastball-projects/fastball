@@ -46,6 +46,8 @@ public class FieldInfo {
 
     private RefComponentInfo displayModeComponent;
 
+    private ExpressionInfo expression;
+
     private List<ValidationRuleInfo> validationRules;
 
     private List<? extends FieldInfo> subFields;

@@ -1,6 +1,7 @@
 package dev.fastball.orm.jpa;
 
 import dev.fastball.core.annotation.Field;
+import dev.fastball.core.component.DataRecord;
 import dev.fastball.core.info.basic.DisplayType;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,7 +18,7 @@ import java.util.Date;
 @Getter
 @Setter
 @MappedSuperclass
-public abstract class JpaBaseEntity {
+public abstract class JpaBaseEntity extends DataRecord {
 
     @Id
     @GeneratedValue
