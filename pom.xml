@@ -12,7 +12,6 @@
         <module>fastball-maven-plugin</module>
         <module>fastball-core</module>
         <module>fastball-compile</module>
-        <module>fastball-portal</module>
         <module>fastball-runtime</module>
         <module>fastball-generator</module>
         <module>fastball-orm</module>
@@ -243,11 +242,6 @@
                 <artifactId>spring-boot-starter-fastball</artifactId>
                 <version>0.3.1-SNAPSHOT</version>
             </dependency>
-            <dependency>
-                <groupId>dev.fastball</groupId>
-                <artifactId>fastball-portal</artifactId>
-                <version>0.3.1-SNAPSHOT</version>
-            </dependency>
 
             <dependency>
                 <groupId>dev.fastball</groupId>
@@ -258,18 +252,6 @@
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-runtime-spring-devtools</artifactId>
-                <version>0.3.1-SNAPSHOT</version>
-            </dependency>
-
-            <dependency>
-                <groupId>dev.fastball</groupId>
-                <artifactId>fastball-portal-core</artifactId>
-                <version>0.3.1-SNAPSHOT</version>
-            </dependency>
-
-            <dependency>
-                <groupId>dev.fastball</groupId>
-                <artifactId>fastball-portal-jpa</artifactId>
                 <version>0.3.1-SNAPSHOT</version>
             </dependency>
 
