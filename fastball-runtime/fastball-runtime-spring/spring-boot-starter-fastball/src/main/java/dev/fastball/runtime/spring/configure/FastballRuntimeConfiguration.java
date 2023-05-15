@@ -1,5 +1,6 @@
 package dev.fastball.runtime.spring.configure;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
@@ -8,8 +9,6 @@ import dev.fastball.core.component.runtime.ComponentRegistry;
 import dev.fastball.core.component.runtime.LookupActionRegistry;
 import dev.fastball.core.component.runtime.RecordActionFilterRegistry;
 import dev.fastball.core.intergration.storage.ObjectStorageService;
-import dev.fastball.features.minio.MinioConfigProperties;
-import dev.fastball.features.minio.MinioObjectStorageService;
 import dev.fastball.runtime.spring.FastballComponentController;
 import dev.fastball.runtime.spring.FastballComponentPostProcessor;
 import dev.fastball.runtime.spring.FastballComponentRegistryPostProcessor;
@@ -37,6 +36,7 @@ public class FastballRuntimeConfiguration implements WebMvcConfigurer {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(JsonParser.Feature.IGNORE_UNDEFINED, true);
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         JavaTimeModule javaTimeModule = new JavaTimeModule();
         javaTimeModule.addSerializer(LocalTime.class, new JsonSerializer<LocalTime>() {
             @Override
