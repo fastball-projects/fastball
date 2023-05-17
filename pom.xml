@@ -18,6 +18,7 @@
         <module>fastball-orm/fastball-orm-jpa</module>
         <module>fastball-features</module>
         <module>fastball-features/fastball-minio</module>
+        <module>fastball-apt</module>
     </modules>
 
     <profiles>
@@ -79,6 +80,7 @@
         <auto-service.version>1.0.1</auto-service.version>
         <minio.version>8.5.2</minio.version>
         <easyexcel.version>3.2.1</easyexcel.version>
+        <javapoet.version>1.13.0</javapoet.version>
     </properties>
 
     <dependencyManagement>
@@ -96,7 +98,6 @@
                 <artifactId>minio</artifactId>
                 <version>${minio.version}</version>
             </dependency>
-
 
             <dependency>
                 <groupId>com.alibaba</groupId>
@@ -140,6 +141,12 @@
                 <groupId>io.jsonwebtoken</groupId>
                 <artifactId>jjwt-impl</artifactId>
                 <version>${jjwt.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.squareup</groupId>
+                <artifactId>javapoet</artifactId>
+                <version>${javapoet.version}</version>
             </dependency>
             <!-- Common end -->
 
@@ -264,6 +271,12 @@
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-minio</artifactId>
+                <version>0.3.1-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>dev.fastball</groupId>
+                <artifactId>fastball-apt</artifactId>
                 <version>0.3.1-SNAPSHOT</version>
             </dependency>
             <!-- Self project end -->
