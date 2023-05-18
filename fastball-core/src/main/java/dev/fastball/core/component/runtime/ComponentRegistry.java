@@ -1,8 +1,6 @@
 package dev.fastball.core.component.runtime;
 
-import dev.fastball.core.annotation.RecordAction;
-import dev.fastball.core.annotation.UIApi;
-import dev.fastball.core.annotation.UIComponent;
+import dev.fastball.core.annotation.*;
 import dev.fastball.core.component.Component;
 import dev.fastball.core.component.RecordActionFilter;
 import org.springframework.aop.support.AopUtils;
@@ -71,6 +69,13 @@ public class ComponentRegistry {
             if (recordAction != null) {
                 String actionKey = recordAction.key().isEmpty() ? method.getName() : recordAction.key();
                 recordActionFilterMap.put(actionKey, recordAction.recordActionFilter());
+            }
+        }
+        ViewActions viewActions = componentClass.getDeclaredAnnotation(ViewActions.class);
+        if (viewActions != null) {
+            for (ViewAction viewAction : viewActions.recordActions()) {
+                String actionKey = viewAction.key();
+                recordActionFilterMap.put(actionKey, viewAction.recordActionFilter());
             }
         }
         return recordActionFilterMap;

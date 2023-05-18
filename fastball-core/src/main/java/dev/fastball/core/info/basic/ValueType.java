@@ -190,7 +190,12 @@ public enum ValueType {
     /**
      * 子表
      */
-    SUB_TABLE("SubTable");
+    SUB_TABLE("SubTable"),
+
+    /**
+     * 列表表单
+     */
+    TABLE_FORM("TableForm");
 
     ValueType(String type) {
         this.type = type;

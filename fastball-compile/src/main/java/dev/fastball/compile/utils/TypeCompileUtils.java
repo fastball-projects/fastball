@@ -65,6 +65,7 @@ public class TypeCompileUtils {
             fieldInfo.setTitle(fieldAnnotation.title());
             fieldInfo.setTooltip(fieldAnnotation.tips());
             fieldInfo.setReadonly(fieldAnnotation.readonly());
+            fieldInfo.setEntireRow(fieldAnnotation.entireRow());
         } else {
             fieldInfo.setDisplay(DisplayType.Show);
             fieldInfo.setTitle(fieldElement.getSimpleName().toString());

@@ -21,6 +21,8 @@ public @interface Field {
 
     boolean readonly() default false;
 
+    boolean entireRow() default false;
+
     DisplayType display() default DisplayType.Show;
 
     ValueType type() default ValueType.AUTO;

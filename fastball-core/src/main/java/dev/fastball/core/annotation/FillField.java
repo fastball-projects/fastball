@@ -25,5 +25,5 @@ public @interface FillField {
     /**
      * 仅为目标值为空时, 进行填充
      */
-    boolean onlyEmpty() default true;
+    boolean onlyEmpty() default false;
 }
