@@ -11,7 +11,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.util.ClassUtils;
 
-import javax.annotation.processing.Generated;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.PackageElement;
@@ -21,8 +20,10 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Xyf
@@ -37,8 +38,8 @@ public abstract class SimpleQueryModelProcessor implements FastballPreCompileGen
     public void generate(TypeElement element, ProcessingEnvironment processingEnv) {
         Map<String, VariableElement> fields = getFieldsMap(element, processingEnv);
         TypeSpec.Builder typeBuilder = typeBuilder(element, fields, processingEnv);
-        AnnotationSpec generatedAnnotation = AnnotationSpec.builder(Generated.class).addMember("value", "$S", this.getClass().getName()).addMember("date", "$S", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())).build();
-        typeBuilder.addAnnotation(generatedAnnotation);
+//        AnnotationSpec generatedAnnotation = AnnotationSpec.builder(Generated.class).addMember("value", "$S", this.getClass().getName()).addMember("date", "$S", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())).build();
+//        typeBuilder.addAnnotation(generatedAnnotation);
         AnnotationSpec generatedFromAnnotation = AnnotationSpec.builder(GeneratedFrom.class).addMember("value", element.getQualifiedName().toString() + ".class").build();
         typeBuilder.addAnnotation(generatedFromAnnotation);
         typeBuilder.addAnnotation(Getter.class);

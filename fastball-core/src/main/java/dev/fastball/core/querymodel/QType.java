@@ -26,8 +26,24 @@ public class QType<T> {
     }
 
     @JsonIgnore
+    public T getSecondValue() {
+        if (CollectionUtils.isEmpty(values)) {
+            return null;
+        }
+        return values.get(1);
+    }
+
+    @JsonIgnore
     public void setValue(T value) {
         values = new ArrayList<>();
         values.add(value);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <R> R getValue(int index) {
+        if (CollectionUtils.isEmpty(values)) {
+            return null;
+        }
+        return (R) values.get(index);
     }
 }
