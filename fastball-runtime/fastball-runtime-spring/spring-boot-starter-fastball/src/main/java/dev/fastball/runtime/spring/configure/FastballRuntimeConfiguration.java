@@ -12,6 +12,7 @@ import dev.fastball.core.intergration.storage.ObjectStorageService;
 import dev.fastball.runtime.spring.FastballComponentController;
 import dev.fastball.runtime.spring.FastballComponentPostProcessor;
 import dev.fastball.runtime.spring.FastballComponentRegistryPostProcessor;
+import dev.fastball.runtime.spring.FastballExceptionHandler;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -90,6 +91,12 @@ public class FastballRuntimeConfiguration implements WebMvcConfigurer {
     @ConditionalOnMissingBean
     public FastballComponentController componentController(ComponentRegistry componentRegistry, LookupActionRegistry lookupActionRegistry, RecordActionFilterRegistry recordActionFilterRegistry, ObjectMapper objectMapper, ObjectStorageService objectStorageService) {
         return new FastballComponentController(componentRegistry, lookupActionRegistry, recordActionFilterRegistry, objectMapper, objectStorageService);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public FastballExceptionHandler fastballExceptionHandler() {
+        return new FastballExceptionHandler();
     }
 
     @Bean

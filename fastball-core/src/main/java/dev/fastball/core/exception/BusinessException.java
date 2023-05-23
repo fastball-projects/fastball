@@ -14,7 +14,7 @@ public class BusinessException extends FastballRuntimeException {
     }
 
     public BusinessException(Throwable cause) {
-        super(cause);
+        super(cause.getMessage(), cause);
     }
 
     public BusinessException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {

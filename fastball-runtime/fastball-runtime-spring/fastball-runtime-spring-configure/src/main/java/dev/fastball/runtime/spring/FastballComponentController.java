@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.fastball.core.Result;
 import dev.fastball.core.component.*;
 import dev.fastball.core.component.runtime.*;
+import dev.fastball.core.exception.BusinessException;
 import dev.fastball.core.intergration.storage.ObjectStorageService;
 import dev.fastball.core.intergration.storage.ObjectStorageUpload;
 import lombok.RequiredArgsConstructor;
@@ -107,25 +108,25 @@ public class FastballComponentController {
         record.setRecordActionAvailableFlags(recordActionAvailableFlags);
     }
 
-    private Object invokeActionMethod(Object bean, Method actionMethod, ServletRequest request) throws IOException, InvocationTargetException, IllegalAccessException {
+    private Object invokeActionMethod(Object bean, Method actionMethod, ServletRequest request) throws IOException, IllegalAccessException {
         JsonNode jsonNode = objectMapper.readTree(request.getInputStream());
         return invokeActionMethod(bean, actionMethod, jsonNode, null, null);
     }
 
-    private Object invokeActionMethod(Object bean, Method actionMethod, String dataJson, MultipartFile file, HttpServletResponse response) throws IOException, InvocationTargetException, IllegalAccessException {
+    private Object invokeActionMethod(Object bean, Method actionMethod, String dataJson, MultipartFile file, HttpServletResponse response) throws IOException, IllegalAccessException {
         JsonNode jsonNode = objectMapper.readTree(dataJson);
         return invokeActionMethod(bean, actionMethod, jsonNode, file, response);
     }
 
-    private Object invokeActionMethod(Object bean, Method actionMethod, JsonNode jsonNode, MultipartFile file, HttpServletResponse response) throws IOException, InvocationTargetException, IllegalAccessException {
+    private Object invokeActionMethod(Object bean, Method actionMethod, JsonNode jsonNode, MultipartFile file, HttpServletResponse response) throws IOException, IllegalAccessException {
         Parameter[] parameterList = actionMethod.getParameters();
         Object[] params = new Object[parameterList.length];
         for (int i = 0; i < Math.min(jsonNode.size(), params.length); i++) {
             Parameter parameter = parameterList[i];
-            if(jsonNode.get(i) == null) {
+            if (jsonNode.get(i) == null) {
                 continue;
             }
-            try{
+            try {
                 Object param = objectMapper.readValue(jsonNode.get(i).toString(), new TypeReference<Object>() {
                     @Override
                     public Type getType() {
@@ -133,7 +134,7 @@ public class FastballComponentController {
                     }
                 });
                 params[i] = param;
-            }catch (Exception e) {
+            } catch (Exception e) {
                 log.warn("Method [{}] param [{}] read json failed", actionMethod, i, e);
             }
         }
@@ -150,6 +151,13 @@ public class FastballComponentController {
                 }
             }
         }
-        return actionMethod.invoke(bean, params);
+        try {
+            return actionMethod.invoke(bean, params);
+        } catch (InvocationTargetException e) {
+            if (e.getTargetException() instanceof BusinessException) {
+                throw (BusinessException) e.getTargetException();
+            }
+            throw new BusinessException(e.getTargetException());
+        }
     }
 }
