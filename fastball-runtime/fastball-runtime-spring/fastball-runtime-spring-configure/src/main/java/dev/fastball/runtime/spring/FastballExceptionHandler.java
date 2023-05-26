@@ -11,6 +11,7 @@ public class FastballExceptionHandler {
     @ExceptionHandler(value = Exception.class)
     @ResponseBody
     public Result<?> exceptionHandler(Exception e) {
+        e.printStackTrace();
         return Result.fail(e.getMessage());
     }
 }

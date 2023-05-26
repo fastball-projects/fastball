@@ -48,27 +48,13 @@ public class FastballComponentController {
     }
 
     @PostMapping(value = "/component/{componentKey}/action/{actionKey}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Object invokeComponentAction(@PathVariable String componentKey, @PathVariable String actionKey, @RequestPart("data") String dataJson, @RequestPart(value = "file", required = false) MultipartFile file) throws IOException, InvocationTargetException, IllegalAccessException {
-        ComponentBean componentBean = componentRegistry.getComponentBean(componentKey);
-        UIApiMethod actionMethod = componentBean.getMethodMap().get(actionKey);
-        Object data = invokeActionMethod(componentBean.getComponent(), actionMethod.getMethod(), dataJson, file, null);
-        Result<?> result;
-        if (data instanceof Result) {
-            result = (Result<?>) data;
-            data = result.getData();
-        } else {
-            result = Result.success(data);
-        }
-        if (actionMethod.isNeedRecordFilter()) {
-            if (data instanceof DataResult) {
-                DataResult<?> dataResult = (DataResult<?>) data;
-                dataResult.getData().stream().filter(DataRecord.class::isInstance)
-                        .forEach(dataRecord -> doRecordActionFilter((DataRecord) dataRecord, componentBean));
-            } else if (data instanceof DataRecord) {
-                doRecordActionFilter((DataRecord) data, componentBean);
-            }
-        }
-        return result;
+    public Object invokeAction(@PathVariable String componentKey, @PathVariable String actionKey, @RequestPart("data") String dataJson, @RequestPart(value = "file", required = false) MultipartFile file) throws IOException, InvocationTargetException, IllegalAccessException {
+        return invokeComponentAction(componentKey, actionKey, dataJson, file);
+    }
+
+    @PostMapping(value = "/component/{componentKey}/action/{actionKey}/json")
+    public Object invokeAction(@PathVariable String componentKey, @PathVariable String actionKey, @RequestBody String dataJson) throws IOException, InvocationTargetException, IllegalAccessException {
+        return invokeComponentAction(componentKey, actionKey, dataJson, null);
     }
 
     @PostMapping(value = "/component/{componentKey}/downloadAction/{actionKey}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -106,6 +92,29 @@ public class FastballComponentController {
             }
         });
         record.setRecordActionAvailableFlags(recordActionAvailableFlags);
+    }
+
+    public Object invokeComponentAction(String componentKey, String actionKey, String dataJson, MultipartFile file) throws IOException, InvocationTargetException, IllegalAccessException {
+        ComponentBean componentBean = componentRegistry.getComponentBean(componentKey);
+        UIApiMethod actionMethod = componentBean.getMethodMap().get(actionKey);
+        Object data = invokeActionMethod(componentBean.getComponent(), actionMethod.getMethod(), dataJson, file, null);
+        Result<?> result;
+        if (data instanceof Result) {
+            result = (Result<?>) data;
+            data = result.getData();
+        } else {
+            result = Result.success(data);
+        }
+        if (actionMethod.isNeedRecordFilter()) {
+            if (data instanceof DataResult) {
+                DataResult<?> dataResult = (DataResult<?>) data;
+                dataResult.getData().stream().filter(DataRecord.class::isInstance)
+                        .forEach(dataRecord -> doRecordActionFilter((DataRecord) dataRecord, componentBean));
+            } else if (data instanceof DataRecord) {
+                doRecordActionFilter((DataRecord) data, componentBean);
+            }
+        }
+        return result;
     }
 
     private Object invokeActionMethod(Object bean, Method actionMethod, ServletRequest request) throws IOException, IllegalAccessException {
