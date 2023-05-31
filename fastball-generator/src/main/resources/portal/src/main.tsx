@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import ReactDOM from 'react-dom/client'
-import { BrowserRouter, Routes, Route, Outlet, Link, RouteProps } from "react-router-dom";
+import { HashRouter, Routes, Route, Outlet, Link, RouteProps } from "react-router-dom";
 import ProLayout from '@ant-design/pro-layout';
 import { Button, Result } from 'antd';
 import routes from './routes'
@@ -63,7 +63,7 @@ const Layout: React.FC<RouteComponentProps> = ({ routes }) => {
 }
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-  <BrowserRouter>
+  <HashRouter>
     <HomePage routes={routes} />
-  </BrowserRouter>
+  </HashRouter>
 )

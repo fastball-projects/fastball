@@ -14,6 +14,7 @@ import dev.fastball.core.info.basic.RefComponentInfo;
 import dev.fastball.core.info.component.ComponentInfo;
 import dev.fastball.core.info.component.ComponentInfo_AutoValue;
 import dev.fastball.core.info.component.ComponentProps;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
@@ -188,6 +189,9 @@ public abstract class AbstractComponentCompiler<T extends Component, P extends C
                 PopupInfo popupInfo = ElementCompileUtils.getPopupInfo(props, popup);
                 if (popupInfo == null) {
                     throw new CompilerException("@ViewAction(type=Popup) but @ViewAction.popup.value not config.");
+                }
+                if (!StringUtils.hasLength(popupInfo.getTitle())) {
+                    popupInfo.setTitle(viewAction.name());
                 }
                 actionInfo = PopupActionInfo.builder().popupInfo(popupInfo).closePopupOnSuccess(popup.closePopupOnSuccess()).build();
                 break;
