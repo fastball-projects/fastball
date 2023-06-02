@@ -40,11 +40,11 @@ public class FrontendComponentMojo extends AbstractMojo {
         File generatedCodeDir = new File(project.getBuild().getDirectory(), GENERATED_PATH);
         portalCodeGenerator.generate(generatedCodeDir, projectClassLoader);
         try {
-            ExecUtils.checkNodeAndYarn();
+            ExecUtils.checkNodeAndPNPM();
             OutputStream infoOut = new MavenLogOutputStream(getLog(), MavenLogOutputStream.LogLevel.INFO);
             OutputStream errorOut = new MavenLogOutputStream(getLog(), MavenLogOutputStream.LogLevel.ERROR);
-            ExecUtils.exec("yarn", generatedCodeDir, infoOut, errorOut);
-            ExecUtils.exec("yarn build", generatedCodeDir, infoOut, errorOut);
+            ExecUtils.exec("pnpm i", generatedCodeDir, infoOut, errorOut);
+            ExecUtils.exec("pnpm run build", generatedCodeDir, infoOut, errorOut);
             File staticResourceDir = new File(project.getBuild().getOutputDirectory(), "static");
             FileUtils.copyDirectory(new File(generatedCodeDir, "dist"), staticResourceDir);
         } catch (IOException e) {

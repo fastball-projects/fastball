@@ -44,9 +44,9 @@ public class DevServer implements WebMvcConfigurer, InitializingBean, Applicatio
         OutputStream infoOut = new Slf4jLogOutputStream(log, Slf4jLogOutputStream.LogLevel.INFO);
         OutputStream errorOut = new Slf4jLogOutputStream(log, Slf4jLogOutputStream.LogLevel.ERROR);
         try {
-            ExecUtils.checkNodeAndYarn();
-            ExecUtils.exec("yarn", generatedCodeDir, infoOut, errorOut);
-            ExecUtils.execAsync("yarn dev --open", generatedCodeDir, infoOut, errorOut);
+            ExecUtils.checkNodeAndPNPM();
+            ExecUtils.exec("pnpm i", generatedCodeDir, infoOut, errorOut);
+            ExecUtils.execAsync("pnpm run dev --open", generatedCodeDir, infoOut, errorOut);
         } catch (IOException e) {
             throw new GenerateException(e);
         }
