@@ -19,6 +19,8 @@ public @interface Field {
 
     String tips() default "";
 
+    String defaultValue() default "";
+
     boolean readonly() default false;
 
     boolean entireRow() default false;

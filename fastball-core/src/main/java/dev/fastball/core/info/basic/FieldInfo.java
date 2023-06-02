@@ -42,6 +42,8 @@ public class FieldInfo {
 
     private PopupInfo popupInfo;
 
+    private Object defaultValue;
+
     private RefComponentInfo editModeComponent;
 
     private RefComponentInfo displayModeComponent;

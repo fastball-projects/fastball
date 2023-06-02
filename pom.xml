@@ -24,35 +24,41 @@
     <profiles>
         <profile>
             <id>dev</id>
-            <properties>
-                <repo.snapshot.id>fx</repo.snapshot.id>
-                <repo.snapshot.url>http://82.157.239.41:7777/repository/snapshots/</repo.snapshot.url>
-                <repo.release.id>fx</repo.release.id>
-                <repo.release.url>http://82.157.239.41:7777/repository/releases/</repo.release.url>
-            </properties>
+            <distributionManagement>
+                <repository>
+                    <id>bitbean-fastball-mvn</id>
+                    <name>mvn</name>
+                    <url>https://bitbean-maven.pkg.coding.net/repository/fastball/mvn/</url>
+                </repository>
+            </distributionManagement>
+        </profile>
+        <profile>
+            <id>fx</id>
+            <distributionManagement>
+                <snapshotRepository>
+                    <id>fx</id>
+                    <url>http://82.157.239.41:7777/repository/snapshots/</url>
+                </snapshotRepository>
+                <repository>
+                    <id>fx</id>
+                    <url>http://82.157.239.41:7777/repository/releases/</url>
+                </repository>
+            </distributionManagement>
         </profile>
         <profile>
             <id>release</id>
-            <properties>
-                <repo.snapshot.id>ossrh</repo.snapshot.id>
-                <repo.snapshot.url>https://s01.oss.sonatype.org/content/repositories/snapshots</repo.snapshot.url>
-                <repo.release.id>ossrh</repo.release.id>
-                <repo.release.url>https://s01.oss.sonatype.org/content/repositories/releases/</repo.release.url>
-            </properties>
+            <distributionManagement>
+                <snapshotRepository>
+                    <id>ossrh</id>
+                    <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+                </snapshotRepository>
+                <repository>
+                    <id>ossrh</id>
+                    <url>https://s01.oss.sonatype.org/content/repositories/releases/</url>
+                </repository>
+            </distributionManagement>
         </profile>
     </profiles>
-
-
-    <distributionManagement>
-        <snapshotRepository>
-            <id>${repo.release.id}</id>
-            <url>${repo.snapshot.url}</url>
-        </snapshotRepository>
-        <repository>
-            <id>${repo.release.id}</id>
-            <url>${repo.release.url}</url>
-        </repository>
-    </distributionManagement>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>

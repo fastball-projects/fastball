@@ -113,4 +113,22 @@ public class ExecUtils {
             }
         }
     }
+
+    public static void checkNodeAndYarn() {
+        try {
+            execute("npm -v", null, null, null);
+        } catch (IOException e) {
+            throw new GenerateException("'npm' not found, please confirm nodejs has been installed, see https://nodejs.org/ ");
+        }
+        try {
+            execute("yarn -v", null, null, null);
+        } catch (IOException ignore) {
+            try {
+                LOG.info("Try install yarn...");
+                execute("npm i -g yarn", null, null, null);
+            } catch (IOException e) {
+                throw new GenerateException("install 'yarn' error, see https://yarnpkg.com/getting-started/install ", e);
+            }
+        }
+    }
 }

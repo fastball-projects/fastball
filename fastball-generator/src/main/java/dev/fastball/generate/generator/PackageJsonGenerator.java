@@ -31,7 +31,7 @@ public class PackageJsonGenerator {
             Package nodePackage = JsonUtils.fromJson(inputStream, Package.class);
             Map<String, String> materialPackageMap = new HashMap<>();
             for (ComponentInfo<?> componentInfo : componentInfoList) {
-                if (!materialPackageMap.containsKey(componentInfo.material().getNpmPackage())) {
+                if (!materialPackageMap.containsKey(componentInfo.material().getNpmPackage()) || materialPackageMap.get(componentInfo.material().getNpmPackage()).compareTo(componentInfo.material().getNpmVersion()) < 0){
                     materialPackageMap.put(componentInfo.material().getNpmPackage(), componentInfo.material().getNpmVersion());
                 }
             }
