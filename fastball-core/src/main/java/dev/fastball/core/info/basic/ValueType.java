@@ -18,6 +18,10 @@ public enum ValueType {
      */
     TEXTAREA("textarea"),
     /**
+     * 富文本
+     */
+    RICH_TEXT("RichText"),
+    /**
      * 日期
      */
     DATE("date"),
@@ -146,6 +150,11 @@ public enum ValueType {
      * 图片
      */
     IMAGE("image"),
+
+    /**
+     * 多张图片
+     */
+    MULTI_IMAGE("multi_image"),
 
     /**
      * 代码框，但是带了 json 格式化

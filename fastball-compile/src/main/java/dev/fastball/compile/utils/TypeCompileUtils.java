@@ -221,6 +221,9 @@ public class TypeCompileUtils {
             } else if (typeElement.getKind() == ElementKind.CLASS) {
                 ValueType type = compileBasicClassType(typeElement, fieldElement, fieldInfo, processingEnv);
                 if (type != null) {
+                    if(type == ValueType.IMAGE) {
+                        return ValueType.MULTI_IMAGE;
+                    }
                     String fieldReferenceName = ((TypeElement) fieldElement.getEnclosingElement()).getQualifiedName() + ":" + fieldElement.getSimpleName();
                     throw new CompilerException("Field [" + fieldReferenceName + "] Collection basic type [" + typeElement + "] not supported, if you want multiple select, try use @Lookup");
                 } else {
@@ -347,6 +350,9 @@ public class TypeCompileUtils {
                 if (fieldAnnotation != null) {
                     if (fieldAnnotation.type() == ValueType.TEXTAREA) {
                         return ValueType.TEXTAREA;
+                    }
+                    if (fieldAnnotation.type() == ValueType.RICH_TEXT) {
+                        return ValueType.RICH_TEXT;
                     }
                     if (fieldAnnotation.type() == ValueType.DATE_WEEK) {
                         return ValueType.DATE_WEEK;
