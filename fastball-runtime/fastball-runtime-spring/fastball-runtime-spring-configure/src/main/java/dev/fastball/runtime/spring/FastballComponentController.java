@@ -44,7 +44,18 @@ public class FastballComponentController {
 
     @PostMapping("/storage/generateUploadUrl")
     public Result<ObjectStorageUpload> generateUploadUrl() {
-        return Result.success(ObjectStorageUpload.builder().url(objectStorageService.generateUploadUrl()).build());
+        String url = objectStorageService.generateUploadUrl(objectStorageService.getDefaultBucket(), objectStorageService.generateObjectName("public"));
+        return Result.success(ObjectStorageUpload.builder().url(url).build());
+    }
+
+    @PostMapping("/storage/upload")
+    public Result<String> uploadFiles(@RequestPart(value = "file", required = false) MultipartFile file) {
+        try {
+            return Result.success(objectStorageService.upload(file.getInputStream()));
+        } catch (IOException e) {
+            e.printStackTrace();
+            return Result.fail(e.getMessage());
+        }
     }
 
     @PostMapping(value = "/component/{componentKey}/action/{actionKey}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

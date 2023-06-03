@@ -366,9 +366,6 @@ public class TypeCompileUtils {
                     if (fieldAnnotation.type() == ValueType.DATE_YEAR) {
                         return ValueType.DATE_YEAR;
                     }
-                    if (fieldAnnotation.type() == ValueType.IMAGE) {
-                        return ValueType.IMAGE;
-                    }
                     if (fieldAnnotation.type() == ValueType.AVATAR) {
                         return ValueType.AVATAR;
                     }
@@ -385,6 +382,8 @@ public class TypeCompileUtils {
                 return ValueType.DATE;
             case "java.time.LocalDateTime":
                 return ValueType.DATE_TIME;
+            case "dev.fastball.core.field.Image":
+                return ValueType.IMAGE;
             default:
                 if (ElementCompileUtils.isAssignableFrom(Number.class, typeElement, processingEnv)) {
                     if (fieldAnnotation != null && fieldAnnotation.type() == ValueType.MONEY) {
