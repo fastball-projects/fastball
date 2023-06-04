@@ -221,8 +221,8 @@ public class TypeCompileUtils {
             } else if (typeElement.getKind() == ElementKind.CLASS) {
                 ValueType type = compileBasicClassType(typeElement, fieldElement, fieldInfo, processingEnv);
                 if (type != null) {
-                    if(type == ValueType.IMAGE) {
-                        return ValueType.MULTI_IMAGE;
+                    if(type == ValueType.ATTACHMENT) {
+                        return ValueType.MULTI_ATTACHMENT;
                     }
                     String fieldReferenceName = ((TypeElement) fieldElement.getEnclosingElement()).getQualifiedName() + ":" + fieldElement.getSimpleName();
                     throw new CompilerException("Field [" + fieldReferenceName + "] Collection basic type [" + typeElement + "] not supported, if you want multiple select, try use @Lookup");
@@ -382,8 +382,8 @@ public class TypeCompileUtils {
                 return ValueType.DATE;
             case "java.time.LocalDateTime":
                 return ValueType.DATE_TIME;
-            case "dev.fastball.core.field.Image":
-                return ValueType.IMAGE;
+            case "dev.fastball.core.field.Attachment":
+                return ValueType.ATTACHMENT;
             default:
                 if (ElementCompileUtils.isAssignableFrom(Number.class, typeElement, processingEnv)) {
                     if (fieldAnnotation != null && fieldAnnotation.type() == ValueType.MONEY) {

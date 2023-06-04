@@ -147,14 +147,14 @@ public enum ValueType {
     FROM_NOW("fromNow"),
 
     /**
-     * 图片
+     * 附件
      */
-    IMAGE("image"),
+    ATTACHMENT("Attachment"),
 
     /**
-     * 多张图片
+     * 多附件
      */
-    MULTI_IMAGE("multi_image"),
+    MULTI_ATTACHMENT("MultiAttachment"),
 
     /**
      * 代码框，但是带了 json 格式化

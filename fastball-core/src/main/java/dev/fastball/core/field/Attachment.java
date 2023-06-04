@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class Image {
+public class Attachment {
     private String url;
 
     private String name;
