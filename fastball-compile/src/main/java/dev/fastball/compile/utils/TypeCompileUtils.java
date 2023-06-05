@@ -389,6 +389,12 @@ public class TypeCompileUtils {
                     if (fieldAnnotation != null && fieldAnnotation.type() == ValueType.MONEY) {
                         return ValueType.MONEY;
                     }
+                    if (fieldAnnotation != null && fieldAnnotation.type() == ValueType.SECOND) {
+                        return ValueType.SECOND;
+                    }
+                    if (fieldAnnotation != null && fieldAnnotation.type() == ValueType.PERCENT) {
+                        return ValueType.PERCENT;
+                    }
                     return ValueType.DIGIT;
                 }
                 return null;
@@ -466,6 +472,14 @@ public class TypeCompileUtils {
             lookupActionInfo.labelField(lookupAnnotation.labelField());
             lookupActionInfo.valueField(lookupAnnotation.valueField());
             lookupActionInfo.childrenField(lookupAnnotation.childrenField());
+            lookupActionInfo.extraFillFields(
+                    Arrays.stream(lookupAnnotation.extraFillFields()).map(fillField -> LookupFillFieldInfo.builder()
+                            .fromField(fillField.fromField())
+                            .targetField(fillField.targetField())
+                            .onlyEmpty(fillField.onlyEmpty())
+                            .build()
+                    ).collect(Collectors.toList())
+            );
             field.setLookup(lookupActionInfo);
         }
     }

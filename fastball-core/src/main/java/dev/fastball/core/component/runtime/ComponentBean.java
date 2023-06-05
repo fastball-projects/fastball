@@ -14,6 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Data
 public class ComponentBean {
 
+    private boolean anonymousAccess;
     private String componentKey;
     private Component component;
     private Map<String, UIApiMethod> methodMap;

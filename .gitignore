@@ -39,3 +39,5 @@ buildNumber.properties
 
 .idea/
 
+.node_modules/
+

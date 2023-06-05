@@ -16,6 +16,11 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ComponentRegistry {
 
     private final Map<String, ComponentBean> componentBeanMap = new ConcurrentHashMap<>();
+    private final Set<String> anonymousAccessComponentBeans = new HashSet<>();
+
+    public Set<String> getAnonymousAccessComponentBeans() {
+        return anonymousAccessComponentBeans;
+    }
 
     public ComponentBean getComponentBean(String componentKey) {
         return componentBeanMap.get(componentKey);
@@ -30,7 +35,11 @@ public class ComponentRegistry {
         if (frontendComponentAnnotation.value().isEmpty()) {
             componentKey = componentClass.getSimpleName();
         }
-
+        AnonymousAccess anonymousAccessAnnotation = componentClass.getAnnotation(AnonymousAccess.class);
+        if(anonymousAccessAnnotation != null) {
+            componentBean.setAnonymousAccess(true);
+            anonymousAccessComponentBeans.add(componentKey);
+        }
         componentBean.setMethodMap(getApiMethodMapper(componentClass));
         componentBean.setRecordActionFilterClasses(getRecordActionFilter(componentClass));
         componentBeanMap.put(componentKey, componentBean);
