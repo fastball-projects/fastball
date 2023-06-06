@@ -143,9 +143,9 @@ const Layout: React.FC<RouteComponentProps> = ({ routes, currentUser }) => {
         location={{
           pathname,
         }}
-        waterMarkProps={{
-          content: 'Pro Layout',
-        }}
+        // waterMarkProps={{
+        //   content: currentUser?.username,
+        // }}
         avatarProps={{
           // src: currentUser?.avatar,
           // icon: currentUser?.avatar ? null : <UserOutlined />,
