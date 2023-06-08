@@ -384,6 +384,8 @@ public class TypeCompileUtils {
                 return ValueType.DATE_TIME;
             case "dev.fastball.core.field.Attachment":
                 return ValueType.ATTACHMENT;
+            case "dev.fastball.core.field.Address":
+                return ValueType.ADDRESS;
             default:
                 if (ElementCompileUtils.isAssignableFrom(Number.class, typeElement, processingEnv)) {
                     if (fieldAnnotation != null && fieldAnnotation.type() == ValueType.MONEY) {
