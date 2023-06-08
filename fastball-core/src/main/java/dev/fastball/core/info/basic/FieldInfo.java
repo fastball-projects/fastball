@@ -22,6 +22,8 @@ public class FieldInfo {
 
     private String tooltip;
 
+    private String placeholder;
+
     private String valueType;
 
     private String fieldType;
