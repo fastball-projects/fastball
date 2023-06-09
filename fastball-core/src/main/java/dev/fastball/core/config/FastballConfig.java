@@ -12,6 +12,11 @@ import java.util.Map;
 public class FastballConfig {
 
     private String theme;
+    private String logo;
+    private String title;
+    private String description;
+    private String copyright;
+    private String devServerUrl;
     private Map<String, String> customNpmDependencies;
     private Map<String, Menu> menus;
 }

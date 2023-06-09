@@ -12,6 +12,7 @@ import routes from './routes'
 import { RouteComponentProps } from '../types'
 import { routeBuilder } from './route-builder'
 import Login from './login'
+import config from '../config.json'
 
 const TOKEN_LOCAL_KEY = 'fastball_token';
 
@@ -134,8 +135,8 @@ const Layout: React.FC<RouteComponentProps> = ({ routes, currentUser }) => {
     >
       <ProLayout
         fixSiderbar
-        title="Fastball portal"
-        logo="/logo.svg"
+        title={config.title}
+        logo={config.logo}
         route={{
           path: '/',
           routes,

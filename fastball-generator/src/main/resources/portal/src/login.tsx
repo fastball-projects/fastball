@@ -14,6 +14,7 @@ import {
     DefaultFooter
 } from '@ant-design/pro-components';
 import './login.scss'
+import config from '../config.json'
 
 const TOKEN_LOCAL_KEY = 'fastball_token';
 const REDIRECT_URL_QUERY_KEY = 'redirectUrl';
@@ -42,7 +43,8 @@ const Footer: React.FC = () => {
             style={{
                 background: 'none',
             }}
-            copyright={`${currentYear} 杭州范数科技有限公司`}
+            copyright={config.copyright}
+            /*
             links={[
                 {
                     key: 'Fastball',
@@ -51,6 +53,7 @@ const Footer: React.FC = () => {
                     blankTarget: true,
                 }]
             }
+            */
         />
     );
 };
@@ -111,9 +114,9 @@ const Login: React.FC = () => {
                         minWidth: 280,
                         maxWidth: '75vw',
                     }}
-                    logo={<img alt="logo" src="/logo.svg" />}
-                    title="Fastball"
-                    subTitle="一款面向 Java 开发人员的界面开发框架"
+                    logo={<img alt="logo" src={config.logo} />}
+                    title={config.title}
+                    subTitle={config.description}
                     initialValues={{
                         autoLogin: true,
                     }}
