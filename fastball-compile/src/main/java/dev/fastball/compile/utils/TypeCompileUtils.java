@@ -119,6 +119,9 @@ public class TypeCompileUtils {
         } else if (fieldElement.getAnnotation(TreeLookup.class) != null) {
             compileTreeLookup(fieldInfo, fieldElement, processingEnv);
             valueType = ValueType.TREE_SELECT;
+        } else if (fieldElement.getAnnotation(AutoComplete.class) != null) {
+            compileAutoComplete(fieldInfo, fieldElement, processingEnv);
+            valueType = ValueType.AUTO_COMPLETE;
         } else if (fieldElement.getAnnotation(ShowField.class) != null) {
             compileShowField(fieldInfo, fieldElement, processingEnv, props, fieldBuilder, afterBuild, compiledTypes);
             valueType = ValueType.TREE_SELECT;
@@ -449,6 +452,40 @@ public class TypeCompileUtils {
             );
             field.setLookup(lookupActionInfo);
         }
+    }
+
+
+    private static <T extends FieldInfo> void compileAutoComplete(T field, VariableElement fieldElement, ProcessingEnvironment processingEnv) {
+        AutoComplete autoCompleteAnnotation = fieldElement.getAnnotation(AutoComplete.class);
+        if (autoCompleteAnnotation == null) {
+            return;
+        }
+        Field fieldAnnotation = fieldElement.getAnnotation(Field.class);
+        if (fieldAnnotation != null && fieldAnnotation.type() != ValueType.AUTO && fieldAnnotation.type() != ValueType.AUTO_COMPLETE) {
+            String fieldReferenceName = ((TypeElement) fieldElement.getEnclosingElement()).getQualifiedName() + ":" + fieldElement.getSimpleName();
+            throw new CompilerException("Field [" + fieldReferenceName + "] has annotation @AutoComplete, but @Field.type is not AUTO_COMPLETE, try set @Field.type to FieldType.AUTO or FieldType.AUTO_COMPLETE");
+        }
+        AutoCompleteInfo_AutoValue autoCompleteInfo = new AutoCompleteInfo_AutoValue();
+        TypeMirror lookupActionType = ElementCompileUtils.getTypeMirrorFromAnnotationValue(autoCompleteAnnotation::value);
+        if (lookupActionType == null) {
+            String fieldReferenceName = ((TypeElement) fieldElement.getEnclosingElement()).getQualifiedName() + ":" + fieldElement.getSimpleName();
+            throw new CompilerException("Field [" + fieldReferenceName + "] annotation @AutoComplete.value type not found, check dependency.");
+        }
+        TypeElement autoCompleteActionElement = (TypeElement) processingEnv.getTypeUtils().asElement(lookupActionType);
+        if (autoCompleteActionElement == null) {
+            throw new CompilerException("can't happened");
+        }
+        autoCompleteInfo.autoCompleteKey(ElementCompileUtils.getComponentKey(autoCompleteActionElement));
+        autoCompleteInfo.inputType(autoCompleteAnnotation.inputType());
+        autoCompleteInfo.valueField(autoCompleteAnnotation.valueField());
+        autoCompleteInfo.fields(
+                Arrays.stream(autoCompleteAnnotation.displayFields()).map(displayField -> DisplayFieldInfo.builder()
+                        .name(displayField.name())
+                        .title(displayField.title())
+                        .build()
+                ).collect(Collectors.toList())
+        );
+        field.setAutoComplete(autoCompleteInfo);
     }
 
     private static <T extends FieldInfo> void compileTreeLookup(T field, VariableElement fieldElement, ProcessingEnvironment processingEnv) {

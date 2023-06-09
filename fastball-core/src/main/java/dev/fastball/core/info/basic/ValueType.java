@@ -204,7 +204,12 @@ public enum ValueType {
     /**
      * 列表表单
      */
-    TABLE_FORM("TableForm");
+    TABLE_FORM("TableForm"),
+
+    /**
+     * 自动完成组件
+     */
+    AUTO_COMPLETE("AutoComplete");
 
     ValueType(String type) {
         this.type = type;

@@ -42,6 +42,8 @@ public class FieldInfo {
 
     private LookupInfo lookup;
 
+    private AutoCompleteInfo autoComplete;
+
     private PopupInfo popupInfo;
 
     private Object defaultValue;
