@@ -101,6 +101,7 @@ const Page404 = () => (
 )
 
 const userMenu: MenuProps["items"] = [
+/*
   {
     key: "profiler",
     icon: <UserOutlined />,
@@ -112,6 +113,7 @@ const userMenu: MenuProps["items"] = [
   {
     type: "divider"
   },
+*/
   {
     key: "logout",
     icon: <LogoutOutlined />,

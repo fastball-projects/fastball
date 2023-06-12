@@ -17,7 +17,6 @@ import java.util.Map;
  */
 @Getter
 @Setter
-@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 public class DefaultDataRecord implements DataRecord {
