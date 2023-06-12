@@ -478,6 +478,7 @@ public class TypeCompileUtils {
         autoCompleteInfo.autoCompleteKey(ElementCompileUtils.getComponentKey(autoCompleteActionElement));
         autoCompleteInfo.inputType(autoCompleteAnnotation.inputType());
         autoCompleteInfo.valueField(autoCompleteAnnotation.valueField());
+        autoCompleteInfo.dependencyFields(autoCompleteAnnotation.dependencyFields());
         autoCompleteInfo.fields(
                 Arrays.stream(autoCompleteAnnotation.displayFields()).map(displayField -> DisplayFieldInfo.builder()
                         .name(displayField.name())

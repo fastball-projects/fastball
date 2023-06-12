@@ -15,12 +15,14 @@ import java.util.List;
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 public interface AutoCompleteInfo {
     String packageName();
+
     AutoComplete.InputType inputType();
 
     String autoCompleteKey();
 
-
     String valueField();
+
+    String[] dependencyFields();
 
     List<DisplayFieldInfo> fields();
 }

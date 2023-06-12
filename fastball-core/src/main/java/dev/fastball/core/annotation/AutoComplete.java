@@ -21,6 +21,8 @@ public @interface AutoComplete {
 
     DisplayField[] displayFields();
 
+    String[] dependencyFields() default {};
+
     FillField[] extraFillFields() default {};
 
     enum InputType {
