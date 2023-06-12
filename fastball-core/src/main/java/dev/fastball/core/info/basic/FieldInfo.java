@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -15,7 +16,7 @@ import java.util.Map;
 @Data
 @NoArgsConstructor
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
-public class FieldInfo {
+public class FieldInfo implements Comparable<FieldInfo> {
     private String title;
 
     private List<String> dataIndex;
@@ -48,6 +49,8 @@ public class FieldInfo {
 
     private Object defaultValue;
 
+    private int order;
+
     private RefComponentInfo editModeComponent;
 
     private RefComponentInfo displayModeComponent;
@@ -64,5 +67,10 @@ public class FieldInfo {
 
     public void dataIndex(String dataIndex) {
         this.dataIndex = Collections.singletonList(dataIndex);
+    }
+
+    @Override
+    public int compareTo(FieldInfo target) {
+        return Integer.compare(this.getOrder(), target == null ? 0 : target.getOrder());
     }
 }
