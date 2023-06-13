@@ -46,7 +46,7 @@ public class ComponentRegistry {
     }
 
     private Map<String, UIApiMethod> getApiMethodMapper(Class<? extends Component> componentClass) {
-        Set<Method> superMethodSet = new HashSet<>();
+        Set<Method> superMethodSet = new LinkedHashSet<>();
         loadAllMethod(componentClass, superMethodSet);
         Map<String, UIApiMethod> actionMethodMap = new HashMap<>();
         superMethodSet.stream().filter(method -> method.getDeclaredAnnotation(UIApi.class) != null)
@@ -102,10 +102,10 @@ public class ComponentRegistry {
         if (componentClass == null) {
             return;
         }
+        Arrays.stream(componentClass.getInterfaces()).forEach(anInterface -> loadAllMethod(anInterface, methodSet));
+        loadAllMethod(componentClass.getSuperclass(), methodSet);
         Arrays.stream(componentClass.getDeclaredMethods())
                 .filter(method -> method.getDeclaredAnnotation(UIApi.class) != null)
                 .forEach(methodSet::add);
-        loadAllMethod(componentClass.getSuperclass(), methodSet);
-        Arrays.stream(componentClass.getInterfaces()).forEach(anInterface -> loadAllMethod(anInterface, methodSet));
     }
 }

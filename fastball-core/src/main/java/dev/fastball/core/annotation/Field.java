@@ -23,6 +23,8 @@ public @interface Field {
 
     String defaultValue() default "";
 
+    int order() default 0;
+
     boolean readonly() default false;
 
     boolean entireRow() default false;

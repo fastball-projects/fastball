@@ -66,6 +66,7 @@ public class TypeCompileUtils {
             fieldInfo.setTooltip(fieldAnnotation.tips());
             fieldInfo.setPlaceholder(fieldAnnotation.placeholder());
             fieldInfo.setReadonly(fieldAnnotation.readonly());
+            fieldInfo.setOrder(fieldAnnotation.order());
             fieldInfo.setEntireRow(fieldAnnotation.entireRow());
             if(!fieldAnnotation.defaultValue().isEmpty()) {
                 fieldInfo.setDefaultValue(fieldAnnotation.defaultValue());
