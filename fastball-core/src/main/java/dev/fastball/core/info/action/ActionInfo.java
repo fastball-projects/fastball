@@ -19,6 +19,7 @@ public abstract class ActionInfo {
     private String actionName;
 
     private String actionKey;
+    private String componentKey;
 
     protected ActionType type;
 

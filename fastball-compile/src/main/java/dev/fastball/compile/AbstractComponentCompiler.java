@@ -104,13 +104,13 @@ public abstract class AbstractComponentCompiler<T extends Component, P extends C
     }
 
     private void compileActions(P props, CompileContext compileContext) {
-        List<ActionInfo> actionInfoList = compileContext.getMethodMap().values().stream().map(method -> buildApiActionInfo(method, compileContext.getProcessingEnv())).filter(Objects::nonNull).collect(Collectors.toList());
+        List<ActionInfo> actionInfoList = compileContext.getMethodMap().values().stream().map(method -> buildApiActionInfo(props.componentKey(), method, compileContext.getProcessingEnv())).filter(Objects::nonNull).collect(Collectors.toList());
         props.actions(actionInfoList);
         compileExtensionViewActions(props, compileContext.getComponentElement(), compileContext.getProcessingEnv(), actionInfoList, false);
     }
 
     protected void compileRecordActions(P props, CompileContext compileContext) {
-        List<ActionInfo> actionInfoList = compileContext.getMethodMap().values().stream().map(method -> buildApiRecordActionInfo(method, compileContext.getProcessingEnv())).filter(Objects::nonNull).collect(Collectors.toList());
+        List<ActionInfo> actionInfoList = compileContext.getMethodMap().values().stream().map(method -> buildApiRecordActionInfo(props.componentKey(), method, compileContext.getProcessingEnv())).filter(Objects::nonNull).collect(Collectors.toList());
         props.recordActions(actionInfoList);
         compileExtensionViewActions(props, compileContext.getComponentElement(), compileContext.getProcessingEnv(), actionInfoList, true);
     }
@@ -151,13 +151,19 @@ public abstract class AbstractComponentCompiler<T extends Component, P extends C
         }
     }
 
-    protected ActionInfo buildApiRecordActionInfo(ExecutableElement method, ProcessingEnvironment processingEnv) {
+    protected ActionInfo buildApiRecordActionInfo(String componentKey, ExecutableElement method, ProcessingEnvironment processingEnv) {
         RecordAction actionAnnotation = method.getAnnotation(RecordAction.class);
         if (actionAnnotation == null) {
             return null;
         }
 
-        ApiActionInfo.ApiActionInfoBuilder builder = ApiActionInfo.builder().refresh(actionAnnotation.refresh()).confirmMessage(actionAnnotation.confirmMessage()).closePopupOnSuccess(actionAnnotation.closePopupOnSuccess()).actionName(actionAnnotation.name()).actionKey(actionAnnotation.key().isEmpty() ? method.getSimpleName().toString() : actionAnnotation.key());
+        ApiActionInfo.ApiActionInfoBuilder builder = ApiActionInfo.builder()
+                .componentKey(componentKey)
+                .refresh(actionAnnotation.refresh())
+                .confirmMessage(actionAnnotation.confirmMessage())
+                .closePopupOnSuccess(actionAnnotation.closePopupOnSuccess())
+                .actionName(actionAnnotation.name())
+                .actionKey(actionAnnotation.key().isEmpty() ? method.getSimpleName().toString() : actionAnnotation.key());
         builder.uploadFileAction(method.getParameters().stream().anyMatch(param -> isUploadField(param.asType(), processingEnv)));
         if (method.getReturnType() != null) {
             TypeElement returnType = (TypeElement) processingEnv.getTypeUtils().asElement(method.getReturnType());
@@ -166,13 +172,18 @@ public abstract class AbstractComponentCompiler<T extends Component, P extends C
         return builder.build();
     }
 
-    protected ActionInfo buildApiActionInfo(ExecutableElement method, ProcessingEnvironment processingEnv) {
+    protected ActionInfo buildApiActionInfo(String componentKey, ExecutableElement method, ProcessingEnvironment processingEnv) {
         Action actionAnnotation = method.getAnnotation(Action.class);
         if (actionAnnotation == null) {
             return null;
         }
 
-        ApiActionInfo.ApiActionInfoBuilder builder = ApiActionInfo.builder().refresh(actionAnnotation.refresh()).closePopupOnSuccess(actionAnnotation.closePopupOnSuccess()).actionName(actionAnnotation.name()).actionKey(actionAnnotation.key().isEmpty() ? method.getSimpleName().toString() : actionAnnotation.key());
+        ApiActionInfo.ApiActionInfoBuilder builder = ApiActionInfo.builder()
+                .componentKey(componentKey)
+                .refresh(actionAnnotation.refresh())
+                .closePopupOnSuccess(actionAnnotation.closePopupOnSuccess())
+                .actionName(actionAnnotation.name())
+                .actionKey(actionAnnotation.key().isEmpty() ? method.getSimpleName().toString() : actionAnnotation.key());
         builder.uploadFileAction(method.getParameters().stream().anyMatch(param -> isUploadField(param.asType(), processingEnv)));
         if (method.getReturnType() != null) {
             TypeElement returnType = (TypeElement) processingEnv.getTypeUtils().asElement(method.getReturnType());
@@ -214,7 +225,7 @@ public abstract class AbstractComponentCompiler<T extends Component, P extends C
         return actionInfo;
     }
 
-    private boolean isUploadField(TypeMirror type, ProcessingEnvironment processingEnv) {
+    protected boolean isUploadField(TypeMirror type, ProcessingEnvironment processingEnv) {
         if (type.getKind() != TypeKind.DECLARED) {
             return false;
         }
