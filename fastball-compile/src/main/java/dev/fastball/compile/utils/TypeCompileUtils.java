@@ -68,7 +68,7 @@ public class TypeCompileUtils {
             fieldInfo.setReadonly(fieldAnnotation.readonly());
             fieldInfo.setOrder(fieldAnnotation.order());
             fieldInfo.setEntireRow(fieldAnnotation.entireRow());
-            if(!fieldAnnotation.defaultValue().isEmpty()) {
+            if (!fieldAnnotation.defaultValue().isEmpty()) {
                 fieldInfo.setDefaultValue(fieldAnnotation.defaultValue());
             }
         } else {
@@ -86,7 +86,7 @@ public class TypeCompileUtils {
 
     private static ExpressionInfo compileExpression(VariableElement fieldElement) {
         Expression expressionAnnotation = fieldElement.getAnnotation(Expression.class);
-        if(expressionAnnotation == null) {
+        if (expressionAnnotation == null) {
             return null;
         }
         return new ExpressionInfo(expressionAnnotation.fields(), expressionAnnotation.expression());
@@ -226,7 +226,7 @@ public class TypeCompileUtils {
             } else if (typeElement.getKind() == ElementKind.CLASS) {
                 ValueType type = compileBasicClassType(typeElement, fieldElement, fieldInfo, processingEnv);
                 if (type != null) {
-                    if(type == ValueType.ATTACHMENT) {
+                    if (type == ValueType.ATTACHMENT) {
                         return ValueType.MULTI_ATTACHMENT;
                     }
                     String fieldReferenceName = ((TypeElement) fieldElement.getEnclosingElement()).getQualifiedName() + ":" + fieldElement.getSimpleName();
@@ -443,6 +443,13 @@ public class TypeCompileUtils {
             lookupActionInfo.lookupKey(ElementCompileUtils.getComponentKey(lookupActionElement));
             lookupActionInfo.labelField(lookupAnnotation.labelField());
             lookupActionInfo.valueField(lookupAnnotation.valueField());
+            lookupActionInfo.showSearch(lookupAnnotation.showSearch());
+            lookupActionInfo.dependencyParams(Arrays.stream(lookupAnnotation.dependencyParams()).map(dependencyParam -> DependencyParamInfo.builder()
+                    .paramKey(dependencyParam.paramKey())
+                    .paramPath(dependencyParam.paramPath())
+                    .rootValue(dependencyParam.rootValue())
+                    .build()
+            ).collect(Collectors.toList()));
             lookupActionInfo.extraFillFields(
                     Arrays.stream(lookupAnnotation.extraFillFields()).map(fillField -> LookupFillFieldInfo.builder()
                             .fromField(fillField.fromField())
@@ -513,6 +520,7 @@ public class TypeCompileUtils {
             lookupActionInfo.lookupKey(ElementCompileUtils.getComponentKey(lookupActionElement));
             lookupActionInfo.labelField(lookupAnnotation.labelField());
             lookupActionInfo.valueField(lookupAnnotation.valueField());
+            lookupActionInfo.showSearch(lookupAnnotation.showSearch());
             lookupActionInfo.childrenField(lookupAnnotation.childrenField());
             lookupActionInfo.extraFillFields(
                     Arrays.stream(lookupAnnotation.extraFillFields()).map(fillField -> LookupFillFieldInfo.builder()

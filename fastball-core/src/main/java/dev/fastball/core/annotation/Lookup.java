@@ -18,5 +18,9 @@ public @interface Lookup {
 
     String valueField() default "id";
 
+    boolean showSearch() default false;
+
+    DependencyParam[] dependencyParams() default {};
+
     FillField[] extraFillFields() default {};
 }

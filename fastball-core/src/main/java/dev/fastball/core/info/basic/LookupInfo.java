@@ -21,7 +21,11 @@ public interface LookupInfo {
 
     String valueField();
 
+    List<DependencyParamInfo> dependencyParams();
+
     List<LookupFillFieldInfo> extraFillFields();
 
     boolean multiple();
+
+    boolean showSearch();
 }
