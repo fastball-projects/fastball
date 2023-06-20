@@ -12,6 +12,7 @@ import java.util.Collection;
 @Getter
 @Setter
 public class DataResult<T> {
+    private static final DataResult<?> _EMPTY = new DataResult<>();
 
     private Long total;
     private Collection<T> data;
@@ -22,6 +23,11 @@ public class DataResult<T> {
 
     public static <T> DataResult<T> build(Long total, Collection<T> data) {
         return new DataResult<>(total, data);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> DataResult<T> empty() {
+        return (DataResult<T>) _EMPTY;
     }
 
     public DataResult() {

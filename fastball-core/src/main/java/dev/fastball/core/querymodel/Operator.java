@@ -9,4 +9,5 @@ public enum Operator {
     GT,
     LT,
     RANGE,
+    IN,
 }

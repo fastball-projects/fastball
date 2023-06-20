@@ -9,15 +9,15 @@ import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.MappedSuperclass;
+import javax.persistence.*;
 import java.util.Date;
 
 @Getter
 @Setter
 @MappedSuperclass
+@EntityListeners(AuditingEntityListener.class)
 public abstract class JpaBaseEntity extends DefaultDataRecord {
 
     @Id
@@ -27,11 +27,12 @@ public abstract class JpaBaseEntity extends DefaultDataRecord {
 
     @CreatedDate
     @Field(display = DisplayType.Hidden)
+    @Column(updatable = false)
     private Date createdAt;
 
     @CreatedBy
     @Field(display = DisplayType.Hidden)
-    private String createdBy;
+    private Long createdBy;
 
     @LastModifiedDate
     @Field(display = DisplayType.Hidden)
@@ -39,6 +40,6 @@ public abstract class JpaBaseEntity extends DefaultDataRecord {
 
     @LastModifiedBy
     @Field(display = DisplayType.Hidden)
-    private String lastUpdatedBy;
+    private Long lastUpdatedBy;
 }
 
