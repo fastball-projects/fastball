@@ -1,10 +1,13 @@
 package dev.fastball.compile.utils;
 
+import com.google.common.collect.Maps;
 import dev.fastball.compile.exception.CompilerException;
 import dev.fastball.core.annotation.*;
 import dev.fastball.core.component.Range;
 import dev.fastball.core.info.basic.*;
 import dev.fastball.core.info.component.ComponentProps;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.collections4.map.SingletonMap;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ElementKind;
@@ -238,6 +241,10 @@ public class TypeCompileUtils {
                     Field fieldAnnotation = fieldElement.getAnnotation(Field.class);
                     if (fieldAnnotation != null && fieldAnnotation.type() == ValueType.ARRAY) {
                         return ValueType.ARRAY;
+                    }
+                    if (fieldAnnotation != null && fieldAnnotation.type() == ValueType.NO_ADD_SUB_TABLE) {
+                        fieldInfo.setFieldProps(Maps.immutableEntry("noAdd", true));
+                        return ValueType.NO_ADD_SUB_TABLE;
                     }
                     return ValueType.SUB_TABLE;
                 }

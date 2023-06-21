@@ -2,6 +2,7 @@ package dev.fastball.compile.processor;
 
 import dev.fastball.compile.CompileContext;
 import dev.fastball.compile.FastballCompileGenerator;
+import dev.fastball.compile.FastballGenerateCompileGenerator;
 import dev.fastball.compile.FastballPreCompileGenerator;
 import dev.fastball.core.annotation.UIComponent;
 import dev.fastball.core.material.MaterialRegistry;
@@ -28,25 +29,30 @@ public class FastballComponentCompileProcessor extends AbstractProcessor {
 
     MaterialRegistry materialRegistry = new MaterialRegistry(FastballComponentCompileProcessor.class.getClassLoader());
 
-    private boolean preCompileDone = false;
+    private int roundCount = 0;
+    private boolean generationDone = false;
 
     private final Set<Element> firstElement = new HashSet<>();
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        if (!preCompileDone) {
+        if (roundCount < 1) {
             if (loadGeneratorStream(FastballPreCompileGenerator.class).findAny().isPresent()) {
                 processPreCompile(roundEnv);
-                preCompileDone = true;
                 firstElement.addAll(roundEnv.getRootElements());
-            } else {
-                processCompile(roundEnv);
             }
-            return false;
+            roundCount++;
+        } else if (roundCount < 2) {
+            if (loadGeneratorStream(FastballGenerateCompileGenerator.class).findAny().isPresent()) {
+                processGenerateCompile(roundEnv);
+                firstElement.addAll(roundEnv.getRootElements());
+            }
+            roundCount++;
         } else {
             processCompile(roundEnv);
+            return true;
         }
-        return true;
+        return false;
     }
 
     @Override
@@ -54,7 +60,11 @@ public class FastballComponentCompileProcessor extends AbstractProcessor {
         Set<String> supportedAnnotationTypes = loadGeneratorStream(FastballPreCompileGenerator.class)
                 .flatMap(generator -> generator.getSupportedAnnotationTypes().stream())
                 .collect(Collectors.toSet());
-        loadGeneratorStream(FastballCompileGenerator.class).flatMap(generator -> generator.getSupportedAnnotationTypes().stream())
+        loadGeneratorStream(FastballGenerateCompileGenerator.class)
+                .flatMap(generator -> generator.getSupportedAnnotationTypes().stream())
+                .forEach(supportedAnnotationTypes::add);
+        loadGeneratorStream(FastballCompileGenerator.class)
+                .flatMap(generator -> generator.getSupportedAnnotationTypes().stream())
                 .forEach(supportedAnnotationTypes::add);
         return supportedAnnotationTypes;
     }
@@ -62,6 +72,17 @@ public class FastballComponentCompileProcessor extends AbstractProcessor {
     private void processPreCompile(RoundEnvironment roundEnv) {
         loadGeneratorStream(FastballPreCompileGenerator.class).forEach(generator ->
                 loadElements(roundEnv, generator.getSupportedAnnotationTypes())
+                        .forEach(element -> generator.generate(element, processingEnv))
+        );
+    }
+
+    private void processGenerateCompile(RoundEnvironment roundEnv) {
+        loadGeneratorStream(FastballGenerateCompileGenerator.class).forEach(generator ->
+                loadElements(roundEnv, generator.getSupportedAnnotationTypes())
+                        .forEach(element -> generator.generate(element, processingEnv))
+        );
+        loadGeneratorStream(FastballGenerateCompileGenerator.class).forEach(generator ->
+                loadElements(firstElement, generator.getSupportedAnnotationTypes())
                         .forEach(element -> generator.generate(element, processingEnv))
         );
     }

@@ -202,6 +202,11 @@ public enum ValueType {
     SUB_TABLE("SubTable"),
 
     /**
+     * 子表
+     */
+    NO_ADD_SUB_TABLE("SubTable"),
+
+    /**
      * 列表表单
      */
     TABLE_FORM("TableForm"),

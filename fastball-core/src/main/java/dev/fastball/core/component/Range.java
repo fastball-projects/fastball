@@ -13,7 +13,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @JsonSerialize(using = RangeSerialize.class)
-public class Range<T> {
+public class Range<T extends Comparable<? super T>> {
     private T[] data;
 
     public Range() {
