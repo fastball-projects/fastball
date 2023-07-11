@@ -6,6 +6,10 @@ import dev.fastball.core.utils.RangeSerialize;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * @author gr@fastball.dev
  * @since 2023/1/29
@@ -14,25 +18,26 @@ import lombok.Setter;
 @Setter
 @JsonSerialize(using = RangeSerialize.class)
 public class Range<T extends Comparable<? super T>> {
-    private T[] data;
+    private List<T> data;
 
     public Range() {
+        data = new ArrayList<>(2);
     }
 
     public Range(T start, T end) {
-        this.data = (T[]) new Object[]{start, end};
+        this.data = Arrays.asList(start, end);
     }
 
     @JsonCreator
-    public Range(T[] data) {
+    public Range(List<T> data) {
         this.data = data;
     }
 
     public T getStart() {
-        return data != null && data.length > 0 ? data[0] : null;
+        return data != null && data.size() > 0 ? data.get(0) : null;
     }
 
     public T getEnd() {
-        return data != null && data.length > 1 ? data[1] : null;
+        return data != null && data.size() > 1 ? data.get(1) : null;
     }
 }

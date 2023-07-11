@@ -3,6 +3,7 @@ package dev.fastball.compile.utils;
 import com.google.common.collect.Maps;
 import dev.fastball.compile.exception.CompilerException;
 import dev.fastball.core.annotation.*;
+import dev.fastball.core.component.LookupAction;
 import dev.fastball.core.component.Range;
 import dev.fastball.core.info.basic.*;
 import dev.fastball.core.info.component.ComponentProps;
@@ -23,6 +24,8 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static dev.fastball.compile.CompileConstants.SIMPLE_FORM_LIST_VALUE_FIELD;
+import static dev.fastball.compile.utils.LookupCompileUtils.compileLookup;
+import static dev.fastball.compile.utils.LookupCompileUtils.compileTreeLookup;
 
 /**
  * TODO 字段类型编译, 这里需要优化一下, 各类型抽成独立注册的
@@ -56,6 +59,14 @@ public class TypeCompileUtils {
         Map<String, VariableElement> fieldMap = ElementCompileUtils.getFields(typeElement, processingEnv);
         return fieldMap.values().stream()
                 .map(fieldElement -> compileField(fieldElement, processingEnv, props, fieldBuilder, afterBuild, compiledTypes))
+                .collect(Collectors.toList());
+    }
+
+    public static <T extends FieldInfo> List<T> compileTypeFields(TypeElement typeElement, ProcessingEnvironment processingEnv, Supplier<T> fieldBuilder, Set<String> tableSelectorFields) {
+        Map<String, VariableElement> fieldMap = ElementCompileUtils.getFields(typeElement, processingEnv);
+        return fieldMap.values().stream()
+                .filter(fieldElement -> tableSelectorFields.contains(fieldElement.getSimpleName().toString()))
+                .map(fieldElement -> compileField(fieldElement, processingEnv, null, fieldBuilder, null, new HashSet<>()))
                 .collect(Collectors.toList());
     }
 
@@ -427,49 +438,6 @@ public class TypeCompileUtils {
         fieldInfo.setFieldType(FieldType.POPUP.getType());
     }
 
-    private static <T extends FieldInfo> void compileLookup(T field, VariableElement fieldElement, ProcessingEnvironment processingEnv) {
-        Lookup lookupAnnotation = fieldElement.getAnnotation(Lookup.class);
-        if (lookupAnnotation != null) {
-            Field fieldAnnotation = fieldElement.getAnnotation(Field.class);
-            if (fieldAnnotation != null && fieldAnnotation.type() != ValueType.AUTO && fieldAnnotation.type() != ValueType.SELECT) {
-                String fieldReferenceName = ((TypeElement) fieldElement.getEnclosingElement()).getQualifiedName() + ":" + fieldElement.getSimpleName();
-                throw new CompilerException("Field [" + fieldReferenceName + "] has annotation @Lookup, but @Field.type is not SELECT, try set @Field.type to FieldType.AUTO or FieldType.SELECT");
-            }
-            LookupInfo_AutoValue lookupActionInfo = new LookupInfo_AutoValue();
-            TypeMirror lookupActionType = ElementCompileUtils.getTypeMirrorFromAnnotationValue(lookupAnnotation::value);
-            if (lookupActionType == null) {
-                String fieldReferenceName = ((TypeElement) fieldElement.getEnclosingElement()).getQualifiedName() + ":" + fieldElement.getSimpleName();
-                throw new CompilerException("Field [" + fieldReferenceName + "] annotation @Lookup.value type not found, check dependency.");
-            }
-            TypeElement lookupActionElement = (TypeElement) processingEnv.getTypeUtils().asElement(lookupActionType);
-            if (lookupActionElement == null) {
-                throw new CompilerException("can't happened");
-            }
-            TypeElement fieldTypeElement = (TypeElement) ((DeclaredType) fieldElement.asType()).asElement();
-            lookupActionInfo.multiple(ElementCompileUtils.isAssignableFrom(Iterable.class, fieldTypeElement, processingEnv));
-            lookupActionInfo.lookupKey(ElementCompileUtils.getComponentKey(lookupActionElement));
-            lookupActionInfo.labelField(lookupAnnotation.labelField());
-            lookupActionInfo.valueField(lookupAnnotation.valueField());
-            lookupActionInfo.showSearch(lookupAnnotation.showSearch());
-            lookupActionInfo.dependencyParams(Arrays.stream(lookupAnnotation.dependencyParams()).map(dependencyParam -> DependencyParamInfo.builder()
-                    .paramKey(dependencyParam.paramKey())
-                    .paramPath(dependencyParam.paramPath())
-                    .rootValue(dependencyParam.rootValue())
-                    .build()
-            ).collect(Collectors.toList()));
-            lookupActionInfo.extraFillFields(
-                    Arrays.stream(lookupAnnotation.extraFillFields()).map(fillField -> LookupFillFieldInfo.builder()
-                            .fromField(fillField.fromField())
-                            .targetField(fillField.targetField())
-                            .onlyEmpty(fillField.onlyEmpty())
-                            .build()
-                    ).collect(Collectors.toList())
-            );
-            field.setLookup(lookupActionInfo);
-        }
-    }
-
-
     private static <T extends FieldInfo> void compileAutoComplete(T field, VariableElement fieldElement, ProcessingEnvironment processingEnv) {
         AutoComplete autoCompleteAnnotation = fieldElement.getAnnotation(AutoComplete.class);
         if (autoCompleteAnnotation == null) {
@@ -502,43 +470,6 @@ public class TypeCompileUtils {
                 ).collect(Collectors.toList())
         );
         field.setAutoComplete(autoCompleteInfo);
-    }
-
-    private static <T extends FieldInfo> void compileTreeLookup(T field, VariableElement fieldElement, ProcessingEnvironment processingEnv) {
-        TreeLookup lookupAnnotation = fieldElement.getAnnotation(TreeLookup.class);
-        if (lookupAnnotation != null) {
-            Field fieldAnnotation = fieldElement.getAnnotation(Field.class);
-            if (fieldAnnotation != null && fieldAnnotation.type() != ValueType.AUTO && fieldAnnotation.type() != ValueType.TREE_SELECT) {
-                String fieldReferenceName = ((TypeElement) fieldElement.getEnclosingElement()).getQualifiedName() + ":" + fieldElement.getSimpleName();
-                throw new CompilerException("Field [" + fieldReferenceName + "] has annotation @Lookup, but @Field.type is not TREE_SELECT, try set @Field.type to FieldType.AUTO or FieldType.TREE_SELECT");
-            }
-            TreeLookupInfo_AutoValue lookupActionInfo = new TreeLookupInfo_AutoValue();
-            TypeMirror lookupActionType = ElementCompileUtils.getTypeMirrorFromAnnotationValue(lookupAnnotation::value);
-            if (lookupActionType == null) {
-                String fieldReferenceName = ((TypeElement) fieldElement.getEnclosingElement()).getQualifiedName() + ":" + fieldElement.getSimpleName();
-                throw new CompilerException("Field [" + fieldReferenceName + "] annotation @Lookup.value type not found, check dependency.");
-            }
-            TypeElement lookupActionElement = (TypeElement) processingEnv.getTypeUtils().asElement(lookupActionType);
-            if (lookupActionElement == null) {
-                throw new CompilerException("can't happened");
-            }
-            TypeElement fieldTypeElement = (TypeElement) ((DeclaredType) fieldElement.asType()).asElement();
-            lookupActionInfo.multiple(ElementCompileUtils.isAssignableFrom(Iterable.class, fieldTypeElement, processingEnv));
-            lookupActionInfo.lookupKey(ElementCompileUtils.getComponentKey(lookupActionElement));
-            lookupActionInfo.labelField(lookupAnnotation.labelField());
-            lookupActionInfo.valueField(lookupAnnotation.valueField());
-            lookupActionInfo.showSearch(lookupAnnotation.showSearch());
-            lookupActionInfo.childrenField(lookupAnnotation.childrenField());
-            lookupActionInfo.extraFillFields(
-                    Arrays.stream(lookupAnnotation.extraFillFields()).map(fillField -> LookupFillFieldInfo.builder()
-                            .fromField(fillField.fromField())
-                            .targetField(fillField.targetField())
-                            .onlyEmpty(fillField.onlyEmpty())
-                            .build()
-                    ).collect(Collectors.toList())
-            );
-            field.setLookup(lookupActionInfo);
-        }
     }
 
     /**

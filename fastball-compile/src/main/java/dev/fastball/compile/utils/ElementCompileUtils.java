@@ -19,6 +19,7 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.*;
 import javax.lang.model.util.ElementFilter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static dev.fastball.compile.CompileConstants.COMPONENT_IMPORT_PREFIX;
 import static dev.fastball.compile.CompileConstants.SELF_PACKAGE;
@@ -146,6 +147,19 @@ public class ElementCompileUtils {
             return packageName.replaceAll("\\.", "/");
         }
         return frontendComponentAnnotation.path();
+    }
+
+    public static List<TypeElement> getGenericTypes(Class<?> clazz, TypeElement element, ProcessingEnvironment processingEnv) {
+        DeclaredType declaredType = ElementCompileUtils.getDeclaredInterface(clazz, element, processingEnv);
+        if (declaredType == null) {
+            return Collections.emptyList();
+        }
+        try {
+            return declaredType.getTypeArguments().stream().map(type -> (TypeElement) processingEnv.getTypeUtils().asElement(type)).collect(Collectors.toList());
+        } catch (Throwable e) {
+            e.printStackTrace();
+            return Collections.emptyList();
+        }
     }
 
     public static boolean isAssignableFrom(Class<?> clazz, CompileContext compileContext) {

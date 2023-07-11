@@ -20,6 +20,8 @@ public @interface TreeLookup {
 
     String childrenField();
 
+    String[] selectorTableFields() default {};
+
     boolean showSearch() default true;
 
     FillField[] extraFillFields() default {};

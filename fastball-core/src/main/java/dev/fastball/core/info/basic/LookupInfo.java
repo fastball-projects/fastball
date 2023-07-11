@@ -21,6 +21,10 @@ public interface LookupInfo {
 
     String valueField();
 
+    List<FieldInfo> columns();
+
+    List<FieldInfo> queryFields();
+
     List<DependencyParamInfo> dependencyParams();
 
     List<LookupFillFieldInfo> extraFillFields();
