@@ -21,7 +21,7 @@ import java.util.Date;
 public abstract class JpaBaseEntity extends DefaultDataRecord {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Field(display = DisplayType.Hidden)
     private Long id;
 

@@ -7,11 +7,12 @@ import ReactDOM from 'react-dom/client'
 import { HashRouter, Routes, Route, Outlet, Link, RouteProps } from "react-router-dom";
 import ProLayout from '@ant-design/pro-layout';
 import type { MenuProps } from "antd";
-import { Spin, Button, Result, Dropdown, message } from 'antd';
+import { Spin, Button, Result, Dropdown, message, Modal } from 'antd';
 import routes from './routes'
 import { RouteComponentProps } from '../types'
 import { routeBuilder } from './route-builder'
 import Login from './login'
+import ChangePasswordForm from './change-password'
 import config from '../config.json'
 
 const TOKEN_LOCAL_KEY = 'fastball_token';
@@ -100,33 +101,34 @@ const Page404 = () => (
   />
 )
 
-const userMenu: MenuProps["items"] = [
-/*
-  {
-    key: "profiler",
-    icon: <UserOutlined />,
-    label: "个人设置",
-    // onClick: () => {
-    //   location.href = '/profiler'
-    // }
-  },
-  {
-    type: "divider"
-  },
-*/
-  {
-    key: "logout",
-    icon: <LogoutOutlined />,
-    label: "退出登录",
-    onClick: () => {
-      localStorage.removeItem(TOKEN_LOCAL_KEY)
-      location.href = '/#/login?redirectUrl=' + location.href
-    }
-  }
-];
+
 
 const Layout: React.FC<RouteComponentProps> = ({ routes, currentUser }) => {
   const [pathname, setPathname] = useState('/welcome');
+  const [changePasswordModalOpen, setChangePasswordModalOpen] = useState(false);
+
+  const userMenu: MenuProps["items"] = [
+    {
+      key: "profiler",
+      icon: <UserOutlined />,
+      label: "修改密码",
+      onClick: () => {
+        setChangePasswordModalOpen(true) 
+      }
+    },
+    {
+      type: "divider"
+    },
+    {
+      key: "logout",
+      icon: <LogoutOutlined />,
+      label: "退出登录",
+      onClick: () => {
+        localStorage.removeItem(TOKEN_LOCAL_KEY)
+        location.href = '/#/login?redirectUrl=' + location.href
+      }
+    }
+  ];
 
   return (
     <div
@@ -164,6 +166,9 @@ const Layout: React.FC<RouteComponentProps> = ({ routes, currentUser }) => {
       >
         <Outlet />
       </ProLayout>
+      <Modal title="Basic Modal" open={changePasswordModalOpen} onCancel={() => setChangePasswordModalOpen(false) } footer={null}>
+        <ChangePasswordForm />
+      </Modal>
     </div>
   );
 }

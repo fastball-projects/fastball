@@ -29,7 +29,7 @@ import static dev.fastball.generate.Constants.*;
 public class PortalCodeGenerator {
 
     private static final String[] NEED_COPY_RESOURCES = new String[]{
-            "tsconfig.json", "vite.config.ts", "index.html", "public/logo.svg", "types/index.d.ts", "src/main.tsx", "src/login.tsx", "src/login.scss", "src/route-builder.tsx"
+            "tsconfig.json", "vite.config.ts", "index.html", "public/logo.svg", "types/index.d.ts", "src/main.tsx", "src/change-password.tsx", "src/login.tsx", "src/login.scss", "src/route-builder.tsx"
     };
 
     public void generate(File generatedCodeDir, ClassLoader classLoader) {
