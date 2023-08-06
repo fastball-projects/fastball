@@ -62,11 +62,11 @@ public class TypeCompileUtils {
                 .collect(Collectors.toList());
     }
 
-    public static <T extends FieldInfo> List<T> compileTypeFields(TypeElement typeElement, ProcessingEnvironment processingEnv, Supplier<T> fieldBuilder, Set<String> tableSelectorFields) {
+    public static <T extends FieldInfo> List<T> compileSelectorTypeFields(TypeElement typeElement, ProcessingEnvironment processingEnv, ComponentProps props, Supplier<T> fieldBuilder, Set<String> tableSelectorFields) {
         Map<String, VariableElement> fieldMap = ElementCompileUtils.getFields(typeElement, processingEnv);
         return fieldMap.values().stream()
                 .filter(fieldElement -> tableSelectorFields.contains(fieldElement.getSimpleName().toString()))
-                .map(fieldElement -> compileField(fieldElement, processingEnv, null, fieldBuilder, null, new HashSet<>()))
+                .map(fieldElement -> compileField(fieldElement, processingEnv, props, fieldBuilder, null, new HashSet<>()))
                 .collect(Collectors.toList());
     }
 
@@ -129,10 +129,10 @@ public class TypeCompileUtils {
             }
         }
         if (fieldElement.getAnnotation(Lookup.class) != null) {
-            compileLookup(fieldInfo, fieldElement, processingEnv);
+            compileLookup(fieldInfo, fieldElement, props, processingEnv);
             valueType = ValueType.SELECT;
         } else if (fieldElement.getAnnotation(TreeLookup.class) != null) {
-            compileTreeLookup(fieldInfo, fieldElement, processingEnv);
+            compileTreeLookup(fieldInfo, fieldElement, props, processingEnv);
             valueType = ValueType.TREE_SELECT;
         } else if (fieldElement.getAnnotation(AutoComplete.class) != null) {
             compileAutoComplete(fieldInfo, fieldElement, processingEnv);

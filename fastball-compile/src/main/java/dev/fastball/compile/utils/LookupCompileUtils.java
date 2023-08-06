@@ -7,6 +7,7 @@ import dev.fastball.core.annotation.LookupSelector;
 import dev.fastball.core.annotation.TreeLookup;
 import dev.fastball.core.component.LookupAction;
 import dev.fastball.core.info.basic.*;
+import dev.fastball.core.info.component.ComponentProps;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.TypeElement;
@@ -21,7 +22,7 @@ public class LookupCompileUtils {
 
     private static final ConcurrentHashMap<TypeElement, List<FieldInfo>> LOOKUP_FIELD_INFO_CACHE = new ConcurrentHashMap<>();
 
-    public static <T extends FieldInfo> void compileLookup(T field, VariableElement fieldElement, ProcessingEnvironment processingEnv) {
+    public static <T extends FieldInfo> void compileLookup(T field, VariableElement fieldElement, ComponentProps props, ProcessingEnvironment processingEnv) {
         Lookup lookupAnnotation = fieldElement.getAnnotation(Lookup.class);
         if (lookupAnnotation != null) {
             Field fieldAnnotation = fieldElement.getAnnotation(Field.class);
@@ -69,14 +70,14 @@ public class LookupCompileUtils {
                 selectorTableFields = Arrays.stream(lookupSelectorAnnotation.selectorTableFields()).collect(Collectors.toSet());
             }
             if (!selectorTableFields.isEmpty() && !genericTypes.isEmpty()) {
-                lookupActionInfo.columns(TypeCompileUtils.compileTypeFields(genericTypes.get(0), processingEnv, FieldInfo::new, selectorTableFields));
+                lookupActionInfo.columns(TypeCompileUtils.compileSelectorTypeFields(genericTypes.get(0), processingEnv, props, FieldInfo::new, selectorTableFields));
             }
 
             field.setLookup(lookupActionInfo);
         }
     }
 
-    public static <T extends FieldInfo> void compileTreeLookup(T field, VariableElement fieldElement, ProcessingEnvironment processingEnv) {
+    public static <T extends FieldInfo> void compileTreeLookup(T field, VariableElement fieldElement, ComponentProps props, ProcessingEnvironment processingEnv) {
         TreeLookup lookupAnnotation = fieldElement.getAnnotation(TreeLookup.class);
         if (lookupAnnotation != null) {
             Field fieldAnnotation = fieldElement.getAnnotation(Field.class);
@@ -119,7 +120,7 @@ public class LookupCompileUtils {
                 selectorTableFields = Arrays.stream(lookupSelectorAnnotation.selectorTableFields()).collect(Collectors.toSet());
             }
             if (!selectorTableFields.isEmpty() && !genericTypes.isEmpty()) {
-                lookupActionInfo.columns(TypeCompileUtils.compileTypeFields(genericTypes.get(0), processingEnv, FieldInfo::new, selectorTableFields));
+                lookupActionInfo.columns(TypeCompileUtils.compileSelectorTypeFields(genericTypes.get(0), processingEnv, props, FieldInfo::new, selectorTableFields));
             }
 
             field.setLookup(lookupActionInfo);

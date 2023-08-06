@@ -119,8 +119,10 @@ public class FastballComponentController {
         if (actionMethod.isNeedRecordFilter()) {
             if (data instanceof DataResult) {
                 DataResult<?> dataResult = (DataResult<?>) data;
-                dataResult.getData().stream().filter(DataRecord.class::isInstance)
-                        .forEach(dataRecord -> doRecordActionFilter((DataRecord) dataRecord, componentBean));
+                if (dataResult.getData() != null) {
+                    dataResult.getData().stream().filter(DataRecord.class::isInstance)
+                            .forEach(dataRecord -> doRecordActionFilter((DataRecord) dataRecord, componentBean));
+                }
             } else if (data instanceof DataRecord) {
                 doRecordActionFilter((DataRecord) data, componentBean);
             }
