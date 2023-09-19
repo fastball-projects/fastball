@@ -24,6 +24,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -76,7 +77,7 @@ public class FastballComponentController {
         if (result instanceof DownloadFile) {
             DownloadFile downloadFile = ((DownloadFile) result);
             response.setContentType(downloadFile.getContentType());
-            response.addHeader("Content-Disposition", "attachment; filename=" + downloadFile.getFileName());
+            response.addHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode(downloadFile.getFileName(),"UTF-8"));
             response.addHeader("Cache-Control", "max-age=0");
             response.setCharacterEncoding("utf-8");
             IOUtils.copy(downloadFile.getInputStream(), response.getOutputStream());

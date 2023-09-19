@@ -75,8 +75,6 @@ const HomePage: React.FC<RouteComponentProps> = ({ routes }) => {
     authorizedRoutes = routes.map(route => filterAuthorizedMenus(route, menuKeyMap)).filter(Boolean);;
   }
 
-  console.log('routes', authorizedRoutes, routes)
-
   return (
     <Routes>
       <Route path="/login" element={<Login />} />

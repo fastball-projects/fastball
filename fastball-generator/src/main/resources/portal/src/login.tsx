@@ -124,7 +124,7 @@ const Login: React.FC = () => {
                         await handleSubmit(values);
                     }}
                 >
-                    <Tabs
+                    {/* <Tabs
                         activeKey={type}
                         onChange={setType}
                         centered
@@ -138,7 +138,7 @@ const Login: React.FC = () => {
                                 label: '手机号登录',
                             },
                         ]}
-                    />
+                    /> */}
 
                     {loginFailMessage && (
                         <LoginMessage
@@ -178,7 +178,7 @@ const Login: React.FC = () => {
                             />
                         </>
                     )}
-                    {type === 'mobile' && (
+                    {/* {type === 'mobile' && (
                         <>
                             <ProFormText
                                 fieldProps={{
@@ -231,7 +231,8 @@ const Login: React.FC = () => {
                                 }}
                             />
                         </>
-                    )}
+                    )} */}
+                    
                     <div
                         style={{
                             marginBottom: 24,
