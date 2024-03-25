@@ -38,6 +38,8 @@ public @interface RecordAction {
      */
     String confirmMessage() default "";
 
+    int order() default 1;
+
     boolean refresh() default true;
 
     boolean closePopupOnSuccess() default true;

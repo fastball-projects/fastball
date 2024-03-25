@@ -5,14 +5,17 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * @author gr@fastball.dev
+ * @since 2024/1/10
+ */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ExpressionInfo {
-    private String[] fields;
+public class DynamicPopupRuleInfo {
 
-    private ExpressionType type;
+    private String[] values;
 
-    private String expression;
+    private RefComponentInfo popupComponent;
 }

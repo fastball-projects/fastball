@@ -1,7 +1,6 @@
 package dev.fastball.core.annotation;
 
 import dev.fastball.core.component.AutoCompleteLookupAction;
-import dev.fastball.core.component.LookupAction;
 
 import java.lang.annotation.*;
 

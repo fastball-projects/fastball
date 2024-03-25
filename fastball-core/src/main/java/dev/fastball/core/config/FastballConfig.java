@@ -17,6 +17,7 @@ public class FastballConfig {
     private String description;
     private String copyright;
     private String devServerUrl;
+    private boolean enableNotice;
     private Map<String, String> customNpmDependencies;
     private Map<String, Menu> menus;
 }

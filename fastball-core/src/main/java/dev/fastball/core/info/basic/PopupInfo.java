@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 /**
  * @author gr@fastball.dev
  * @since 2023/1/10
@@ -25,4 +27,10 @@ public class PopupInfo {
     private PlacementType placementType;
 
     private RefComponentInfo popupComponent;
+
+    private boolean dynamicPopup;
+
+    private String[] conditionPath;
+
+    private List<DynamicPopupRuleInfo> dynamicPopupRules;
 }

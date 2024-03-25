@@ -3,12 +3,9 @@ package dev.fastball.compile.utils;
 import com.google.common.collect.Maps;
 import dev.fastball.compile.exception.CompilerException;
 import dev.fastball.core.annotation.*;
-import dev.fastball.core.component.LookupAction;
 import dev.fastball.core.component.Range;
 import dev.fastball.core.info.basic.*;
 import dev.fastball.core.info.component.ComponentProps;
-import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.collections4.map.SingletonMap;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ElementKind;
@@ -91,7 +88,7 @@ public class TypeCompileUtils {
         }
         compileType(fieldInfo, fieldElement, processingEnv, props, fieldBuilder, afterBuild, compiledTypes);
         fieldInfo.setValidationRules(compileFieldJsr303(fieldElement));
-        fieldInfo.setExpression(compileExpression(fieldElement));
+        fieldInfo.setExpression(compileCalculatedField(fieldElement));
         if (afterBuild != null) {
             afterBuild.accept(fieldElement, fieldInfo);
         }
@@ -103,7 +100,23 @@ public class TypeCompileUtils {
         if (expressionAnnotation == null) {
             return null;
         }
-        return new ExpressionInfo(expressionAnnotation.fields(), expressionAnnotation.expression());
+        return new ExpressionInfo(expressionAnnotation.fields(), ExpressionType.Expression, expressionAnnotation.expression());
+    }
+
+
+    private static ExpressionInfo compileCalculatedField(VariableElement fieldElement) {
+        CalculatedField calculatedFieldAnnotation = fieldElement.getAnnotation(CalculatedField.class);
+        if (calculatedFieldAnnotation == null) {
+            return compileExpression(fieldElement);
+        }
+        TypeMirror functionClass = ElementCompileUtils.getTypeMirrorFromAnnotationValue(calculatedFieldAnnotation::function);
+        if (functionClass == null) {
+            throw new CompilerException("can't happened");
+        }
+        FrontendFunctionUtils.addFunction(functionClass);
+        TypeElement componentTypeElement = (TypeElement) ((DeclaredType) functionClass).asElement();
+        String functionClassName = componentTypeElement.getQualifiedName().toString();
+        return new ExpressionInfo(calculatedFieldAnnotation.fields(), ExpressionType.Function, functionClassName);
     }
 
     // FIXME 这样设计有问题, 某些场景主动声明 fieldType 会不生效, 回头要改一下
@@ -116,6 +129,8 @@ public class TypeCompileUtils {
         ValueType valueType = null;
         if (fieldElement.getAnnotation(Popup.class) != null) {
             compilePopup(fieldInfo, fieldElement, props);
+        } else if (fieldElement.getAnnotation(DynamicPopup.class) != null) {
+            compileDynamicPopup(fieldInfo, fieldElement, props);
         } else {
             if (fieldElement.getAnnotation(EditComponent.class) != null) {
                 EditComponent editComponentAnnotation = fieldElement.getAnnotation(EditComponent.class);
@@ -353,6 +368,10 @@ public class TypeCompileUtils {
             case DOUBLE:
             case FLOAT:
             case CHAR:
+                DigitField digitFieldAnnotation = fieldElement.getAnnotation(DigitField.class);
+                if (digitFieldAnnotation != null) {
+                    fieldInfo.setDigitPrecision(digitFieldAnnotation.precision());
+                }
                 return ValueType.DIGIT;
             case BOOLEAN:
                 compileBooleanField(fieldElement, fieldInfo);
@@ -420,6 +439,10 @@ public class TypeCompileUtils {
                     if (fieldAnnotation != null && fieldAnnotation.type() == ValueType.PERCENT) {
                         return ValueType.PERCENT;
                     }
+                    DigitField digitFieldAnnotation = fieldElement.getAnnotation(DigitField.class);
+                    if (digitFieldAnnotation != null) {
+                        fieldInfo.setDigitPrecision(digitFieldAnnotation.precision());
+                    }
                     return ValueType.DIGIT;
                 }
                 return null;
@@ -435,6 +458,12 @@ public class TypeCompileUtils {
     private static <T extends FieldInfo> void compilePopup(T fieldInfo, VariableElement fieldElement, ComponentProps props) {
         Popup popupAnnotation = fieldElement.getAnnotation(Popup.class);
         fieldInfo.setPopupInfo(ElementCompileUtils.getPopupInfo(props, popupAnnotation));
+        fieldInfo.setFieldType(FieldType.POPUP.getType());
+    }
+
+    private static <T extends FieldInfo> void compileDynamicPopup(T fieldInfo, VariableElement fieldElement, ComponentProps props) {
+        DynamicPopup popupAnnotation = fieldElement.getAnnotation(DynamicPopup.class);
+        fieldInfo.setPopupInfo(ElementCompileUtils.getDynamicPopupInfo(props, popupAnnotation));
         fieldInfo.setFieldType(FieldType.POPUP.getType());
     }
 

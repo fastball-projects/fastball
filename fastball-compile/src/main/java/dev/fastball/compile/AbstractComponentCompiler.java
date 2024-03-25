@@ -107,12 +107,14 @@ public abstract class AbstractComponentCompiler<T extends Component, P extends C
         List<ActionInfo> actionInfoList = compileContext.getMethodMap().values().stream().map(method -> buildApiActionInfo(props.componentKey(), method, compileContext.getProcessingEnv())).filter(Objects::nonNull).collect(Collectors.toList());
         props.actions(actionInfoList);
         compileExtensionViewActions(props, compileContext.getComponentElement(), compileContext.getProcessingEnv(), actionInfoList, false);
+        actionInfoList.sort(ActionInfo::compareTo);
     }
 
     protected void compileRecordActions(P props, CompileContext compileContext) {
         List<ActionInfo> actionInfoList = compileContext.getMethodMap().values().stream().map(method -> buildApiRecordActionInfo(props.componentKey(), method, compileContext.getProcessingEnv())).filter(Objects::nonNull).collect(Collectors.toList());
         props.recordActions(actionInfoList);
         compileExtensionViewActions(props, compileContext.getComponentElement(), compileContext.getProcessingEnv(), actionInfoList, true);
+        actionInfoList.sort(ActionInfo::compareTo);
     }
 
     protected void compileExtensionViewActions(P props, TypeElement element, ProcessingEnvironment processingEnv, List<ActionInfo> actionInfoList, boolean recordAction) {
@@ -159,6 +161,7 @@ public abstract class AbstractComponentCompiler<T extends Component, P extends C
 
         ApiActionInfo.ApiActionInfoBuilder builder = ApiActionInfo.builder()
                 .componentKey(componentKey)
+                .order(actionAnnotation.order())
                 .refresh(actionAnnotation.refresh())
                 .confirmMessage(actionAnnotation.confirmMessage())
                 .closePopupOnSuccess(actionAnnotation.closePopupOnSuccess())
@@ -180,6 +183,7 @@ public abstract class AbstractComponentCompiler<T extends Component, P extends C
 
         ApiActionInfo.ApiActionInfoBuilder builder = ApiActionInfo.builder()
                 .componentKey(componentKey)
+                .order(actionAnnotation.order())
                 .refresh(actionAnnotation.refresh())
                 .closePopupOnSuccess(actionAnnotation.closePopupOnSuccess())
                 .actionName(actionAnnotation.name())
@@ -220,6 +224,7 @@ public abstract class AbstractComponentCompiler<T extends Component, P extends C
         }
         actionInfo.setActionName(viewAction.name());
         actionInfo.setActionKey(viewAction.key());
+        actionInfo.setOrder(viewAction.order());
         actionInfo.setRefresh(viewAction.refresh());
         actionInfo.setClosePopupOnSuccess(viewAction.closePopupOnSuccess());
         return actionInfo;

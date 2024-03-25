@@ -22,6 +22,7 @@ public class MaterialRegistry {
 
     public MaterialRegistry(ClassLoader classLoader) {
     }
+
     public UIMaterial getMaterial(Class<?> compilerClass) {
         return loadMaterial(compilerClass);
     }

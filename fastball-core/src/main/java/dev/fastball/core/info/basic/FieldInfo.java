@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -50,6 +49,8 @@ public class FieldInfo implements Comparable<FieldInfo> {
     private Object defaultValue;
 
     private int order;
+
+    private Integer digitPrecision;
 
     private RefComponentInfo editModeComponent;
 

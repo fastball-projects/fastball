@@ -4,15 +4,12 @@ import dev.fastball.compile.CompileContext;
 import dev.fastball.compile.FastballCompileGenerator;
 import dev.fastball.compile.FastballGenerateCompileGenerator;
 import dev.fastball.compile.FastballPreCompileGenerator;
-import dev.fastball.core.annotation.UIComponent;
 import dev.fastball.core.material.MaterialRegistry;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
-import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import java.util.*;
@@ -30,7 +27,6 @@ public class FastballComponentCompileProcessor extends AbstractProcessor {
     MaterialRegistry materialRegistry = new MaterialRegistry(FastballComponentCompileProcessor.class.getClassLoader());
 
     private int roundCount = 0;
-    private boolean generationDone = false;
 
     private final Set<Element> firstElement = new HashSet<>();
 
@@ -50,6 +46,9 @@ public class FastballComponentCompileProcessor extends AbstractProcessor {
             roundCount++;
         } else {
             processCompile(roundEnv);
+//            if(roundEnv.processingOver()) {
+//                FrontendFunctionUtils.buildMainClass(processingEnv);
+//            }
             return true;
         }
         return false;

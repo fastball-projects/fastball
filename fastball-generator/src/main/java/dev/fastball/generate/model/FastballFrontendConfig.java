@@ -11,5 +11,6 @@ public class FastballFrontendConfig {
     private String title;
     private String description;
     private String copyright;
+    private boolean enableNotice;
     private Map<String,String> devServerProxy;
 }

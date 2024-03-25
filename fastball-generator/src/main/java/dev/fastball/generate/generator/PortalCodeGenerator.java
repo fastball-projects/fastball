@@ -1,6 +1,5 @@
 package dev.fastball.generate.generator;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import dev.fastball.core.config.FastballConfig;
 import dev.fastball.core.config.Menu;
 import dev.fastball.core.info.component.ComponentInfo;
@@ -29,7 +28,7 @@ import static dev.fastball.generate.Constants.*;
 public class PortalCodeGenerator {
 
     private static final String[] NEED_COPY_RESOURCES = new String[]{
-            "tsconfig.json", "vite.config.ts", "index.html", "public/logo.svg", "types/index.d.ts", "src/main.tsx", "src/change-password.tsx", "src/login.tsx", "src/login.scss", "src/route-builder.tsx"
+            "tsconfig.json", "vite.config.ts", "index.html", "public/logo.svg", "types/index.d.ts", "src/main.tsx", "src/change-password.tsx", "src/login.tsx", "src/login.scss", "src/message.tsx", "src/route-builder.tsx"
     };
 
     public void generate(File generatedCodeDir, ClassLoader classLoader) {
@@ -59,6 +58,7 @@ public class PortalCodeGenerator {
             config.setLogo(Defaults.LOGO_PATH);
         }
         config.setDevServerProxy(devServerProxy);
+        config.setEnableNotice(fastballConfig.isEnableNotice());
         if (StringUtils.hasText(fastballConfig.getTitle())) {
             config.setTitle(fastballConfig.getTitle());
         } else {

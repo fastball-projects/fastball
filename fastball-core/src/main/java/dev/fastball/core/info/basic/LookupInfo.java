@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import dev.fastball.auto.value.annotation.AutoValue;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author gr@fastball.dev

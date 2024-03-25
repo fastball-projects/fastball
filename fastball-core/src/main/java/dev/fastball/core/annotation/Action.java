@@ -25,6 +25,8 @@ public @interface Action {
      */
     String key() default "";
 
+    int order() default 0;
+
     boolean refresh() default true;
 
     boolean closePopupOnSuccess() default true;

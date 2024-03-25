@@ -30,6 +30,7 @@ public interface Constants {
 
     String ASSETS_FILE_NAME = "assets.json";
     String COMPONENT_SUFFIX = ".tsx";
+    String COMPONENT_MAPPER_FILE_NAME = "component-mapper.tsx";
 
     String VIEW_FILE_PATH = "classpath*:/" + FASTBALL_RESOURCE_PREFIX + "**/*" + FASTBALL_VIEW_SUFFIX;
 }

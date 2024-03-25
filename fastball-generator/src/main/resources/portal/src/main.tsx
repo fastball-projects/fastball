@@ -1,6 +1,7 @@
 import {
   LogoutOutlined,
-  UserOutlined
+  UserOutlined,
+  BellOutlined
 } from "@ant-design/icons";
 import React, { useState } from 'react'
 import ReactDOM from 'react-dom/client'
@@ -13,6 +14,7 @@ import { RouteComponentProps } from '../types'
 import { routeBuilder } from './route-builder'
 import Login from './login'
 import ChangePasswordForm from './change-password'
+import { MessageIcon, MessageList } from './message'
 import config from '../config.json'
 
 const TOKEN_LOCAL_KEY = 'fastball_token';
@@ -79,6 +81,7 @@ const HomePage: React.FC<RouteComponentProps> = ({ routes }) => {
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/" element={<Layout routes={authorizedRoutes} currentUser={currentUser} />}>
+        <Route path="/message" element={<MessageList />} />
         {authorizedRoutes.map(routeBuilder)}
         <Route path="*" element={<Page404 />} />
       </Route>
@@ -111,7 +114,7 @@ const Layout: React.FC<RouteComponentProps> = ({ routes, currentUser }) => {
       icon: <UserOutlined />,
       label: "修改密码",
       onClick: () => {
-        setChangePasswordModalOpen(true) 
+        setChangePasswordModalOpen(true)
       }
     },
     {
@@ -157,6 +160,14 @@ const Layout: React.FC<RouteComponentProps> = ({ routes, currentUser }) => {
           size: 'small',
           title: currentUser?.nickname || '用户',
         }}
+
+        actionsRender={() => {
+          const actions = [];
+          if (config.enableNotice) {
+            actions.push(<MessageIcon />)
+          }
+          return actions;
+        }}
         menu={{ defaultOpenAll: true, hideMenuWhenCollapsed: true }}
         menuItemRender={(item, dom) => (
           <Link onClick={() => setPathname(item.path || '/welcome')} to={item.path}>{dom}</Link>
@@ -164,7 +175,7 @@ const Layout: React.FC<RouteComponentProps> = ({ routes, currentUser }) => {
       >
         <Outlet />
       </ProLayout>
-      <Modal title="Basic Modal" open={changePasswordModalOpen} onCancel={() => setChangePasswordModalOpen(false) } footer={null}>
+      <Modal title="Basic Modal" open={changePasswordModalOpen} onCancel={() => setChangePasswordModalOpen(false)} footer={null}>
         <ChangePasswordForm />
       </Modal>
     </div>

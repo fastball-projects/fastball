@@ -1,18 +1,18 @@
 package dev.fastball.core.annotation;
 
+import dev.fastball.core.component.FrontendFunction;
+
 import java.lang.annotation.*;
 
 /**
- * @deprecated use {@link CalculatedField}
  * @author gr@fastball.dev
  * @since 2023/5/11
  */
 @Documented
-@Deprecated
 @Target({ElementType.FIELD, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Expression {
+public @interface CalculatedField {
     String[] fields();
 
-    String expression();
+    Class<? extends FrontendFunction<?, ?>> function();
 }

@@ -64,6 +64,8 @@ public @interface ViewAction {
      */
     Print print() default @Print(@RefComponent(Component.class));
 
+    int order() default 0;
+
     boolean refresh() default true;
 
     boolean closePopupOnSuccess() default true;

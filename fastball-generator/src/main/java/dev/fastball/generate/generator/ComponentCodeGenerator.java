@@ -12,8 +12,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import static dev.fastball.generate.Constants.COMPONENT_PATH;
-import static dev.fastball.generate.Constants.COMPONENT_SUFFIX;
+import static dev.fastball.generate.Constants.*;
 
 /**
  * @author gr@fastball.dev
@@ -30,6 +29,31 @@ public class ComponentCodeGenerator {
             File generateCodeFile = new File(componentDir, componentInfo.className().replaceAll("\\.", "/") + COMPONENT_SUFFIX);
             generateCodeToFile(componentInfo, generateCodeFile);
         }
+        File mapperCodeFile = new File(componentDir, COMPONENT_MAPPER_FILE_NAME);
+        generateMapper(componentInfoList, mapperCodeFile);
+    }
+
+    private static <T extends ComponentProps> void generateMapper(List<ComponentInfo<?>> componentInfoList, File codeFile) {
+        StringBuilder content = new StringBuilder();
+        StringBuilder mapperContent = new StringBuilder();
+        for (int i = 0; i < componentInfoList.size(); i++) {
+            ComponentInfo<?> componentInfo = componentInfoList.get(i);
+            String componentPath = componentInfo.className().replaceAll("\\.", "/");
+            String componentName = "Component" + i;
+            content.append("import ").append(componentName);
+            content.append(" from '@/").append(componentPath).append("';\n");
+
+            mapperContent.append('"');
+            mapperContent.append(componentInfo.className());
+            mapperContent.append('"').append(':').append(componentName).append(',');
+        }
+        try {
+            content.append("const ComponentMapper = {").append(mapperContent).append("};\n\n");
+            content.append("export default ComponentMapper;");
+            FileUtils.write(codeFile, content, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new GenerateException(e);
+        }
     }
 
     private static <T extends ComponentProps> void generateCodeToFile(ComponentInfo<T> componentInfo, File codeFile) {
@@ -40,8 +64,14 @@ public class ComponentCodeGenerator {
                     .append(" as OriginalComponent } from '")
                     .append(componentInfo.material().getNpmPackage()).append("';\n\n");
             componentContent.append(generateImportComponent(props));
-            componentContent.append("const _f_b_props = ").append(JsonUtils.toComponentJson(props)).append("\n\n");
-            componentContent.append("const Component = (props: any) => <OriginalComponent {..._f_b_props} {...props} />\n\n");
+            componentContent.append("let _f_b_props: Record<string, any> | null = null;\n")
+                    .append("const buildProps = () => {\n")
+                    .append("  _f_b_props = ").append(JsonUtils.toComponentJson(props)).append("}\n\n");
+
+            componentContent.append("const Component = (props: any) => {\n")
+                    .append("  if (_f_b_props === null) buildProps()\n")
+                    .append("  return <OriginalComponent {..._f_b_props} {...props} />\n}\n\n");
+//            componentContent.append("const Component = (props: any) => <OriginalComponent {..._f_b_props} {...props} />\n\n");
             componentContent.append("export default Component;");
             FileUtils.write(codeFile, componentContent, StandardCharsets.UTF_8);
         } catch (IOException e) {

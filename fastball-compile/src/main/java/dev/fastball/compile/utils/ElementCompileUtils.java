@@ -2,10 +2,12 @@ package dev.fastball.compile.utils;
 
 import dev.fastball.compile.CompileContext;
 import dev.fastball.compile.exception.CompilerException;
+import dev.fastball.core.annotation.DynamicPopup;
 import dev.fastball.core.annotation.Popup;
 import dev.fastball.core.annotation.RefComponent;
 import dev.fastball.core.annotation.UIComponent;
 import dev.fastball.core.component.Component;
+import dev.fastball.core.info.basic.DynamicPopupRuleInfo;
 import dev.fastball.core.info.basic.PopupInfo;
 import dev.fastball.core.info.basic.RefComponentInfo;
 import dev.fastball.core.info.component.ComponentProps;
@@ -93,6 +95,28 @@ public class ElementCompileUtils {
         popupInfo.setPopupType(popupAnnotation.popupType());
         popupInfo.setTriggerType(popupAnnotation.triggerType());
         popupInfo.setPlacementType(popupAnnotation.placementType());
+        return popupInfo;
+    }
+
+    public static PopupInfo getDynamicPopupInfo(ComponentProps props, DynamicPopup popupAnnotation) {
+        PopupInfo popupInfo = new PopupInfo();
+        popupInfo.setWidth(popupAnnotation.width());
+        popupInfo.setTitle(popupAnnotation.title());
+        popupInfo.setPopupType(popupAnnotation.popupType());
+        popupInfo.setTriggerType(popupAnnotation.triggerType());
+        popupInfo.setPlacementType(popupAnnotation.placementType());
+        popupInfo.setDynamicPopup(true);
+        popupInfo.setConditionPath(popupAnnotation.conditionPath());
+        popupInfo.setDynamicPopupRules(Arrays.stream(popupAnnotation.rules()).map(rule -> {
+            RefComponentInfo refComponentInfo = ElementCompileUtils.getReferencedComponentInfo(props, rule.component());
+            if (refComponentInfo == null) {
+                return null;
+            }
+            return DynamicPopupRuleInfo.builder()
+                    .values(rule.values())
+                    .popupComponent(ElementCompileUtils.getReferencedComponentInfo(props, rule.component()))
+                    .build();
+        }).collect(Collectors.toList()));
         return popupInfo;
     }
 

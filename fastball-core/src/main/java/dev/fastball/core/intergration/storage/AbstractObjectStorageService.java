@@ -2,7 +2,6 @@ package dev.fastball.core.intergration.storage;
 
 import org.springframework.util.StringUtils;
 
-import java.io.InputStream;
 import java.util.UUID;
 
 public abstract class AbstractObjectStorageService implements ObjectStorageService {

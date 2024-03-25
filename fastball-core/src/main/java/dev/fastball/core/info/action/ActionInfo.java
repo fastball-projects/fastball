@@ -15,7 +15,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
-public abstract class ActionInfo {
+public abstract class ActionInfo implements Comparable<ActionInfo> {
     private String actionName;
 
     private String actionKey;
@@ -26,4 +26,11 @@ public abstract class ActionInfo {
     private boolean closePopupOnSuccess;
 
     private boolean refresh;
+
+    private int order;
+
+    @Override
+    public int compareTo(ActionInfo o) {
+        return Integer.compare(this.order, o.order);
+    }
 }

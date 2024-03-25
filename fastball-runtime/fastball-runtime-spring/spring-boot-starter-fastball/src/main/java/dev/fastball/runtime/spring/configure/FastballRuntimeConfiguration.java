@@ -16,11 +16,15 @@ import dev.fastball.runtime.spring.FastballExceptionHandler;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.Objects;
 
 /**
@@ -30,6 +34,11 @@ import java.util.Objects;
 public class FastballRuntimeConfiguration implements WebMvcConfigurer {
 
     private static final String DEFAULT_TIME_FORMATTER = "HH:mm:ss";
+    SimpleDateFormat[] dateFormats = new SimpleDateFormat[]{
+            new SimpleDateFormat("yyyy-MM-dd"),
+            new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"),
+            new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX"),
+    };
 
     @Bean
     @ConditionalOnMissingBean
@@ -55,6 +64,27 @@ public class FastballRuntimeConfiguration implements WebMvcConfigurer {
                     return null;
                 }
                 return LocalTime.parse(jsonParser.getValueAsString(), DateTimeFormatter.ofPattern(DEFAULT_TIME_FORMATTER));
+            }
+        });
+        javaTimeModule.addDeserializer(Date.class, new JsonDeserializer<Date>() {
+            @Override
+            public Date deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+                String str = jsonParser.getValueAsString();
+                if (StringUtils.hasText(str)) {
+                    try {
+                        long milliseconds = Long.parseLong(str);
+                        return new Date(milliseconds);
+                    } catch (NumberFormatException ignored) {
+                    }
+                    for (SimpleDateFormat dateFormat : dateFormats) {
+                        try {
+                            String dateStr = jsonParser.getValueAsString();
+                            return dateFormat.parse(dateStr);
+                        } catch (ParseException ignored) {
+                        }
+                    }
+                }
+                throw new IOException("Unable to parse date");
             }
         });
         objectMapper.registerModule(javaTimeModule);
