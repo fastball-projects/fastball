@@ -185,6 +185,7 @@ public abstract class AbstractComponentCompiler<T extends Component, P extends C
                 .componentKey(componentKey)
                 .order(actionAnnotation.order())
                 .refresh(actionAnnotation.refresh())
+                .confirmMessage(actionAnnotation.confirmMessage())
                 .closePopupOnSuccess(actionAnnotation.closePopupOnSuccess())
                 .actionName(actionAnnotation.name())
                 .actionKey(actionAnnotation.key().isEmpty() ? method.getSimpleName().toString() : actionAnnotation.key());

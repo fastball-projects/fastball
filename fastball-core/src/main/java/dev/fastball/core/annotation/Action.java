@@ -25,6 +25,13 @@ public @interface Action {
      */
     String key() default "";
 
+    /**
+     * 当操作需要二次确认时, 可以配置二次确认的消息, 会在界面上有二次确认框出现
+     *
+     * @return 二次确认消息
+     */
+    String confirmMessage() default "";
+
     int order() default 0;
 
     boolean refresh() default true;

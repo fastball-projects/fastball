@@ -31,4 +31,6 @@ public interface LookupInfo {
     boolean multiple();
 
     boolean showSearch();
+
+    boolean selectedFirst();
 }

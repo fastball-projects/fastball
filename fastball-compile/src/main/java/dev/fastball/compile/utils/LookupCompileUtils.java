@@ -49,6 +49,7 @@ public class LookupCompileUtils {
             lookupActionInfo.labelField(lookupAnnotation.labelField());
             lookupActionInfo.valueField(lookupAnnotation.valueField());
             lookupActionInfo.showSearch(lookupAnnotation.showSearch());
+            lookupActionInfo.selectedFirst(lookupAnnotation.selectedFirst());
             lookupActionInfo.dependencyParams(Arrays.stream(lookupAnnotation.dependencyParams()).map(dependencyParam -> DependencyParamInfo.builder()
                     .paramKey(dependencyParam.paramKey())
                     .paramPath(dependencyParam.paramPath())

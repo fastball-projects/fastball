@@ -20,6 +20,8 @@ public @interface Lookup {
 
     boolean showSearch() default true;
 
+    boolean selectedFirst() default false;
+
     String[] selectorTableFields() default {};
 
     DependencyParam[] dependencyParams() default {};
