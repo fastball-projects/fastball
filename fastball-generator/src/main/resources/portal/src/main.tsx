@@ -65,9 +65,12 @@ const filterAuthorizedMenus = (route, menuKeyMap) => {
 
 const HomePage: React.FC<RouteComponentProps> = ({ routes }) => {
   const [currentUser, setCurrentUser] = useState();
+  const { pathname } = useLocation();
 
   React.useEffect(() => {
-    getCurrentUserInfo(setCurrentUser);
+    if (pathname !== '/login') {
+      getCurrentUserInfo(setCurrentUser);
+    }
   }, [])
 
   let authorizedRoutes = []
