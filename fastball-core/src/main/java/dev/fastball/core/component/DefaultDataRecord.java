@@ -2,7 +2,7 @@ package dev.fastball.core.component;
 
 import dev.fastball.core.annotation.Field;
 import dev.fastball.core.annotation.SimpleQueryable;
-import dev.fastball.core.info.basic.DisplayType;
+import dev.fastball.meta.basic.DisplayType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

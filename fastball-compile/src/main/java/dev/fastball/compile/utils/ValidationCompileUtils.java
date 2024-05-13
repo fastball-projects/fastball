@@ -1,6 +1,6 @@
 package dev.fastball.compile.utils;
 
-import dev.fastball.core.info.basic.ValidationRuleInfo;
+import dev.fastball.meta.basic.ValidationRuleInfo;
 
 import javax.lang.model.element.VariableElement;
 import javax.validation.constraints.*;

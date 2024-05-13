@@ -2,7 +2,7 @@ package dev.fastball.core.annotation;
 
 import dev.fastball.core.component.Component;
 import dev.fastball.core.component.RecordActionFilter;
-import dev.fastball.core.info.basic.ViewActionType;
+import dev.fastball.meta.basic.ViewActionType;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

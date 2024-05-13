@@ -2,7 +2,7 @@ package dev.fastball.orm.jpa;
 
 import dev.fastball.core.annotation.Field;
 import dev.fastball.core.component.DefaultDataRecord;
-import dev.fastball.core.info.basic.DisplayType;
+import dev.fastball.meta.basic.DisplayType;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedBy;

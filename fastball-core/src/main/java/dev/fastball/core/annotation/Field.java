@@ -1,8 +1,8 @@
 package dev.fastball.core.annotation;
 
 
-import dev.fastball.core.info.basic.DisplayType;
-import dev.fastball.core.info.basic.ValueType;
+import dev.fastball.meta.basic.DisplayType;
+import dev.fastball.meta.basic.ValueType;
 
 import java.lang.annotation.*;
 

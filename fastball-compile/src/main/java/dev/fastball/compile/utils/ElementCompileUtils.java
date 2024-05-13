@@ -7,11 +7,11 @@ import dev.fastball.core.annotation.Popup;
 import dev.fastball.core.annotation.RefComponent;
 import dev.fastball.core.annotation.UIComponent;
 import dev.fastball.core.component.Component;
-import dev.fastball.core.info.basic.DynamicPopupRuleInfo;
-import dev.fastball.core.info.basic.PopupInfo;
-import dev.fastball.core.info.basic.RefComponentInfo;
-import dev.fastball.core.info.component.ComponentProps;
-import dev.fastball.core.info.component.ReferencedComponentInfo;
+import dev.fastball.meta.basic.DynamicPopupRuleInfo;
+import dev.fastball.meta.basic.PopupInfo;
+import dev.fastball.meta.basic.RefComponentInfo;
+import dev.fastball.meta.component.ComponentProps;
+import dev.fastball.meta.component.ReferencedComponentInfo;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;

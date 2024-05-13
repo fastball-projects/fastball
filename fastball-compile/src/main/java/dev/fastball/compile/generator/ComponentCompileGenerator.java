@@ -7,9 +7,9 @@ import dev.fastball.compile.ComponentCompilerLoader;
 import dev.fastball.compile.FastballCompileGenerator;
 import dev.fastball.compile.exception.CompilerException;
 import dev.fastball.core.annotation.UIComponent;
-import dev.fastball.core.info.component.ComponentInfo;
-import dev.fastball.core.info.component.ComponentInfo_AutoValue;
-import dev.fastball.core.utils.JsonUtils;
+import dev.fastball.meta.component.ComponentInfo;
+import dev.fastball.meta.component.ComponentInfo_AutoValue;
+import dev.fastball.meta.utils.JsonUtils;
 
 import javax.tools.FileObject;
 import javax.tools.StandardLocation;

@@ -1,10 +1,10 @@
 package dev.fastball.generate.utils;
 
 import dev.fastball.core.config.FastballConfig;
-import dev.fastball.core.info.component.ComponentInfo;
-import dev.fastball.core.info.component.ComponentInfo_AutoValue;
-import dev.fastball.core.utils.JsonUtils;
-import dev.fastball.core.utils.YamlUtils;
+import dev.fastball.meta.component.ComponentInfo;
+import dev.fastball.meta.component.ComponentInfo_AutoValue;
+import dev.fastball.meta.utils.JsonUtils;
+import dev.fastball.meta.utils.YamlUtils;
 import dev.fastball.generate.exception.GenerateException;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;

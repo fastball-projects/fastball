@@ -1,6 +1,7 @@
 package dev.fastball.core.material;
 
-import dev.fastball.core.utils.YamlUtils;
+import dev.fastball.meta.material.UIMaterial;
+import dev.fastball.meta.utils.YamlUtils;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -1,8 +1,8 @@
 package dev.fastball.core.annotation;
 
-import dev.fastball.core.info.basic.PlacementType;
-import dev.fastball.core.info.basic.PopupTriggerType;
-import dev.fastball.core.info.basic.PopupType;
+import dev.fastball.meta.basic.PlacementType;
+import dev.fastball.meta.basic.PopupTriggerType;
+import dev.fastball.meta.basic.PopupType;
 
 import java.lang.annotation.*;
 

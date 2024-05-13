@@ -1,7 +1,7 @@
 package dev.fastball.compile;
 
-import dev.fastball.core.info.component.ComponentInfo;
-import dev.fastball.core.info.component.ComponentProps;
+import dev.fastball.meta.component.ComponentInfo;
+import dev.fastball.meta.component.ComponentProps;
 
 /**
  * @author gr@fastball.dev

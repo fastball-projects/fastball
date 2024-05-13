@@ -1,8 +1,8 @@
 package dev.fastball.runtime.spring.devtools;
 
 import dev.fastball.core.config.Menu;
-import dev.fastball.core.info.component.ComponentInfo;
-import dev.fastball.core.utils.JsonUtils;
+import dev.fastball.meta.component.ComponentInfo;
+import dev.fastball.meta.utils.JsonUtils;
 import dev.fastball.generate.Constants;
 import dev.fastball.generate.generator.PortalCodeGenerator;
 import dev.fastball.generate.model.Route;

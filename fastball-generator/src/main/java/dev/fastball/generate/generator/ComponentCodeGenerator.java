@@ -1,9 +1,9 @@
 package dev.fastball.generate.generator;
 
-import dev.fastball.core.info.component.ComponentInfo;
-import dev.fastball.core.info.component.ComponentProps;
-import dev.fastball.core.info.component.ReferencedComponentInfo;
-import dev.fastball.core.utils.JsonUtils;
+import dev.fastball.meta.component.ComponentInfo;
+import dev.fastball.meta.component.ComponentProps;
+import dev.fastball.meta.component.ReferencedComponentInfo;
+import dev.fastball.meta.utils.JsonUtils;
 import dev.fastball.generate.exception.GenerateException;
 import org.apache.commons.io.FileUtils;
 

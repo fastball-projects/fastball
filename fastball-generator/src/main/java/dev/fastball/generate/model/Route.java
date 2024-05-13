@@ -1,7 +1,7 @@
 package dev.fastball.generate.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import dev.fastball.core.utils.RefComponentSerialize;
+import dev.fastball.meta.utils.RefComponentSerialize;
 import lombok.Builder;
 import lombok.Data;
 

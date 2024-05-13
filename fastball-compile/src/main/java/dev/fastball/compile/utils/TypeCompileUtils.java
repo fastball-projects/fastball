@@ -3,9 +3,9 @@ package dev.fastball.compile.utils;
 import com.google.common.collect.Maps;
 import dev.fastball.compile.exception.CompilerException;
 import dev.fastball.core.annotation.*;
-import dev.fastball.core.component.Range;
-import dev.fastball.core.info.basic.*;
-import dev.fastball.core.info.component.ComponentProps;
+import dev.fastball.core.field.Range;
+import dev.fastball.meta.basic.*;
+import dev.fastball.meta.component.ComponentProps;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ElementKind;

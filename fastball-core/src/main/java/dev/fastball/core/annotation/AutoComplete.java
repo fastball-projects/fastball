@@ -1,6 +1,7 @@
 package dev.fastball.core.annotation;
 
 import dev.fastball.core.component.AutoCompleteLookupAction;
+import dev.fastball.meta.basic.AutoCompleteInputType;
 
 import java.lang.annotation.*;
 
@@ -14,7 +15,7 @@ import java.lang.annotation.*;
 public @interface AutoComplete {
     Class<? extends AutoCompleteLookupAction> value();
 
-    InputType inputType() default InputType.Text;
+    AutoCompleteInputType inputType() default AutoCompleteInputType.Text;
 
     String valueField();
 
@@ -23,11 +24,6 @@ public @interface AutoComplete {
     String[] dependencyFields() default {};
 
     FillField[] extraFillFields() default {};
-
-    enum InputType {
-        Number,
-        Text
-    }
 
     @Target({})
     @Retention(RetentionPolicy.RUNTIME)
