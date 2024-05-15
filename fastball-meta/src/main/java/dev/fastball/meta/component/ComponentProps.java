@@ -11,7 +11,6 @@ import java.util.Set;
  * @author gr@fastball.dev
  * @since 2022/12/15
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 public interface ComponentProps {
     String componentKey();
 

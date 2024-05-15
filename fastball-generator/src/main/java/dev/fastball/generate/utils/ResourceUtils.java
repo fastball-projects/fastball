@@ -1,5 +1,6 @@
 package dev.fastball.generate.utils;
 
+import dev.fastball.compile.ComponentCompilerLoader;
 import dev.fastball.core.config.FastballConfig;
 import dev.fastball.meta.component.ComponentInfo;
 import dev.fastball.meta.component.ComponentInfo_AutoValue;
@@ -39,6 +40,7 @@ public class ResourceUtils {
     }
 
     public static List<ComponentInfo<?>> loadComponentInfoList(ClassLoader classLoader) {
+        ComponentCompilerLoader.registryComponentPropsType(classLoader);
         try {
             return Arrays.stream(getResourceResolver(classLoader).getResources("classpath*:/FASTBALL-INF/**/*.fbv.json"))
                     .map(resource -> {

@@ -11,4 +11,8 @@ public interface ComponentCompiler<P extends ComponentProps> {
     ComponentInfo<P> compile(CompileContext componentContext);
 
     boolean support(CompileContext componentContext);
+
+    String getComponentName();
+
+    Class<P> getComponentPropsClass();
 }

@@ -1,5 +1,6 @@
 package dev.fastball.meta.action;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import dev.fastball.meta.basic.PopupInfo;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -14,6 +15,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
+@JsonDeserialize
 public class PopupActionInfo extends ActionInfo {
     protected final ActionType type = ActionType.Popup;
 

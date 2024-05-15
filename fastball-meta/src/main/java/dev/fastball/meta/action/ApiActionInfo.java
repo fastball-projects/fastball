@@ -1,5 +1,6 @@
 package dev.fastball.meta.action;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -13,6 +14,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
+@JsonDeserialize
 public class ApiActionInfo extends ActionInfo {
     protected final ActionType type = ActionType.API;
     private boolean uploadFileAction;

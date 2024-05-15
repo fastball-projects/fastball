@@ -1,5 +1,6 @@
 package dev.fastball.runtime.spring;
 
+import dev.fastball.compile.ComponentCompilerLoader;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -25,6 +26,7 @@ public class FastballComponentRegistryPostProcessor implements BeanDefinitionReg
 
     @Override
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+        ComponentCompilerLoader.registryComponentPropsType();
     }
 
     @Override

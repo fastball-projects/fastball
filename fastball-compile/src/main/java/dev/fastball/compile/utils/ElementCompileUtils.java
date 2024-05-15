@@ -181,7 +181,6 @@ public class ElementCompileUtils {
         try {
             return declaredType.getTypeArguments().stream().map(type -> (TypeElement) processingEnv.getTypeUtils().asElement(type)).collect(Collectors.toList());
         } catch (Throwable e) {
-            e.printStackTrace();
             return Collections.emptyList();
         }
     }

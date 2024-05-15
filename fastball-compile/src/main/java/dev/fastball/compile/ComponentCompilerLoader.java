@@ -1,5 +1,7 @@
 package dev.fastball.compile;
 
+import dev.fastball.meta.utils.ComponentPropsTypeRegistry;
+
 import java.util.HashSet;
 import java.util.ServiceLoader;
 import java.util.Set;
@@ -21,5 +23,14 @@ public class ComponentCompilerLoader {
             componentCompilers.add(componentCompiler);
         }
         return componentCompilers;
+    }
+
+    public static void registryComponentPropsType() {
+        registryComponentPropsType(ComponentCompilerLoader.class.getClassLoader());
+    }
+
+    public static void registryComponentPropsType(ClassLoader classLoader) {
+        getLoaders(classLoader).forEach(componentCompiler ->
+                ComponentPropsTypeRegistry.register(componentCompiler.getComponentName(), componentCompiler.getComponentPropsClass()));
     }
 }

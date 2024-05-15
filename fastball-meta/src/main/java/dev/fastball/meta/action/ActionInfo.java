@@ -1,6 +1,8 @@
 package dev.fastball.meta.action;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import dev.fastball.meta.utils.ActionInfoDeserializer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,7 +16,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+@JsonDeserialize(using = ActionInfoDeserializer.class)
 public abstract class ActionInfo implements Comparable<ActionInfo> {
     private String actionName;
 

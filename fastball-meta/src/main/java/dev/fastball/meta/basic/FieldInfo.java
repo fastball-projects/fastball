@@ -1,6 +1,5 @@
 package dev.fastball.meta.basic;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -14,7 +13,6 @@ import java.util.Map;
  */
 @Data
 @NoArgsConstructor
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 public class FieldInfo implements Comparable<FieldInfo> {
     private String title;
 

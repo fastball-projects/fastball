@@ -1,5 +1,6 @@
 package dev.fastball.runtime.spring.devtools;
 
+import dev.fastball.compile.ComponentCompilerLoader;
 import dev.fastball.generate.exception.GenerateException;
 import dev.fastball.generate.generator.PortalCodeGenerator;
 import dev.fastball.generate.utils.ExecUtils;

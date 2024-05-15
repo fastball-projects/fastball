@@ -17,6 +17,7 @@ public class ComponentRegistry {
 
     private final Map<String, ComponentBean> componentBeanMap = new ConcurrentHashMap<>();
     private final Set<String> anonymousAccessComponentBeans = new HashSet<>();
+    private final Map<String,Class<?>> componentPropsClassMap = new ConcurrentHashMap<>();
 
     public Set<String> getAnonymousAccessComponentBeans() {
         return anonymousAccessComponentBeans;

@@ -42,8 +42,6 @@ public abstract class AbstractComponentCompiler<T extends Component, P extends C
 
     protected abstract P buildProps(CompileContext compileContext);
 
-    protected abstract String getComponentName();
-
     protected void compileProps(P props, CompileContext compileContext) {
     }
 
@@ -62,6 +60,7 @@ public abstract class AbstractComponentCompiler<T extends Component, P extends C
         componentInfo.componentKey(props.componentKey());
         componentInfo.componentPath(ElementCompileUtils.getComponentPath(compileContext.getComponentElement()));
         componentInfo.componentName(getComponentName());
+        componentInfo.propsClassName(props.getClass().getCanonicalName());
         return componentInfo;
     }
 
@@ -83,16 +82,27 @@ public abstract class AbstractComponentCompiler<T extends Component, P extends C
     }
 
     protected Class<T> getBasicComponentClass() {
-        Type genericSuperclass = this.getClass().getGenericSuperclass();
+        return getGenericClass(this.getClass(), ComponentCompiler.class, 0);
+    }
+
+    @Override
+    public Class<P> getComponentPropsClass() {
+        return getGenericClass(this.getClass(), ComponentCompiler.class, 1);
+    }
+
+    private <C> Class<C> getGenericClass(Class<?> clazz, Class<?> targetClass, int index) {
+        Type genericSuperclass = clazz.getGenericSuperclass();
         while (genericSuperclass != null) {
             if (genericSuperclass instanceof ParameterizedType) {
                 ParameterizedType parameterizedType = (ParameterizedType) genericSuperclass;
-                if (parameterizedType.getRawType() instanceof Class && ComponentCompiler.class.isAssignableFrom((Class<?>) parameterizedType.getRawType())) {
-                    Type componentType = parameterizedType.getActualTypeArguments()[0];
-                    if (componentType instanceof Class) {
-                        return (Class<T>) componentType;
-                    } else if (componentType instanceof ParameterizedType && ((ParameterizedType) componentType).getRawType() instanceof Class) {
-                        return (Class<T>) ((ParameterizedType) componentType).getRawType();
+                if (parameterizedType.getRawType() instanceof Class && targetClass.isAssignableFrom((Class<?>) parameterizedType.getRawType())) {
+                    if(index < parameterizedType.getActualTypeArguments().length) {
+                        Type componentType = parameterizedType.getActualTypeArguments()[index];
+                        if (componentType instanceof Class) {
+                            return (Class<C>) componentType;
+                        } else if (componentType instanceof ParameterizedType && ((ParameterizedType) componentType).getRawType() instanceof Class) {
+                            return (Class<C>) ((ParameterizedType) componentType).getRawType();
+                        }
                     }
                 }
                 genericSuperclass = parameterizedType.getRawType();

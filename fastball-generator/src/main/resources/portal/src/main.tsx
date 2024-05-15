@@ -5,7 +5,7 @@ import {
 } from "@ant-design/icons";
 import React, { useState } from 'react'
 import ReactDOM from 'react-dom/client'
-import { HashRouter, Routes, Route, Outlet, Link, RouteProps } from "react-router-dom";
+import { HashRouter, Routes, Route, Outlet, Link, RouteProps, useLocation } from "react-router-dom";
 import ProLayout from '@ant-design/pro-layout';
 import type { MenuProps } from "antd";
 import { Spin, Button, Result, Dropdown, message, Modal } from 'antd';
