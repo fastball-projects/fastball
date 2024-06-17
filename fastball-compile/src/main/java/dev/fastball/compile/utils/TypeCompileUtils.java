@@ -145,10 +145,10 @@ public class TypeCompileUtils {
         }
         if (fieldElement.getAnnotation(Lookup.class) != null) {
             compileLookup(fieldInfo, fieldElement, props, processingEnv);
-            valueType = ValueType.SELECT;
+            valueType = ValueType.LOOKUP;
         } else if (fieldElement.getAnnotation(TreeLookup.class) != null) {
             compileTreeLookup(fieldInfo, fieldElement, props, processingEnv);
-            valueType = ValueType.TREE_SELECT;
+            valueType = ValueType.TREE_LOOKUP;
         } else if (fieldElement.getAnnotation(AutoComplete.class) != null) {
             compileAutoComplete(fieldInfo, fieldElement, processingEnv);
             valueType = ValueType.AUTO_COMPLETE;

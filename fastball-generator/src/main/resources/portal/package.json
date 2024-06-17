@@ -11,7 +11,7 @@
     "@ant-design/pro-components": "2.5.5",
     "@ant-design/pro-layout": "^7.13.0",
     "@ant-design/use-emotion-css": "^1.0.4",
-    "antd": "^5.4.7",
+    "antd": "5.16.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router": "^6.11.1",

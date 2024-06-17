@@ -82,6 +82,14 @@ public enum ValueType {
      */
     TEXT("text"),
     /**
+     * 数据选择
+     */
+    LOOKUP("Lookup"),
+    /**
+     * 树形数据选择
+     */
+    TREE_LOOKUP("TreeLookup"),
+    /**
      * 下拉框
      */
     SELECT("select"),

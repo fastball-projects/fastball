@@ -32,9 +32,9 @@ public class LookupCompileUtils {
         Lookup lookupAnnotation = fieldElement.getAnnotation(Lookup.class);
         if (lookupAnnotation != null) {
             Field fieldAnnotation = fieldElement.getAnnotation(Field.class);
-            if (fieldAnnotation != null && fieldAnnotation.type() != ValueType.AUTO && fieldAnnotation.type() != ValueType.SELECT) {
+            if (fieldAnnotation != null && fieldAnnotation.type() != ValueType.AUTO && fieldAnnotation.type() != ValueType.LOOKUP && fieldAnnotation.type() != ValueType.SELECT) {
                 String fieldReferenceName = ((TypeElement) fieldElement.getEnclosingElement()).getQualifiedName() + ":" + fieldElement.getSimpleName();
-                throw new CompilerException("Field [" + fieldReferenceName + "] has annotation @Lookup, but @Field.type is not SELECT, try set @Field.type to FieldType.AUTO or FieldType.SELECT");
+                throw new CompilerException("Field [" + fieldReferenceName + "] has annotation @Lookup, but @Field.type is not LOOKUP, try set @Field.type to FieldType.AUTO or FieldType.LOOKUP");
             }
             LookupInfo_AutoValue lookupActionInfo = new LookupInfo_AutoValue();
             TypeMirror lookupActionType = ElementCompileUtils.getTypeMirrorFromAnnotationValue(lookupAnnotation::value);
@@ -88,9 +88,9 @@ public class LookupCompileUtils {
         TreeLookup lookupAnnotation = fieldElement.getAnnotation(TreeLookup.class);
         if (lookupAnnotation != null) {
             Field fieldAnnotation = fieldElement.getAnnotation(Field.class);
-            if (fieldAnnotation != null && fieldAnnotation.type() != ValueType.AUTO && fieldAnnotation.type() != ValueType.TREE_SELECT) {
+            if (fieldAnnotation != null && fieldAnnotation.type() != ValueType.AUTO && fieldAnnotation.type() != ValueType.TREE_SELECT && fieldAnnotation.type() != ValueType.TREE_LOOKUP) {
                 String fieldReferenceName = ((TypeElement) fieldElement.getEnclosingElement()).getQualifiedName() + ":" + fieldElement.getSimpleName();
-                throw new CompilerException("Field [" + fieldReferenceName + "] has annotation @Lookup, but @Field.type is not TREE_SELECT, try set @Field.type to FieldType.AUTO or FieldType.TREE_SELECT");
+                throw new CompilerException("Field [" + fieldReferenceName + "] has annotation @Lookup, but @Field.type is not TREE_LOOKUP, try set @Field.type to FieldType.AUTO or FieldType.TREE_LOOKUP");
             }
             TreeLookupInfo_AutoValue lookupActionInfo = new TreeLookupInfo_AutoValue();
             TypeMirror lookupActionType = ElementCompileUtils.getTypeMirrorFromAnnotationValue(lookupAnnotation::value);
