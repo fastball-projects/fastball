@@ -1,5 +1,7 @@
 package dev.fastball.meta.basic;
 
+import work.nvwa.vine.annotation.VineEnumItem;
+
 public enum ValueType {
     /**
      * 自动推断
@@ -84,18 +86,22 @@ public enum ValueType {
     /**
      * 数据选择
      */
+    @VineEnumItem(description = "Data Selector field, From the data source, select the data to be displayed in the field")
     LOOKUP("Lookup"),
     /**
      * 树形数据选择
      */
+    @VineEnumItem(description = "Tree data selector field, like Organization, Department, etc.")
     TREE_LOOKUP("TreeLookup"),
     /**
      * 下拉框
      */
+    @VineEnumItem(description = "Single selection field, select one from enum items")
     SELECT("select"),
     /**
      * 多选下拉框
      */
+    @VineEnumItem(description = "Multiple selection field, select multiple from enum items")
     MULTI_SELECT("multiSelect"),
     /**
      * 树形下拉框

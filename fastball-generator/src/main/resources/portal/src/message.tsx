@@ -3,6 +3,7 @@ import { ProList } from '@ant-design/pro-components';
 import { Badge, Space, Tag, Drawer } from 'antd';
 import React, { useEffect, useState } from 'react';
 import ComponentMapper from './component-mapper'
+import { buildJsonRequestInfo } from './utils'
 
 type Message = {
     id: string;
@@ -39,7 +40,8 @@ export const MessageList: React.FC = () => {
             request={async (
                 params
             ) => {
-                const response = await fetch(`/api/portal/loadMessage?current=${params.current || 0}`);
+                const request = buildJsonRequestInfo()
+                const response = await fetch(`/api/portal/loadMessage?current=${params.current || 0}`, request);
                 const result = await response.json();
                 return {
                     data: result.data.data,
@@ -50,7 +52,8 @@ export const MessageList: React.FC = () => {
             onItem={(item) => {
                 return {
                     onClick: (event) => {
-                        fetch(`/api/portal/readMessage/${item.id}`, { method: 'POST' });
+                        const request = buildJsonRequestInfo('POST')
+                        fetch(`/api/portal/readMessage/${item.id}`, request);
                         if (item.component) {
                             setOpenedMessage(item);
                         }
@@ -84,7 +87,8 @@ export const MessageIcon: React.FC = () => {
 
     const fetchData = async () => {
         try {
-            const response = await fetch('/api/portal/hasUnreadMessage');
+            const request = buildJsonRequestInfo()
+            const response = await fetch('/api/portal/hasUnreadMessage', request);
             const result = await response.json();
             setHasUnreadMessage(result.data);
         } catch (error) {

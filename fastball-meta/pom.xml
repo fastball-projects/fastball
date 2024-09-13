@@ -13,6 +13,10 @@
 
     <dependencies>
         <dependency>
+            <groupId>work.nvwa</groupId>
+            <artifactId>nvwa-vine-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>dev.fastball</groupId>
             <artifactId>auto-value</artifactId>
         </dependency>

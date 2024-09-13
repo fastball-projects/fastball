@@ -88,6 +88,7 @@
         <minio.version>8.5.2</minio.version>
         <easyexcel.version>3.2.1</easyexcel.version>
         <javapoet.version>1.13.0</javapoet.version>
+        <vine.version>0.2.0-SNAPSHOT</vine.version>
     </properties>
 
     <dependencyManagement>
@@ -98,6 +99,14 @@
                 <version>${spring-boot.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>work.nvwa</groupId>
+                <artifactId>nvwa-vine-bom</artifactId>
+                <version>${vine.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
             </dependency>
 
             <dependency>

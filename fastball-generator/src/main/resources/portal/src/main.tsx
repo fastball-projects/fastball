@@ -15,28 +15,14 @@ import { routeBuilder } from './route-builder'
 import Login from './login'
 import ChangePasswordForm from './change-password'
 import { MessageIcon, MessageList } from './message'
+import { buildJsonRequestInfo } from './utils'
 import config from '../config.json'
 
 const TOKEN_LOCAL_KEY = 'fastball_token';
 
 // 临时写一下吧, 回头整体 protal 改一下
 const getCurrentUserInfo = async (setCurrentUser: Function) => {
-  const tokenJson = localStorage.getItem(TOKEN_LOCAL_KEY)
-  let authorization: string = '';
-  if (tokenJson) {
-    const { token, expiration } = JSON.parse(tokenJson);
-    if (Date.now() < expiration) {
-      authorization = token;
-    } else {
-      localStorage.removeItem(TOKEN_LOCAL_KEY)
-    }
-  }
-  const request = {
-    method: 'GET',
-    headers: {
-      Authorization: authorization
-    }
-  }
+  const request = buildJsonRequestInfo()
   const resp = await fetch('/api/portal/currentUser', request)
   const json = await resp.text();
   if (json) {
