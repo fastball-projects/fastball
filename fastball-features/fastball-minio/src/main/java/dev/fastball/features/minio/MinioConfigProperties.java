@@ -10,5 +10,6 @@ public class MinioConfigProperties {
     private String accessKey;
     private String secretKey;
     private String defaultBucket;
+    private boolean ignoreCertCheck = false;
     private int presignedExpiry = 30;
 }

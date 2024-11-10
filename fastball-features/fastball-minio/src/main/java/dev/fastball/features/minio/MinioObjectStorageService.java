@@ -8,7 +8,12 @@ import io.minio.GetObjectArgs;
 import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
-import io.minio.errors.*;
+import io.minio.errors.ErrorResponseException;
+import io.minio.errors.InsufficientDataException;
+import io.minio.errors.InternalException;
+import io.minio.errors.InvalidResponseException;
+import io.minio.errors.ServerException;
+import io.minio.errors.XmlParserException;
 import io.minio.http.Method;
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,6 +38,9 @@ public class MinioObjectStorageService extends AbstractObjectStorageService {
                     .endpoint(configProperties.getEndpoint())
                     .credentials(configProperties.getAccessKey(), configProperties.getSecretKey())
                     .build();
+            if (configProperties.isIgnoreCertCheck()) {
+                this.client.ignoreCertCheck();
+            }
         } catch (Exception e) {
             this.client = null;
             log.warn("MinIO init failed", e);
