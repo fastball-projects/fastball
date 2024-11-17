@@ -18,9 +18,18 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
-import javax.lang.model.type.*;
+import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.MirroredTypeException;
+import javax.lang.model.type.MirroredTypesException;
+import javax.lang.model.type.NoType;
+import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static dev.fastball.compile.CompileConstants.COMPONENT_IMPORT_PREFIX;
@@ -45,6 +54,20 @@ public class ElementCompileUtils {
             return null;
         }
         return ElementCompileUtils.getReferencedComponentInfo(props, componentTypeElement);
+    }
+
+    public static List<ReferencedComponentInfo> getReferencedComponentsInfo(ComponentProps props, AnnotationClassListGetter annotationClassGetter) {
+        List<? extends TypeMirror> popupComponentClassList = ElementCompileUtils.getTypeMirrorsFromAnnotationValue(annotationClassGetter);
+        if (popupComponentClassList == null) {
+            throw new CompilerException("can't happened");
+        }
+        return popupComponentClassList.stream().map(popupComponentClass -> {
+            TypeElement componentTypeElement = (TypeElement) ((DeclaredType) popupComponentClass).asElement();
+            if (Component.class.getCanonicalName().equals(componentTypeElement.getQualifiedName().toString())) {
+                return null;
+            }
+            return ElementCompileUtils.getReferencedComponentInfo(props, componentTypeElement);
+        }).collect(Collectors.toList());
     }
 
     public static RefComponentInfo getReferencedComponentInfo(ComponentProps props, RefComponent refComponentAnnotation) {
@@ -120,20 +143,20 @@ public class ElementCompileUtils {
         return popupInfo;
     }
 
-    public static List<? extends TypeMirror> getTypeMirrorFromAnnotationValues(AnnotationClassGetter c) {
-        try {
-            c.execute();
-        } catch (MirroredTypesException ex) {
-            return ex.getTypeMirrors();
-        }
-        return Collections.emptyList();
-    }
-
     public static TypeMirror getTypeMirrorFromAnnotationValue(AnnotationClassGetter c) {
         try {
             c.execute();
         } catch (MirroredTypeException ex) {
             return ex.getTypeMirror();
+        }
+        return null;
+    }
+
+    public static List<? extends TypeMirror> getTypeMirrorsFromAnnotationValue(AnnotationClassListGetter c) {
+        try {
+            c.execute();
+        } catch (MirroredTypesException ex) {
+            return ex.getTypeMirrors();
         }
         return null;
     }
