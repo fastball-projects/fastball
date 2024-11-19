@@ -18,7 +18,7 @@ public enum ValueType {
     /**
      * 文本域
      */
-    TEXTAREA("textarea"),
+    TEXTAREA("Textarea"),
     /**
      * 富文本
      */
@@ -82,7 +82,7 @@ public enum ValueType {
     /**
      * 文本框
      */
-    TEXT("text"),
+    TEXT("Text"),
     /**
      * 数据选择
      */
@@ -134,7 +134,7 @@ public enum ValueType {
     /**
      * 数字输入框
      */
-    DIGIT("digit"),
+    DIGIT("Digit"),
     /**
      * 数字范围输入框
      */
