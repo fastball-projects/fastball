@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.module.kotlin.KotlinModule;
 import dev.fastball.core.component.runtime.ComponentRegistry;
 import dev.fastball.core.component.runtime.LookupActionRegistry;
 import dev.fastball.core.component.runtime.RecordActionFilterRegistry;
@@ -88,6 +89,7 @@ public class FastballRuntimeConfiguration implements WebMvcConfigurer {
             }
         });
         objectMapper.registerModule(javaTimeModule);
+        objectMapper.registerModule(new KotlinModule.Builder().build());
         return objectMapper;
     }
 
