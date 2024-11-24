@@ -15,7 +15,15 @@ import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
-import java.util.*;
+import javax.lang.model.type.WildcardType;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -229,6 +237,7 @@ public class TypeCompileUtils {
     }
 
     private static <T extends FieldInfo> ValueType compileCollectionType(TypeMirror componentType, ProcessingEnvironment processingEnv, T fieldInfo, ComponentProps props, Supplier<T> fieldBuilder, BiConsumer<VariableElement, T> afterBuild, Set<TypeMirror> compiledTypes, VariableElement fieldElement) {
+        TypeElement typeElement = null;
         if (componentType.getKind().isPrimitive()) {
             String fieldReferenceName = ((TypeElement) fieldElement.getEnclosingElement()).getQualifiedName() + ":" + fieldElement.getSimpleName();
             throw new CompilerException("Field [" + fieldReferenceName + "] Collection primitive type [" + componentType + "] not supported, if you want multiple select, try use @Lookup");
@@ -240,7 +249,11 @@ public class TypeCompileUtils {
             fieldInfo.setSubFields(Collections.singletonList(valueField));
             return ValueType.SIMPLE_ARRAY;
         } else if (componentType.getKind() == TypeKind.DECLARED) {
-            TypeElement typeElement = (TypeElement) ((DeclaredType) componentType).asElement();
+            typeElement = (TypeElement) ((DeclaredType) componentType).asElement();
+        } else if (componentType.getKind() == TypeKind.WILDCARD) {
+            typeElement = (TypeElement) ((DeclaredType) ((WildcardType) componentType).getExtendsBound()).asElement();
+        }
+        if (typeElement != null) {
             if (ElementCompileUtils.isAssignableFrom(Iterable.class, typeElement, processingEnv)) {
                 T valueField = fieldBuilder.get();
                 valueField.dataIndex(SIMPLE_FORM_LIST_VALUE_FIELD);
