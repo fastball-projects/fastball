@@ -9,7 +9,6 @@
         <version>0.6.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>work.nvwa</groupId>
     <artifactId>fastball-utils</artifactId>
 
     <properties>
