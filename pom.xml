@@ -7,7 +7,7 @@
     <groupId>dev.fastball</groupId>
     <artifactId>fastball-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.6.0-SNAPSHOT</version>
+    <version>0.7.0-SNAPSHOT</version>
 
     <url>https://github.com/fastball-projects/fastball</url>
 
@@ -261,62 +261,62 @@
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-meta</artifactId>
-                <version>0.6.0-SNAPSHOT</version>
+                <version>0.7.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-core</artifactId>
-                <version>0.6.0-SNAPSHOT</version>
+                <version>0.7.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-compile</artifactId>
-                <version>0.6.0-SNAPSHOT</version>
+                <version>0.7.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-generator</artifactId>
-                <version>0.6.0-SNAPSHOT</version>
+                <version>0.7.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-runtime-spring-configure</artifactId>
-                <version>0.6.0-SNAPSHOT</version>
+                <version>0.7.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>spring-boot-starter-fastball</artifactId>
-                <version>0.6.0-SNAPSHOT</version>
+                <version>0.7.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-maven-plugin</artifactId>
-                <version>0.6.0-SNAPSHOT</version>
+                <version>0.7.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-runtime-spring-devtools</artifactId>
-                <version>0.6.0-SNAPSHOT</version>
+                <version>0.7.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-orm-jpa</artifactId>
-                <version>0.6.0-SNAPSHOT</version>
+                <version>0.7.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-minio</artifactId>
-                <version>0.6.0-SNAPSHOT</version>
+                <version>0.7.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-apt</artifactId>
-                <version>0.6.0-SNAPSHOT</version>
+                <version>0.7.0-SNAPSHOT</version>
             </dependency>
             <!-- Self project end -->
         </dependencies>
