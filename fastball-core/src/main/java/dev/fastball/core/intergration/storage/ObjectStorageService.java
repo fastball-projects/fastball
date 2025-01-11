@@ -9,9 +9,11 @@ public interface ObjectStorageService {
 
     void upload(InputStream inputStream, String bucket, String objectName);
 
-    String generateUploadUrl(String bucket, String objectName);
+    ObjectStorageUpload generateUploadUrl(String bucket, String objectName);
 
-    String generateReadUrl(String bucket, String objectName);
+    ObjectStorageUpload generateReadUrl(String bucket, String objectName);
+
+    ObjectStorageFormDataUpload generatePresignedPostFormData(String bucket, String filePath);
 
     String generateObjectName();
 
@@ -33,15 +35,15 @@ public interface ObjectStorageService {
         upload(inputStream, getDefaultBucket(), objectName);
     }
 
-    default String generateUploadUrl() {
+    default ObjectStorageUpload generateUploadUrl() {
         return generateUploadUrl(getDefaultBucket(), generateObjectName());
     }
 
-    default String generateUploadUrl(String objectName) {
+    default ObjectStorageUpload generateUploadUrl(String objectName) {
         return generateUploadUrl(getDefaultBucket(), objectName);
     }
 
-    default String generateReadUrl(String objectName) {
+    default ObjectStorageUpload generateReadUrl(String objectName) {
         return generateReadUrl(getDefaultBucket(), objectName);
     }
 }

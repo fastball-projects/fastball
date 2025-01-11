@@ -4,20 +4,35 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.fastball.core.Result;
-import dev.fastball.core.component.*;
-import dev.fastball.core.component.runtime.*;
+import dev.fastball.core.component.DataRecord;
+import dev.fastball.core.component.DataResult;
+import dev.fastball.core.component.DownloadFile;
+import dev.fastball.core.component.LookupActionComponent;
+import dev.fastball.core.component.RecordActionFilter;
+import dev.fastball.core.component.runtime.ComponentBean;
+import dev.fastball.core.component.runtime.ComponentRegistry;
+import dev.fastball.core.component.runtime.LookupActionBean;
+import dev.fastball.core.component.runtime.LookupActionRegistry;
+import dev.fastball.core.component.runtime.RecordActionFilterRegistry;
+import dev.fastball.core.component.runtime.UIApiMethod;
 import dev.fastball.core.exception.BusinessException;
+import dev.fastball.core.intergration.storage.ObjectStorageFormDataUpload;
 import dev.fastball.core.intergration.storage.ObjectStorageService;
 import dev.fastball.core.intergration.storage.ObjectStorageUpload;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.compress.utils.IOUtils;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -45,8 +60,14 @@ public class FastballComponentController {
 
     @PostMapping("/storage/generateUploadUrl")
     public Result<ObjectStorageUpload> generateUploadUrl() {
-        String url = objectStorageService.generateUploadUrl(objectStorageService.getDefaultBucket(), objectStorageService.generateObjectName("public"));
-        return Result.success(ObjectStorageUpload.builder().url(url).build());
+        ObjectStorageUpload upload = objectStorageService.generateUploadUrl(objectStorageService.getDefaultBucket(), objectStorageService.generateObjectName("public"));
+        return Result.success(upload);
+    }
+
+    @PostMapping("/storage/generatePresignedPostFormData")
+    public Result<ObjectStorageFormDataUpload> generatePresignedPostFormData() {
+        ObjectStorageFormDataUpload upload = objectStorageService.generatePresignedPostFormData(objectStorageService.getDefaultBucket(), "public");
+        return Result.success(upload);
     }
 
     @PostMapping("/storage/upload")
@@ -77,7 +98,7 @@ public class FastballComponentController {
         if (result instanceof DownloadFile) {
             DownloadFile downloadFile = ((DownloadFile) result);
             response.setContentType(downloadFile.getContentType());
-            response.addHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode(downloadFile.getFileName(),"UTF-8"));
+            response.addHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode(downloadFile.getFileName(), "UTF-8"));
             response.addHeader("Cache-Control", "max-age=0");
             response.setCharacterEncoding("utf-8");
             IOUtils.copy(downloadFile.getInputStream(), response.getOutputStream());
@@ -121,8 +142,7 @@ public class FastballComponentController {
             if (data instanceof DataResult) {
                 DataResult<?> dataResult = (DataResult<?>) data;
                 if (dataResult.getData() != null) {
-                    dataResult.getData().stream().filter(DataRecord.class::isInstance)
-                            .forEach(dataRecord -> doRecordActionFilter((DataRecord) dataRecord, componentBean));
+                    dataResult.getData().stream().filter(DataRecord.class::isInstance).forEach(dataRecord -> doRecordActionFilter((DataRecord) dataRecord, componentBean));
                 }
             } else if (data instanceof DataRecord) {
                 doRecordActionFilter((DataRecord) data, componentBean);

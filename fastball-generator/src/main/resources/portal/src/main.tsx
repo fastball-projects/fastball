@@ -9,12 +9,16 @@ import { HashRouter, Routes, Route, Outlet, Link, RouteProps, useLocation } from
 import ProLayout from '@ant-design/pro-layout';
 import type { MenuProps } from "antd";
 import { Spin, Button, Result, Dropdown, message, Modal } from 'antd';
+
+import { FastballContextProvider } from 'fastball-frontend-common';
+
 import routes from './routes'
 import { RouteComponentProps } from '../types'
 import { routeBuilder } from './route-builder'
 import Login from './login'
 import ChangePasswordForm from './change-password'
 import { MessageIcon, MessageList } from './message'
+import { BusinessContextSelector } from './business-context'
 import { buildJsonRequestInfo } from './utils'
 import config from '../config.json'
 
@@ -129,6 +133,8 @@ const Layout: React.FC<RouteComponentProps> = ({ routes, currentUser }) => {
     >
       <ProLayout
         fixSiderbar
+        splitMenus
+        layout="mix"
         title={config.title}
         logo={config.logo}
         route={{
@@ -152,6 +158,9 @@ const Layout: React.FC<RouteComponentProps> = ({ routes, currentUser }) => {
 
         actionsRender={() => {
           const actions = [];
+          if (currentUser?.enableBusinessContext) {
+            actions.push(<BusinessContextSelector />)
+          }
           if (config.enableNotice) {
             actions.push(<MessageIcon />)
           }
@@ -173,6 +182,8 @@ const Layout: React.FC<RouteComponentProps> = ({ routes, currentUser }) => {
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <HashRouter>
-    <HomePage routes={routes} />
+    <FastballContextProvider>
+      <HomePage routes={routes} />
+    </FastballContextProvider>
   </HashRouter>
 )
