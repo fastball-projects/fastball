@@ -52,6 +52,8 @@ public class FieldInfo implements Comparable<FieldInfo> {
 
     private Integer digitPrecision;
 
+    private DateFieldDefaultValueInfo dateDefaultValue;
+
     private RefComponentInfo editModeComponent;
 
     private RefComponentInfo displayModeComponent;

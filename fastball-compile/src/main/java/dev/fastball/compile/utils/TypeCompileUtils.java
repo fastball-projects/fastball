@@ -429,13 +429,16 @@ public class TypeCompileUtils {
             case "java.time.LocalTime":
                 return ValueType.TIME;
             case "java.time.LocalDate":
+                compileDateField(fieldInfo, fieldElement);
                 return ValueType.DATE;
             case "java.util.Date":
+                compileDateField(fieldInfo, fieldElement);
                 if (fieldAnnotation != null && fieldAnnotation.type() == ValueType.DATE_TIME) {
                     return ValueType.DATE_TIME;
                 }
                 return ValueType.DATE;
             case "java.time.LocalDateTime":
+                compileDateField(fieldInfo, fieldElement);
                 return ValueType.DATE_TIME;
             case "dev.fastball.core.field.Attachment":
                 return ValueType.ATTACHMENT;
@@ -459,6 +462,17 @@ public class TypeCompileUtils {
                     return ValueType.DIGIT;
                 }
                 return null;
+        }
+    }
+
+    private static <T extends FieldInfo> void compileDateField(T fieldInfo, VariableElement fieldElement) {
+        DateFieldDefaultValue dateFieldDefaultValueAnnotation = fieldElement.getAnnotation(DateFieldDefaultValue.class);
+        if (dateFieldDefaultValueAnnotation != null) {
+            DateFieldDefaultValueInfo dateFieldDefaultValueInfo = new DateFieldDefaultValueInfo();
+            dateFieldDefaultValueInfo.setDefaultValue(dateFieldDefaultValueAnnotation.defaultValue());
+            dateFieldDefaultValueInfo.setOffset(dateFieldDefaultValueAnnotation.offset());
+            dateFieldDefaultValueInfo.setOffsetUnit(dateFieldDefaultValueAnnotation.offsetUnit());
+            fieldInfo.setDateDefaultValue(dateFieldDefaultValueInfo);
         }
     }
 
