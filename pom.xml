@@ -12,7 +12,9 @@
     <url>https://github.com/fastball-projects/fastball</url>
 
     <name>Fastball</name>
-    <description>An extension-oriented Wysiwyg UI framework for Java backends. Save your development time, try Fastball!</description>
+    <description>An extension-oriented Wysiwyg UI framework for Java backends. Save your development time, try
+        Fastball!
+    </description>
 
 
     <organization>
@@ -330,6 +332,18 @@
                 <version>3.11.0</version>
                 <configuration>
                     <parameters>true</parameters>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>1.18.32</version>
+                        </path>
+                        <path>
+                            <groupId>dev.fastball</groupId>
+                            <artifactId>auto-value</artifactId>
+                            <version>0.2.0</version>
+                        </path>
+                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
             <plugin>

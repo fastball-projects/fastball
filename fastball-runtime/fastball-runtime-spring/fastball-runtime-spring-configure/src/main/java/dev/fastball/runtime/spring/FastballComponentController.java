@@ -16,6 +16,7 @@ import dev.fastball.core.component.runtime.LookupActionRegistry;
 import dev.fastball.core.component.runtime.RecordActionFilterRegistry;
 import dev.fastball.core.component.runtime.UIApiMethod;
 import dev.fastball.core.exception.BusinessException;
+import dev.fastball.core.exception.FastballRuntimeException;
 import dev.fastball.core.intergration.storage.ObjectStorageFormDataUpload;
 import dev.fastball.core.intergration.storage.ObjectStorageService;
 import dev.fastball.core.intergration.storage.ObjectStorageUpload;
@@ -197,8 +198,8 @@ public class FastballComponentController {
         try {
             return actionMethod.invoke(bean, params);
         } catch (InvocationTargetException e) {
-            if (e.getTargetException() instanceof BusinessException) {
-                throw (BusinessException) e.getTargetException();
+            if (e.getTargetException() instanceof FastballRuntimeException) {
+                throw (FastballRuntimeException) e.getTargetException();
             }
             throw new BusinessException(e.getTargetException());
         }

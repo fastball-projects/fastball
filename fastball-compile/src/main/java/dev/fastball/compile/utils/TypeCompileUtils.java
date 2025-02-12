@@ -94,11 +94,13 @@ public class TypeCompileUtils {
             fieldInfo.setDisplay(DisplayType.Show);
             fieldInfo.setTitle(fieldElement.getSimpleName().toString());
         }
-        compileType(fieldInfo, fieldElement, processingEnv, props, fieldBuilder, afterBuild, compiledTypes);
-        fieldInfo.setValidationRules(compileFieldJsr303(fieldElement));
-        fieldInfo.setExpression(compileCalculatedField(fieldElement));
-        if (afterBuild != null) {
-            afterBuild.accept(fieldElement, fieldInfo);
+        if (fieldInfo.getDisplay() != DisplayType.Disabled) {
+            compileType(fieldInfo, fieldElement, processingEnv, props, fieldBuilder, afterBuild, compiledTypes);
+            fieldInfo.setValidationRules(compileFieldJsr303(fieldElement));
+            fieldInfo.setExpression(compileCalculatedField(fieldElement));
+            if (afterBuild != null) {
+                afterBuild.accept(fieldElement, fieldInfo);
+            }
         }
         return fieldInfo;
     }
