@@ -1,55 +1,46 @@
 package dev.fastball.runtime.spring.devtools;
 
-import dev.fastball.compile.ComponentCompilerLoader;
-import dev.fastball.generate.exception.GenerateException;
-import dev.fastball.generate.generator.PortalCodeGenerator;
-import dev.fastball.generate.utils.ExecUtils;
+import dev.fastball.meta.component.ComponentInfo;
+import dev.fastball.platform.core.FastballPlatform;
+import dev.fastball.platform.core.FastballPlatformLoader;
+import dev.fastball.platform.core.exception.GenerateException;
+import dev.fastball.platform.core.utils.ResourceUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.OutputStream;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author gr@fastball.dev
  * @since 2022/12/30
  */
 @Slf4j
-public class DevServer implements WebMvcConfigurer, InitializingBean, ApplicationContextAware {
-
-    private ApplicationContext applicationContext;
-
-    private final PortalCodeGenerator portalCodeGenerator = new DevModePortalCodeGenerator();
-
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
-    }
+public class DevServer implements WebMvcConfigurer, InitializingBean {
 
     @Override
     public void afterPropertiesSet() {
         Class<?> mainClass = getMainClass();
+        ClassLoader classLoader = mainClass.getClassLoader();
         String primarySourcePath = mainClass.getProtectionDomain().getCodeSource().getLocation().getPath();
         File primarySourceFile = new File(primarySourcePath);
         if (primarySourceFile.isFile()) {
             throw new GenerateException("DevServer only available in development mode, but primary source [" + mainClass + "] in a jar.");
         }
-        File generatedCodeDir = new File(primarySourceFile.getParentFile(), "fastball-workspace");
-        portalCodeGenerator.generate(generatedCodeDir, mainClass.getClassLoader());
+
+        Map<String, List<ComponentInfo<?>>> componentPlatformGroup = ResourceUtils.loadComponentInfoMap(classLoader);
+
+        File workspaceDir = new File(primarySourceFile.getParentFile(), "fastball-workspace");
+
         OutputStream infoOut = new Slf4jLogOutputStream(log, Slf4jLogOutputStream.LogLevel.INFO);
         OutputStream errorOut = new Slf4jLogOutputStream(log, Slf4jLogOutputStream.LogLevel.ERROR);
-        try {
-            ExecUtils.checkNodeAndPNPM();
-            ExecUtils.exec("pnpm i", generatedCodeDir, infoOut, errorOut);
-            ExecUtils.execAsync("pnpm run dev --open", generatedCodeDir, infoOut, errorOut);
-        } catch (IOException e) {
-            throw new GenerateException(e);
+
+        for (FastballPlatform<?> fastballPlatform : FastballPlatformLoader.getAllPlatformPortal(classLoader)) {
+            File platformWorkspaceDir = new File(workspaceDir, fastballPlatform.platform());
+            fastballPlatform.run(platformWorkspaceDir, componentPlatformGroup.get(fastballPlatform.platform()), infoOut, errorOut);
         }
     }
 

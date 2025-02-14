@@ -1,8 +1,9 @@
 package dev.fastball.maven;
 
-import dev.fastball.generate.generator.PortalCodeGenerator;
-import dev.fastball.generate.utils.ExecUtils;
-import org.apache.commons.io.FileUtils;
+import dev.fastball.meta.component.ComponentInfo;
+import dev.fastball.platform.core.FastballPlatform;
+import dev.fastball.platform.core.FastballPlatformLoader;
+import dev.fastball.platform.core.utils.ResourceUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -11,16 +12,13 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
-import static dev.fastball.generate.Constants.GENERATED_PATH;
 
 /**
  * @author gengrong
@@ -28,7 +26,8 @@ import static dev.fastball.generate.Constants.GENERATED_PATH;
 @Mojo(name = "build", defaultPhase = LifecyclePhase.PREPARE_PACKAGE, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME, threadSafe = true)
 public class FrontendComponentMojo extends AbstractMojo {
 
-    private final PortalCodeGenerator portalCodeGenerator = new PortalCodeGenerator();
+
+    static String GENERATED_PATH = "generated-fastball";
 
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
@@ -36,20 +35,28 @@ public class FrontendComponentMojo extends AbstractMojo {
 
     @Override
     public void execute() {
-        ClassLoader projectClassLoader = getClassLoader();
-        File generatedCodeDir = new File(project.getBuild().getDirectory(), GENERATED_PATH);
-        portalCodeGenerator.generate(generatedCodeDir, projectClassLoader);
-        try {
-            ExecUtils.checkNodeAndPNPM();
-            OutputStream infoOut = new MavenLogOutputStream(getLog(), MavenLogOutputStream.LogLevel.INFO);
-            OutputStream errorOut = new MavenLogOutputStream(getLog(), MavenLogOutputStream.LogLevel.ERROR);
-            ExecUtils.exec("pnpm i", generatedCodeDir, infoOut, errorOut);
-            ExecUtils.exec("pnpm run build", generatedCodeDir, infoOut, errorOut);
-            File staticResourceDir = new File(project.getBuild().getOutputDirectory(), "static");
-            FileUtils.copyDirectory(new File(generatedCodeDir, "dist"), staticResourceDir);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        ClassLoader classLoader = getClassLoader();
+        File workspaceDir = new File(project.getBuild().getDirectory(), GENERATED_PATH);
+
+        Map<String, List<ComponentInfo<?>>> componentPlatformGroup = ResourceUtils.loadComponentInfoMap(classLoader);
+        for (FastballPlatform<?> fastballPlatform : FastballPlatformLoader.getAllPlatformPortal(classLoader)) {
+            File platformWorkspaceDir = new File(workspaceDir, fastballPlatform.platform());
+
+            fastballPlatform.build(platformWorkspaceDir, componentPlatformGroup.get(fastballPlatform.platform()));
         }
+
+//        portalCodeGenerator.generate(generatedCodeDir, projectClassLoader);
+//        try {
+//            ExecUtils.checkNodeAndPNPM();
+//            OutputStream infoOut = new MavenLogOutputStream(getLog(), MavenLogOutputStream.LogLevel.INFO);
+//            OutputStream errorOut = new MavenLogOutputStream(getLog(), MavenLogOutputStream.LogLevel.ERROR);
+//            ExecUtils.exec("pnpm i", generatedCodeDir, infoOut, errorOut);
+//            ExecUtils.exec("pnpm run build", generatedCodeDir, infoOut, errorOut);
+//            File staticResourceDir = new File(project.getBuild().getOutputDirectory(), "static");
+//            FileUtils.copyDirectory(new File(generatedCodeDir, "dist"), staticResourceDir);
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
     }
 
     private ClassLoader getClassLoader() {

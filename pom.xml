@@ -7,7 +7,7 @@
     <groupId>dev.fastball</groupId>
     <artifactId>fastball-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.7.0-SNAPSHOT</version>
+    <version>0.8.0-SNAPSHOT</version>
 
     <url>https://github.com/fastball-projects/fastball</url>
 
@@ -59,6 +59,7 @@
         <module>fastball-apt</module>
         <module>fastball-meta</module>
         <module>fastball-utils</module>
+        <module>fastball-platform</module>
     </modules>
 
     <profiles>
@@ -101,8 +102,8 @@
     </profiles>
 
     <properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <maven.source.skip>false</maven.source.skip>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <plexus-component-metadata.version>2.1.0</plexus-component-metadata.version>
@@ -263,62 +264,68 @@
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-meta</artifactId>
-                <version>0.7.0-SNAPSHOT</version>
+                <version>0.8.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-core</artifactId>
-                <version>0.7.0-SNAPSHOT</version>
+                <version>0.8.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-compile</artifactId>
-                <version>0.7.0-SNAPSHOT</version>
+                <version>0.8.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-generator</artifactId>
-                <version>0.7.0-SNAPSHOT</version>
+                <version>0.8.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-runtime-spring-configure</artifactId>
-                <version>0.7.0-SNAPSHOT</version>
+                <version>0.8.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>spring-boot-starter-fastball</artifactId>
-                <version>0.7.0-SNAPSHOT</version>
+                <version>0.8.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-maven-plugin</artifactId>
-                <version>0.7.0-SNAPSHOT</version>
+                <version>0.8.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-runtime-spring-devtools</artifactId>
-                <version>0.7.0-SNAPSHOT</version>
+                <version>0.8.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-orm-jpa</artifactId>
-                <version>0.7.0-SNAPSHOT</version>
+                <version>0.8.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-minio</artifactId>
-                <version>0.7.0-SNAPSHOT</version>
+                <version>0.8.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-apt</artifactId>
-                <version>0.7.0-SNAPSHOT</version>
+                <version>0.8.0-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>dev.fastball</groupId>
+                <artifactId>fastball-platform</artifactId>
+                <version>0.8.0-SNAPSHOT</version>
             </dependency>
             <!-- Self project end -->
         </dependencies>
@@ -329,7 +336,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
+                <version>3.13.0</version>
                 <configuration>
                     <parameters>true</parameters>
                     <annotationProcessorPaths>
