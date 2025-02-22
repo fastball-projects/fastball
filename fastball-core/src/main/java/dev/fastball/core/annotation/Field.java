@@ -19,15 +19,17 @@ public @interface Field {
 
     String tips() default "";
 
-    String placeholder() default "";
-
     String defaultValue() default "";
 
     int order() default 0;
 
     boolean readonly() default false;
 
+    @Deprecated
     boolean entireRow() default false;
+
+    @Deprecated
+    String placeholder() default "";
 
     DisplayType display() default DisplayType.Show;
 

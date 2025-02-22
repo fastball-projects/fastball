@@ -12,6 +12,8 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -39,14 +41,16 @@ public class FrontendComponentMojo extends AbstractMojo {
         File workspaceDir = new File(project.getBuild().getDirectory(), GENERATED_PATH);
 
         Map<String, List<ComponentInfo<?>>> componentPlatformGroup = ResourceUtils.loadComponentInfoMap(classLoader);
+        OutputStream infoOut = new MavenLogOutputStream(getLog(), MavenLogOutputStream.LogLevel.INFO);
+        OutputStream errorOut = new MavenLogOutputStream(getLog(), MavenLogOutputStream.LogLevel.ERROR);
+        File targetDir = new File(project.getBuild().getOutputDirectory(), "static");
         for (FastballPlatform<?> fastballPlatform : FastballPlatformLoader.getAllPlatformPortal(classLoader)) {
             File platformWorkspaceDir = new File(workspaceDir, fastballPlatform.platform());
-
-            fastballPlatform.build(platformWorkspaceDir, componentPlatformGroup.get(fastballPlatform.platform()));
+            File platformTargetDir = new File(targetDir, fastballPlatform.platform());
+            fastballPlatform.build(platformWorkspaceDir, platformTargetDir, componentPlatformGroup.get(fastballPlatform.platform()), infoOut, errorOut);
         }
 
 //        portalCodeGenerator.generate(generatedCodeDir, projectClassLoader);
-//        try {
 //            ExecUtils.checkNodeAndPNPM();
 //            OutputStream infoOut = new MavenLogOutputStream(getLog(), MavenLogOutputStream.LogLevel.INFO);
 //            OutputStream errorOut = new MavenLogOutputStream(getLog(), MavenLogOutputStream.LogLevel.ERROR);
@@ -54,9 +58,6 @@ public class FrontendComponentMojo extends AbstractMojo {
 //            ExecUtils.exec("pnpm run build", generatedCodeDir, infoOut, errorOut);
 //            File staticResourceDir = new File(project.getBuild().getOutputDirectory(), "static");
 //            FileUtils.copyDirectory(new File(generatedCodeDir, "dist"), staticResourceDir);
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
     }
 
     private ClassLoader getClassLoader() {

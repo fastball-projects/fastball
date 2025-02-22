@@ -24,7 +24,7 @@ public @interface DynamicPopup {
      *
      * @return 弹出窗口的宽度
      */
-    String width() default "75%";
+    String width() default "45%";
 
     String title() default "";
 

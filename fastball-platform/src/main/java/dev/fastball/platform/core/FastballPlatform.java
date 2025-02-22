@@ -20,7 +20,7 @@ public interface FastballPlatform<T> extends GenericTypeGetter<T> {
 
     String platform();
 
-    void build(File workspaceDir, List<ComponentInfo<?>> componentInfoList);
+    void build(File workspaceDir, File targetDir, List<ComponentInfo<?>> componentInfoList, OutputStream consoleInfoOut, OutputStream consoleErrorOut);
 
     void run(File workspaceDir, List<ComponentInfo<?>> componentInfoList, OutputStream consoleInfoOut, OutputStream consoleErrorOut);
 
