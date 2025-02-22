@@ -383,6 +383,10 @@ public class TypeCompileUtils {
             case DOUBLE:
             case FLOAT:
             case CHAR:
+                Field fieldAnnotation = fieldElement.getAnnotation(Field.class);
+                if (fieldAnnotation != null && fieldAnnotation.type() == ValueType.RATE) {
+                    return ValueType.RATE;
+                }
                 DigitField digitFieldAnnotation = fieldElement.getAnnotation(DigitField.class);
                 if (digitFieldAnnotation != null) {
                     fieldInfo.setDigitPrecision(digitFieldAnnotation.precision());
@@ -456,6 +460,9 @@ public class TypeCompileUtils {
                     }
                     if (fieldAnnotation != null && fieldAnnotation.type() == ValueType.PERCENT) {
                         return ValueType.PERCENT;
+                    }
+                    if (fieldAnnotation != null && fieldAnnotation.type() == ValueType.RATE) {
+                        return ValueType.RATE;
                     }
                     DigitField digitFieldAnnotation = fieldElement.getAnnotation(DigitField.class);
                     if (digitFieldAnnotation != null) {
