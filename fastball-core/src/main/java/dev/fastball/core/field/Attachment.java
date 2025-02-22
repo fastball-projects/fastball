@@ -11,4 +11,6 @@ public class Attachment {
     private String name;
 
     private String type;
+
+    private ImageInfo imageInfo;
 }
