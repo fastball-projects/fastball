@@ -2,6 +2,7 @@ package dev.fastball.compile.utils;
 
 import com.google.common.collect.Maps;
 import dev.fastball.compile.exception.CompilerException;
+import dev.fastball.core.DefaultValues;
 import dev.fastball.core.annotation.*;
 import dev.fastball.core.field.Range;
 import dev.fastball.meta.basic.*;
@@ -16,14 +17,7 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.WildcardType;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -321,7 +315,7 @@ public class TypeCompileUtils {
 
     private static ValueType compileEnumType(TypeElement typeElement, ProcessingEnvironment processingEnv, FieldInfo fieldInfo) {
         Map<String, VariableElement> enumFields = ElementCompileUtils.getFields(typeElement, processingEnv);
-        Map<String, EnumItem> enumValues = new HashMap<>();
+        Map<String, EnumItem> enumValues = new LinkedHashMap<>();
         enumFields.values().stream().filter(f -> f.getKind() == ElementKind.ENUM_CONSTANT).forEach(enumItem -> {
             DictionaryItem dictItemAnno = enumItem.getAnnotation(DictionaryItem.class);
             EnumItem item = new EnumItem();
@@ -370,6 +364,12 @@ public class TypeCompileUtils {
                     BooleanDisplayInfo.builder()
                             .checkedChildren(booleanDisplayAnnotation.trueLabel())
                             .unCheckedChildren(booleanDisplayAnnotation.falseLabel()).build()
+            );
+        } else {
+            fieldInfo.setFieldProps(
+                    BooleanDisplayInfo.builder()
+                            .checkedChildren(DefaultValues.DEFAULT_BOOLEAN_TRUE_LABEL)
+                            .unCheckedChildren(DefaultValues.DEFAULT_BOOLEAN_FALSE_LABEL).build()
             );
         }
     }

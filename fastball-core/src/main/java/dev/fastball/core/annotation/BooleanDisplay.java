@@ -1,5 +1,7 @@
 package dev.fastball.core.annotation;
 
+import dev.fastball.core.DefaultValues;
+
 import java.lang.annotation.*;
 
 /**
@@ -13,11 +15,11 @@ public @interface BooleanDisplay {
     /**
      * @return 当 Boolean 值为 True 时, 展示的文本
      */
-    String trueLabel() default "是";
+    String trueLabel() default DefaultValues.DEFAULT_BOOLEAN_TRUE_LABEL;
 
     /**
      * @return 当 Boolean 值为 False 时, 展示的文本
      */
-    String falseLabel() default "否";
+    String falseLabel() default DefaultValues.DEFAULT_BOOLEAN_FALSE_LABEL;
 
 }

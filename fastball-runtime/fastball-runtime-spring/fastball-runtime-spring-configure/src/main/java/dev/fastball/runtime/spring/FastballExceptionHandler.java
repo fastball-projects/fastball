@@ -16,10 +16,10 @@ public class FastballExceptionHandler {
         if (e instanceof FieldValidationException) {
             return Result.fail(((FieldValidationException) e).getFieldValidationMessages());
         }
+        e.printStackTrace();
         if (e instanceof BusinessException) {
             return Result.fail(e.getMessage());
         }
-        e.printStackTrace();
         return Result.fail(e.getMessage());
     }
 }

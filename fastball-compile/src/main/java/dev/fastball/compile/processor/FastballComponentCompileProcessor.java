@@ -1,9 +1,6 @@
 package dev.fastball.compile.processor;
 
-import dev.fastball.compile.CompileContext;
-import dev.fastball.compile.FastballCompileGenerator;
-import dev.fastball.compile.FastballGenerateCompileGenerator;
-import dev.fastball.compile.FastballPreCompileGenerator;
+import dev.fastball.compile.*;
 import dev.fastball.core.material.MaterialRegistry;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -32,24 +29,24 @@ public class FastballComponentCompileProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+        ComponentCompilerLoader.registryComponentPropsType();
         if (roundCount < 1) {
             if (loadGeneratorStream(FastballPreCompileGenerator.class).findAny().isPresent()) {
                 processPreCompile(roundEnv);
-                firstElement.addAll(roundEnv.getRootElements());
             }
+            firstElement.addAll(roundEnv.getRootElements());
             roundCount++;
         } else if (roundCount < 2) {
             if (loadGeneratorStream(FastballGenerateCompileGenerator.class).findAny().isPresent()) {
                 processGenerateCompile(roundEnv);
-                firstElement.addAll(roundEnv.getRootElements());
             }
+            firstElement.addAll(roundEnv.getRootElements());
             roundCount++;
         } else {
             processCompile(roundEnv);
 //            if(roundEnv.processingOver()) {
 //                FrontendFunctionUtils.buildMainClass(processingEnv);
 //            }
-            return true;
         }
         return false;
     }
