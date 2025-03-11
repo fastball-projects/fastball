@@ -33,7 +33,7 @@ public class ComponentCompileGenerator implements FastballCompileGenerator {
             ComponentInfo<?> componentInfo = compiler.compile(compileContext);
 
             String viewFilePath = compileContext.getComponentElement().getQualifiedName().toString().replaceAll("\\.", "/");
-            String relativeName = FASTBALL_RESOURCE_PREFIX + viewFilePath + FASTBALL_VIEW_SUFFIX;
+            String relativeName = FASTBALL_RESOURCE_PREFIX + componentInfo.material().getPlatform() + "/" + viewFilePath + FASTBALL_VIEW_SUFFIX;
             try {
                 FileObject file = compileContext.getProcessingEnv().getFiler().getResource(StandardLocation.CLASS_OUTPUT, "", relativeName);
                 if (file != null) {

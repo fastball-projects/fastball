@@ -7,7 +7,7 @@
     <groupId>dev.fastball</groupId>
     <artifactId>fastball-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.8.0-SNAPSHOT</version>
+    <version>0.9.0-SNAPSHOT</version>
 
     <url>https://github.com/fastball-projects/fastball</url>
 
@@ -60,6 +60,7 @@
         <module>fastball-meta</module>
         <module>fastball-utils</module>
         <module>fastball-platform</module>
+        <module>fastball-component-common</module>
     </modules>
 
     <profiles>
@@ -114,7 +115,7 @@
         <jakarta.validation.version>3.0.2</jakarta.validation.version>
         <guava.version>31.1-jre</guava.version>
 
-        <auto-value.version>0.2.0</auto-value.version>
+        <auto-value.version>0.3.0</auto-value.version>
 
         <spring-boot.version>3.3.1</spring-boot.version>
         <commons-io.version>2.11.0</commons-io.version>
@@ -264,68 +265,74 @@
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-meta</artifactId>
-                <version>0.8.0-SNAPSHOT</version>
+                <version>0.9.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-core</artifactId>
-                <version>0.8.0-SNAPSHOT</version>
+                <version>0.9.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-compile</artifactId>
-                <version>0.8.0-SNAPSHOT</version>
+                <version>0.9.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-generator</artifactId>
-                <version>0.8.0-SNAPSHOT</version>
+                <version>0.9.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-runtime-spring-configure</artifactId>
-                <version>0.8.0-SNAPSHOT</version>
+                <version>0.9.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>spring-boot-starter-fastball</artifactId>
-                <version>0.8.0-SNAPSHOT</version>
+                <version>0.9.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-maven-plugin</artifactId>
-                <version>0.8.0-SNAPSHOT</version>
+                <version>0.9.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-runtime-spring-devtools</artifactId>
-                <version>0.8.0-SNAPSHOT</version>
+                <version>0.9.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-orm-jpa</artifactId>
-                <version>0.8.0-SNAPSHOT</version>
+                <version>0.9.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-minio</artifactId>
-                <version>0.8.0-SNAPSHOT</version>
+                <version>0.9.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-apt</artifactId>
-                <version>0.8.0-SNAPSHOT</version>
+                <version>0.9.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-platform</artifactId>
-                <version>0.8.0-SNAPSHOT</version>
+                <version>0.9.0-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>dev.fastball</groupId>
+                <artifactId>fastball-component-common</artifactId>
+                <version>0.9.0-SNAPSHOT</version>
             </dependency>
             <!-- Self project end -->
         </dependencies>
