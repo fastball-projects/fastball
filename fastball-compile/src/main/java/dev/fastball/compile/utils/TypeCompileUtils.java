@@ -363,13 +363,19 @@ public class TypeCompileUtils {
             fieldInfo.setFieldProps(
                     BooleanDisplayInfo.builder()
                             .checkedChildren(booleanDisplayAnnotation.trueLabel())
-                            .unCheckedChildren(booleanDisplayAnnotation.falseLabel()).build()
+                            .checkedColor(booleanDisplayAnnotation.trueColor())
+                            .unCheckedChildren(booleanDisplayAnnotation.falseLabel())
+                            .unCheckedColor(booleanDisplayAnnotation.falseColor())
+                            .build()
             );
         } else {
             fieldInfo.setFieldProps(
                     BooleanDisplayInfo.builder()
                             .checkedChildren(DefaultValues.DEFAULT_BOOLEAN_TRUE_LABEL)
-                            .unCheckedChildren(DefaultValues.DEFAULT_BOOLEAN_FALSE_LABEL).build()
+                            .unCheckedChildren(DefaultValues.DEFAULT_BOOLEAN_FALSE_LABEL)
+                            .unCheckedChildren(DefaultValues.DEFAULT_BOOLEAN_TRUE_COLOR)
+                            .unCheckedColor(DefaultValues.DEFAULT_BOOLEAN_FALSE_COLOR)
+                            .build()
             );
         }
     }

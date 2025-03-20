@@ -15,5 +15,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class BooleanDisplayInfo {
     private String checkedChildren;
+    private String checkedColor;
     private String unCheckedChildren;
+    private String unCheckedColor;
 }

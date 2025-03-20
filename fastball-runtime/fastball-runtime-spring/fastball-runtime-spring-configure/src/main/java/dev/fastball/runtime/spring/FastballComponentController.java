@@ -114,7 +114,11 @@ public class FastballComponentController {
         }
         LookupActionComponent lookupActionComponent = lookupActionBean.getLookupAction();
         Method actionMethod = lookupActionBean.getLookupMethod();
-        return invokeActionMethod(lookupActionComponent, actionMethod, request);
+        Object data = invokeActionMethod(lookupActionComponent, actionMethod, request);
+        if (data instanceof Result) {
+            return data;
+        }
+        return Result.success(data);
     }
 
     private void doRecordActionFilter(DataRecord record, ComponentBean componentBean) {

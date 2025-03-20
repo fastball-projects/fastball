@@ -1,4 +1,4 @@
-package dev.fastball.components.common.query;
+package dev.fastball.components.common.metadata.query;
 
 import lombok.Getter;
 import lombok.Setter;

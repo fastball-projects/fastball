@@ -58,7 +58,11 @@ public class FastballSecurityConfiguration {
 
     @Bean
     public JwtUtils fastballJwtUtils(FastballSecurityProperties securityProperties) {
-        return new JwtUtils(securityProperties.getJwt());
+        FastballJwtProperties jwtProperties = securityProperties.getJwt();
+        if (jwtProperties == null) {
+            jwtProperties = new FastballJwtProperties();
+        }
+        return new JwtUtils(jwtProperties);
     }
 
     @Bean

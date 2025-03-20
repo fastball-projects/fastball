@@ -1,5 +1,6 @@
-package dev.fastball.components.common.query;
+package dev.fastball.components.common.metadata.query;
 
+import dev.fastball.components.common.metadata.sort.SortOrder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;

@@ -1,4 +1,4 @@
-package dev.fastball.components.common.query;
+package dev.fastball.components.common.metadata.sort;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
