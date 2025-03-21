@@ -1,6 +1,6 @@
 package dev.fastball.components.list;
 
-import dev.fastball.components.common.metadata.query.TableSearchParam;
+import dev.fastball.components.common.query.TableSearchParam;
 import dev.fastball.core.annotation.UIApi;
 import dev.fastball.core.component.Component;
 import dev.fastball.core.component.DataResult;

@@ -1,10 +1,10 @@
 package dev.fastball.runtime.spring.devtools;
 
 import dev.fastball.meta.component.ComponentInfo;
-import dev.fastball.platform.core.FastballPlatform;
-import dev.fastball.platform.core.FastballPlatformLoader;
-import dev.fastball.platform.core.exception.GenerateException;
-import dev.fastball.platform.core.utils.ResourceUtils;
+import dev.fastball.platform.FastballPlatform;
+import dev.fastball.platform.FastballPlatformLoader;
+import dev.fastball.platform.exception.GenerateException;
+import dev.fastball.platform.utils.ResourceUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;

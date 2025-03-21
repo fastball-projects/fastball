@@ -61,6 +61,7 @@
         <module>fastball-utils</module>
         <module>fastball-platform</module>
         <module>fastball-component-common</module>
+        <module>fastball-platform-data</module>
     </modules>
 
     <profiles>
@@ -332,6 +333,12 @@
             <dependency>
                 <groupId>dev.fastball</groupId>
                 <artifactId>fastball-component-common</artifactId>
+                <version>0.9.0-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>dev.fastball</groupId>
+                <artifactId>fastball-platform-data-jpa</artifactId>
                 <version>0.9.0-SNAPSHOT</version>
             </dependency>
             <!-- Self project end -->

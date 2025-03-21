@@ -1,9 +1,9 @@
 package dev.fastball.maven;
 
 import dev.fastball.meta.component.ComponentInfo;
-import dev.fastball.platform.core.FastballPlatform;
-import dev.fastball.platform.core.FastballPlatformLoader;
-import dev.fastball.platform.core.utils.ResourceUtils;
+import dev.fastball.platform.FastballPlatform;
+import dev.fastball.platform.FastballPlatformLoader;
+import dev.fastball.platform.utils.ResourceUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -12,7 +12,6 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;

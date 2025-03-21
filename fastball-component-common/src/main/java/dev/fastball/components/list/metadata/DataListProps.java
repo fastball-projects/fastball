@@ -2,7 +2,7 @@ package dev.fastball.components.list.metadata;
 
 
 import dev.fastball.auto.value.annotation.AutoValue;
-import dev.fastball.components.common.metadata.sort.SortFieldInfo;
+import dev.fastball.components.common.sort.SortFieldInfo;
 import dev.fastball.meta.action.ActionInfo;
 import dev.fastball.meta.basic.FieldInfo;
 import dev.fastball.meta.component.ComponentProps;

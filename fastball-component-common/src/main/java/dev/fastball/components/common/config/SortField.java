@@ -1,6 +1,6 @@
 package dev.fastball.components.common.config;
 
-import dev.fastball.components.common.metadata.sort.SortFieldType;
+import dev.fastball.components.common.sort.SortFieldType;
 
 import java.lang.annotation.*;
 
