@@ -3,6 +3,8 @@ package dev.fastball.platform.configuration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.fastball.core.component.runtime.ComponentRegistry;
 import dev.fastball.platform.context.PortalContext;
+import dev.fastball.platform.message.DefaultMessageAccessor;
+import dev.fastball.platform.message.MessageAccessor;
 import dev.fastball.platform.security.filter.JwtAuthenticationFilter;
 import dev.fastball.platform.security.filter.PasswordAuthenticationFilter;
 import dev.fastball.platform.security.handler.FastballAuthenticationFailureHandler;
@@ -14,6 +16,7 @@ import dev.fastball.platform.security.utils.JwtUtils;
 import dev.fastball.platform.security.utils.ResponseUtils;
 import dev.fastball.platform.service.PlatformUserService;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -30,14 +33,20 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @AutoConfiguration
 @EnableConfigurationProperties({FastballSecurityProperties.class})
-@ComponentScan(basePackages = "dev.fastball.platform.core")
-public class FastballSecurityConfiguration {
+@ComponentScan(basePackages = "dev.fastball.platform")
+public class FastballPlatformConfiguration {
 
     private final String[] PATH_RELEASE = {"/login", "/api/login"};
 
     @Bean
     public PortalContext fastballPlatformContext() {
         return new PortalContext();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(MessageAccessor.class)
+    public MessageAccessor defaultMessageAccessor() {
+        return new DefaultMessageAccessor();
     }
 
     @Bean

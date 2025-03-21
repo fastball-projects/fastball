@@ -20,4 +20,9 @@ public @interface UIComponent {
      * @return 生成的组件文件时的路径
      */
     String path() default "";
+
+    /**
+     * @return 组件的标题
+     */
+    String title() default "";
 }

@@ -196,6 +196,17 @@ public class ElementCompileUtils {
         return frontendComponentAnnotation.path();
     }
 
+    public static String getComponentTitle(TypeElement componentElement) {
+        UIComponent frontendComponentAnnotation = componentElement.getAnnotation(UIComponent.class);
+        if (frontendComponentAnnotation == null) {
+            throw new CompilerException("Component class [" + componentElement.getQualifiedName() + "] not found annotation @UIComponent");
+        }
+        if (frontendComponentAnnotation.title().isEmpty()) {
+            return componentElement.getSimpleName().toString();
+        }
+        return frontendComponentAnnotation.title();
+    }
+
     public static List<TypeElement> getGenericTypes(Class<?> clazz, TypeElement element, ProcessingEnvironment processingEnv) {
         DeclaredType declaredType = ElementCompileUtils.getDeclaredInterface(clazz, element, processingEnv);
         if (declaredType == null) {

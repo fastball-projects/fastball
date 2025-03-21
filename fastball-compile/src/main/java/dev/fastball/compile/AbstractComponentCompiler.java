@@ -59,6 +59,7 @@ public abstract class AbstractComponentCompiler<T extends Component, P extends C
         componentInfo.className(compileContext.getComponentElement().getQualifiedName().toString());
         componentInfo.componentKey(props.componentKey());
         componentInfo.componentPath(ElementCompileUtils.getComponentPath(compileContext.getComponentElement()));
+        componentInfo.componentTitle(ElementCompileUtils.getComponentTitle(compileContext.getComponentElement()));
         componentInfo.componentName(getComponentName());
         componentInfo.propsClassName(props.getClass().getCanonicalName());
         return componentInfo;
