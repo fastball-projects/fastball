@@ -15,6 +15,12 @@ public interface ObjectStorageService {
 
     ObjectStorageFormDataUpload generatePresignedPostFormData(String bucket, String filePath);
 
+    default String getObjectUrl(String objectName) {
+        return getObjectUrl(getDefaultBucket(), objectName);
+    }
+
+    String getObjectUrl(String bucket, String objectName);
+
     String generateObjectName();
 
     String generateObjectName(String prefix);

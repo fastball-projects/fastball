@@ -100,6 +100,12 @@ public class MinioObjectStorageService extends AbstractObjectStorageService {
     }
 
     @Override
+    public String getObjectUrl(String bucket, String objectName) {
+        String url = configProperties.getEndpoint() + "/" + bucket;
+        return url + "/" + objectName;
+    }
+
+    @Override
     public String getDefaultBucket() {
         return configProperties.getDefaultBucket();
     }
