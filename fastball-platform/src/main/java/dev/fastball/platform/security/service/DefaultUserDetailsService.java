@@ -19,7 +19,7 @@ public class DefaultUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        UserWithPassword user = portalService.loadAccountByUsername(username);
+        UserWithPassword user = portalService.loadByUsernameWithPassword(username);
         if (user == null) {
             throw new UsernameNotFoundException(username);
         }

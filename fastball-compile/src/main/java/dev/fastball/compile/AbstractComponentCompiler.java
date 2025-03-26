@@ -14,6 +14,7 @@ import dev.fastball.meta.basic.RefComponentInfo;
 import dev.fastball.meta.component.ComponentInfo;
 import dev.fastball.meta.component.ComponentInfo_AutoValue;
 import dev.fastball.meta.component.ComponentProps;
+import dev.fastball.meta.material.UIMaterial;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.processing.ProcessingEnvironment;
@@ -27,6 +28,7 @@ import javax.lang.model.type.TypeMirror;
 import java.io.InputStream;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -48,6 +50,13 @@ public abstract class AbstractComponentCompiler<T extends Component, P extends C
     @Override
     public ComponentInfo<P> compile(CompileContext compileContext) {
         ComponentInfo_AutoValue<P> componentInfo = new ComponentInfo_AutoValue<>();
+        UIMaterial material = compileContext.getMaterialRegistry().getMaterial(this.getClass());
+        UIComponent componentAnnotation = compileContext.getComponentElement().getAnnotation(UIComponent.class);
+        if (componentAnnotation != null && componentAnnotation.platform().length > 0
+                && Arrays.stream(componentAnnotation.platform())
+                .noneMatch(platform -> Objects.equals(material.getPlatform(), platform))) {
+            return null;
+        }
 
         P props = buildProps(compileContext);
         props.componentKey(ElementCompileUtils.getComponentKey(compileContext.getComponentElement()));
@@ -55,13 +64,14 @@ public abstract class AbstractComponentCompiler<T extends Component, P extends C
         compileRecordActions(props, compileContext);
         compileProps(props, compileContext);
         componentInfo.props(props);
-        componentInfo.material(compileContext.getMaterialRegistry().getMaterial(this.getClass()));
+        componentInfo.material(material);
         componentInfo.className(compileContext.getComponentElement().getQualifiedName().toString());
         componentInfo.componentKey(props.componentKey());
         componentInfo.componentPath(ElementCompileUtils.getComponentPath(compileContext.getComponentElement()));
         componentInfo.componentTitle(ElementCompileUtils.getComponentTitle(compileContext.getComponentElement()));
         componentInfo.componentName(getComponentName());
         componentInfo.propsClassName(props.getClass().getCanonicalName());
+
         return componentInfo;
     }
 
@@ -97,7 +107,7 @@ public abstract class AbstractComponentCompiler<T extends Component, P extends C
             if (genericSuperclass instanceof ParameterizedType) {
                 ParameterizedType parameterizedType = (ParameterizedType) genericSuperclass;
                 if (parameterizedType.getRawType() instanceof Class && targetClass.isAssignableFrom((Class<?>) parameterizedType.getRawType())) {
-                    if(index < parameterizedType.getActualTypeArguments().length) {
+                    if (index < parameterizedType.getActualTypeArguments().length) {
                         Type componentType = parameterizedType.getActualTypeArguments()[index];
                         if (componentType instanceof Class) {
                             return (Class<C>) componentType;

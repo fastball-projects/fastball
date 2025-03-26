@@ -1,9 +1,12 @@
 package dev.fastball.platform.data.jpa.service;
 
 import dev.fastball.core.exception.BusinessException;
+import dev.fastball.platform.data.jpa.entity.JpaThirdPartyUserEntity;
 import dev.fastball.platform.data.jpa.entity.JpaUserEntity;
+import dev.fastball.platform.data.jpa.repo.ThirdPartyUserRepo;
 import dev.fastball.platform.data.jpa.repo.UserRepo;
 import dev.fastball.platform.dict.UserStatus;
+import dev.fastball.platform.entity.ThirdPartyUser;
 import dev.fastball.platform.entity.User;
 import dev.fastball.platform.entity.UserWithPassword;
 import dev.fastball.platform.exception.UserNotFoundException;
@@ -21,12 +24,8 @@ import java.util.Optional;
 public class JpaPlatformUserService implements PlatformUserService {
 
     private final UserRepo userRepo;
+    private final ThirdPartyUserRepo thirdPartyUserRepo;
     private final PasswordEncoder passwordEncoder;
-
-    @Override
-    public UserWithPassword loadAccountByUsername(String username) {
-        return userRepo.findByUsername(username);
-    }
 
     @Override
     public User registerUser(RegisterUser user) {
@@ -97,19 +96,34 @@ public class JpaPlatformUserService implements PlatformUserService {
     }
 
     @Override
+    public User loadByUserId(Long userId) {
+        return copyUser(userRepo.findById(userId).orElse(null));
+    }
+
+    @Override
+    public UserWithPassword loadByUsernameWithPassword(String username) {
+        return copyUser(userRepo.findByUsername(username), true);
+    }
+
+    @Override
     public User loadByUsername(String username) {
-        UserWithPassword account = loadAccountByUsername(username);
-        if (account == null) {
-            return null;
-        }
-        JpaUserEntity currentUser = new JpaUserEntity();
-        BeanUtils.copyProperties(account, currentUser);
-        return currentUser;
+        return copyUser(userRepo.findByUsername(username));
     }
 
     @Override
     public User loadByMobile(String mobile) {
-        return userRepo.findByMobile(mobile);
+        return copyUser(userRepo.findByMobile(mobile));
+    }
+
+    @Override
+    public ThirdPartyUser loadByThirdParty(String thirdPartyPlatform, String outId) {
+        return thirdPartyUserRepo.findByThirdPartyPlatformAndOutId(thirdPartyPlatform, outId);
+    }
+
+    @Override
+    public ThirdPartyUser bindThirdPartyUser(Long userId, String thirdPartyPlatform, String outId) {
+        JpaThirdPartyUserEntity thirdPartyUser = new JpaThirdPartyUserEntity(userId, thirdPartyPlatform, outId);
+        return thirdPartyUserRepo.save(thirdPartyUser);
     }
 
     @Override
@@ -147,5 +161,21 @@ public class JpaPlatformUserService implements PlatformUserService {
         user.setLastUpdatedAt(new Date());
         userRepo.save(user);
         return true;
+    }
+
+    private JpaUserEntity copyUser(User user) {
+        return copyUser(user, false);
+    }
+
+    private JpaUserEntity copyUser(User user, boolean withPassword) {
+        if (user == null) {
+            return null;
+        }
+        JpaUserEntity resultUser = new JpaUserEntity();
+        BeanUtils.copyProperties(user, resultUser);
+        if (!withPassword) {
+            resultUser.setPassword(null);
+        }
+        return resultUser;
     }
 }

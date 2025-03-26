@@ -10,7 +10,7 @@ import java.util.List;
  * @since 2023/01/08
  */
 @AutoValue
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "___class")
 public interface LookupInfo {
     String packageName();
 

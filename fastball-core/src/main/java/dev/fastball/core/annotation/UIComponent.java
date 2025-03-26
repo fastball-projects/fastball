@@ -25,4 +25,9 @@ public @interface UIComponent {
      * @return 组件的标题
      */
     String title() default "";
+
+    /**
+     * @return 组件支持的平台, 为空则支持所有平台
+     */
+    String[] platform() default {};
 }

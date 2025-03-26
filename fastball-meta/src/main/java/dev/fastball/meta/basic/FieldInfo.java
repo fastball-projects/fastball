@@ -14,7 +14,7 @@ import java.util.Map;
  */
 @Data
 @NoArgsConstructor
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "___class")
 public class FieldInfo implements Comparable<FieldInfo> {
     private String title;
 

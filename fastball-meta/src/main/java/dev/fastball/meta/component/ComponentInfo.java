@@ -20,6 +20,8 @@ public interface ComponentInfo<T extends ComponentProps> {
 
     String componentTitle();
 
+    String[] platform();
+
     String className();
 
     UIMaterial material();

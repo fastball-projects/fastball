@@ -10,7 +10,7 @@ import lombok.Data;
  * @since 2022/12/18
  */
 @Data
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "___class")
 public class ReferencedComponentInfo {
     private boolean defaultComponent = true;
 

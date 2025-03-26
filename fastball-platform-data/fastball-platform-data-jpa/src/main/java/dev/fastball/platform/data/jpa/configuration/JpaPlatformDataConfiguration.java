@@ -3,6 +3,7 @@ package dev.fastball.platform.data.jpa.configuration;
 import dev.fastball.platform.data.jpa.entity.JpaUserEntity;
 import dev.fastball.platform.data.jpa.repo.PermissionRepo;
 import dev.fastball.platform.data.jpa.repo.RoleRepo;
+import dev.fastball.platform.data.jpa.repo.ThirdPartyUserRepo;
 import dev.fastball.platform.data.jpa.repo.UserRepo;
 import dev.fastball.platform.data.jpa.service.JpaPlatformPermissionService;
 import dev.fastball.platform.data.jpa.service.JpaPlatformRoleService;
@@ -24,8 +25,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class JpaPlatformDataConfiguration {
 
     @Bean
-    public PlatformUserService platformUserService(UserRepo userRepo, PasswordEncoder passwordEncoder) {
-        return new JpaPlatformUserService(userRepo, passwordEncoder);
+    public PlatformUserService platformUserService(UserRepo userRepo, ThirdPartyUserRepo thirdPartyUserRepo, PasswordEncoder passwordEncoder) {
+        return new JpaPlatformUserService(userRepo, thirdPartyUserRepo, passwordEncoder);
     }
 
     @Bean
