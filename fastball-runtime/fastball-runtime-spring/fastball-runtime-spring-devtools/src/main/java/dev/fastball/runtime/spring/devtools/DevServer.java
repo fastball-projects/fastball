@@ -54,10 +54,11 @@ public class DevServer implements WebMvcConfigurer, InitializingBean {
         try (OutputStream consoleInfoOut = new Slf4jLogOutputStream(log, Slf4jLogOutputStream.LogLevel.INFO)) {
             for (FastballPlatform<?> fastballPlatform : platformSet) {
                 File platformWorkspace = new File(workspaceDir, fastballPlatform.platform());
+                platformWorkspace.mkdirs();
                 PlatformDevServerConfig devServerConfig = devServerPropertiesMap.get(fastballPlatform.platform());
                 List<ComponentInfo<?>> components = componentPlatformGroup.get(fastballPlatform.platform());
                 String threadName = "fastball-platform-" + fastballPlatform.platform();
-                new Thread(() -> fastballPlatform.run(platformWorkspace, components, devServerConfig, consoleInfoOut), threadName).start();
+                new Thread(() -> fastballPlatform.run(platformWorkspace, components, devServerConfig), threadName).start();
             }
         } catch (Exception e) {
             throw new FastballPortalException("DevServer start failed", e);

@@ -372,8 +372,8 @@ public class TypeCompileUtils {
             fieldInfo.setFieldProps(
                     BooleanDisplayInfo.builder()
                             .checkedChildren(DefaultValues.DEFAULT_BOOLEAN_TRUE_LABEL)
+                            .checkedColor(DefaultValues.DEFAULT_BOOLEAN_TRUE_COLOR)
                             .unCheckedChildren(DefaultValues.DEFAULT_BOOLEAN_FALSE_LABEL)
-                            .unCheckedChildren(DefaultValues.DEFAULT_BOOLEAN_TRUE_COLOR)
                             .unCheckedColor(DefaultValues.DEFAULT_BOOLEAN_FALSE_COLOR)
                             .build()
             );

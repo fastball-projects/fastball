@@ -5,6 +5,8 @@ import dev.fastball.core.component.Component;
 import dev.fastball.meta.basic.DisplayType;
 import lombok.Data;
 
+import java.util.Date;
+
 @Data
 public class Message {
     @Field(title = "id", display = DisplayType.Hidden)
@@ -17,6 +19,8 @@ public class Message {
     private String content;
     @Field(title = "消息数据")
     private Object data;
+    @Field(title = "发送时间")
+    private Date sendTime;
     @Field(title = "消息跳转组件", display = DisplayType.Hidden)
     private Class<? extends Component> componentClass;
     @Field(title = "消息跳转组件", display = DisplayType.Hidden)
