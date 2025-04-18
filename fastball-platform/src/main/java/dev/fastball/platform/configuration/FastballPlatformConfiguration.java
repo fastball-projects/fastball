@@ -3,6 +3,8 @@ package dev.fastball.platform.configuration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.fastball.core.component.runtime.ComponentRegistry;
 import dev.fastball.platform.context.PortalContext;
+import dev.fastball.platform.feature.business.context.BusinessContextAccessor;
+import dev.fastball.platform.feature.business.context.BusinessContextFilter;
 import dev.fastball.platform.message.DefaultMessageAccessor;
 import dev.fastball.platform.message.MessageAccessor;
 import dev.fastball.platform.security.filter.JwtAuthenticationFilter;
@@ -14,7 +16,9 @@ import dev.fastball.platform.security.matcher.DynamicAnonymousPathRequestMatcher
 import dev.fastball.platform.security.service.DefaultUserDetailsService;
 import dev.fastball.platform.security.utils.JwtUtils;
 import dev.fastball.platform.security.utils.ResponseUtils;
+import dev.fastball.platform.service.BusinessContextService;
 import dev.fastball.platform.service.PlatformUserService;
+import dev.fastball.platform.service.support.DefaultBusinessContextService;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -31,6 +35,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import java.util.List;
+
 @AutoConfiguration
 @EnableConfigurationProperties({FastballSecurityProperties.class})
 @ComponentScan(basePackages = "dev.fastball.platform")
@@ -41,6 +47,17 @@ public class FastballPlatformConfiguration {
     @Bean
     public PortalContext fastballPlatformContext() {
         return new PortalContext();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(BusinessContextService.class)
+    public BusinessContextService businessContextService(List<BusinessContextAccessor<?>> businessContextAccessors) {
+        return new DefaultBusinessContextService(businessContextAccessors);
+    }
+
+    @Bean
+    public BusinessContextFilter businessContextFilter(BusinessContextService businessContextService) {
+        return new BusinessContextFilter(businessContextService);
     }
 
     @Bean

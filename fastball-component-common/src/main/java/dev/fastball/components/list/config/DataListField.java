@@ -14,6 +14,13 @@ public @interface DataListField {
     DataListFieldPosition position() default DataListFieldPosition.Content;
 
     /**
+     * 是否显示字段, 默认为显示
+     *
+     * @return 是否显示字段
+     */
+    boolean show() default true;
+
+    /**
      * 是否显示字段名称, 如果不使用该注解, 默认为显示
      * 当使用该注解, 则根据该字段的注解, 显示或隐藏字段名称
      *

@@ -81,7 +81,7 @@ public class FastballComponentController {
         }
     }
 
-    @PostMapping(value = "/component/{componentKey}/action/{actionKey}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/component/{componentKey}/action/{actionKey}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     public Object invokeAction(@PathVariable String componentKey, @PathVariable String actionKey, @RequestPart("data") String dataJson, @RequestPart(value = "file", required = false) MultipartFile file) throws IOException, InvocationTargetException, IllegalAccessException {
         return invokeComponentAction(componentKey, actionKey, dataJson, file);
     }
