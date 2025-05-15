@@ -1,10 +1,14 @@
 package dev.fastball.core.field;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,6 +24,7 @@ import java.util.List;
 @Getter
 @Setter
 @JsonSerialize(using = RangeSerialize.class)
+@JsonDeserialize(using = RangeDeserialize.class)
 public class Range<T extends Comparable<? super T>> {
     private List<T> data;
 
@@ -51,4 +56,39 @@ class RangeSerialize extends JsonSerializer<Range<?>> {
     public void serialize(Range<?> value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeObject(value.getData());
     }
+}
+
+class RangeDeserialize extends JsonDeserializer<Range<?>> implements ContextualDeserializer {
+    private JavaType contentType;
+
+    public RangeDeserialize() {
+    }
+
+    public RangeDeserialize(JavaType contentType) {
+        this.contentType = contentType;
+    }
+
+    @Override
+    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) {
+        JavaType contextualType = ctxt.getContextualType();
+        if (contextualType != null && contextualType.containedTypeCount() == 1) {
+            JavaType typeParam = contextualType.containedType(0);
+            return new RangeDeserialize(typeParam);
+        }
+        return this;
+    }
+    @Override
+    public Range<?> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JacksonException {
+        if (contentType == null) {
+            // fallback
+            throw new IllegalStateException("Missing contentType (generic type of Range<T>)");
+        }
+
+        ObjectMapper mapper = (ObjectMapper) p.getCodec();
+        List<?> list = mapper.readValue(p,
+                mapper.getTypeFactory().constructCollectionType(List.class, contentType));
+
+        return new Range(list);
+    }
+
 }

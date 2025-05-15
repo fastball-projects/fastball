@@ -28,9 +28,11 @@ public class BusinessContextFilter extends OncePerRequestFilter {
             String businessId = request.getHeader(BUSINESS_CONTEXT_ID_HEADER);
             if (businessKey != null && businessId != null) {
                 BusinessContextAccessor<?> businessContextAccessor = businessContextService.getBusinessContext(businessKey);
-                BusinessContextItem currentBusinessContext = businessContextAccessor.getBusinessContextById(businessId);
-                if (currentBusinessContext != null) {
-                    BusinessContext.set(currentBusinessContext);
+                if (businessContextAccessor != null) {
+                    BusinessContextItem currentBusinessContext = businessContextAccessor.getBusinessContextById(businessId);
+                    if (currentBusinessContext != null) {
+                        BusinessContext.set(currentBusinessContext);
+                    }
                 }
             }
             filterChain.doFilter(request, response);

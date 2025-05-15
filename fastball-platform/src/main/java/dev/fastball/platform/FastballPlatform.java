@@ -20,9 +20,11 @@ public interface FastballPlatform<T> extends GenericTypeGetter<T> {
 
     String platform();
 
-    void build(File workspaceDir, File targetDir, List<ComponentInfo<?>> componentInfoList, OutputStream consoleInfoOut, OutputStream consoleErrorOut);
+    void generate(File workspaceDir, List<ComponentInfo<?>> componentInfoList, OutputStream consoleInfoOut, OutputStream consoleErrorOut);
 
     void run(File workspaceDir, List<ComponentInfo<?>> componentInfoList, PlatformDevServerConfig devServerConfig);
+
+    void build(File workspaceDir, File targetDir, List<ComponentInfo<?>> componentInfoList, OutputStream consoleInfoOut, OutputStream consoleErrorOut);
 
     default T loadPlatformConfig() {
         Resource menuResource = ResourceUtils.getResourceResolver(getClass().getClassLoader()).getResource(PLATFORM_CONFIG_PATH_PREFIX + platform() + PLATFORM_CONFIG_SUFFIX);
