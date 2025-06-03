@@ -2,7 +2,6 @@ package dev.fastball.components.form.metadata;
 
 import dev.fastball.components.form.config.ConditionComposeType;
 import dev.fastball.components.form.config.FieldDependencyType;
-import dev.fastball.meta.action.ActionInfo;
 import dev.fastball.meta.basic.FieldInfo;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

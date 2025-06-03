@@ -11,10 +11,13 @@
 
     <artifactId>fastball-core</artifactId>
 
+    <name>Fastball - core</name>
+
     <dependencies>
-        <dependency>
+                <dependency>
             <groupId>dev.fastball</groupId>
             <artifactId>fastball-meta</artifactId>
+            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>

@@ -2,10 +2,10 @@ package dev.fastball.platform.service;
 
 import dev.fastball.platform.dict.UserStatus;
 import dev.fastball.platform.entity.ThirdPartyUser;
-import dev.fastball.platform.exception.UserNotFoundException;
-import dev.fastball.platform.model.RegisterUser;
 import dev.fastball.platform.entity.User;
 import dev.fastball.platform.entity.UserWithPassword;
+import dev.fastball.platform.exception.UserNotFoundException;
+import dev.fastball.platform.model.RegisterUser;
 
 public interface PlatformUserService {
 

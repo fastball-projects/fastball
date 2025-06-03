@@ -12,6 +12,8 @@
 
     <artifactId>fastball-maven-plugin</artifactId>
 
+    <name>Fastball - maven plugin</name>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -34,6 +36,7 @@
         <dependency>
             <groupId>dev.fastball</groupId>
             <artifactId>fastball-platform</artifactId>
+            <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
 

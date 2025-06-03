@@ -11,6 +11,8 @@
 
     <artifactId>fastball-meta</artifactId>
 
+    <name>Fastball - meta</name>
+
     <dependencies>
         <dependency>
             <groupId>work.nvwa</groupId>

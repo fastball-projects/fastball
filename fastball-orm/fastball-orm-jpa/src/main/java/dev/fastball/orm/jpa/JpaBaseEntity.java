@@ -3,6 +3,7 @@ package dev.fastball.orm.jpa;
 import dev.fastball.core.annotation.Field;
 import dev.fastball.core.component.DefaultDataRecord;
 import dev.fastball.meta.basic.DisplayType;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedBy;
@@ -11,7 +12,6 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import jakarta.persistence.*;
 import java.util.Date;
 
 @Getter

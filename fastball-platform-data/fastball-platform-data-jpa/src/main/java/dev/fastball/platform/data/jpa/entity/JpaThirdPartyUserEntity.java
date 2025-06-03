@@ -3,7 +3,8 @@ package dev.fastball.platform.data.jpa.entity;
 import dev.fastball.core.annotation.Field;
 import dev.fastball.orm.jpa.JpaBaseEntity;
 import dev.fastball.platform.entity.ThirdPartyUser;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.*;
 
 @Getter

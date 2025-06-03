@@ -11,10 +11,13 @@
 
     <artifactId>fastball-generator</artifactId>
 
+    <name>Fastball - generator</name>
+
     <dependencies>
-        <dependency>
+                <dependency>
             <groupId>dev.fastball</groupId>
             <artifactId>fastball-compile</artifactId>
+            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

@@ -3,7 +3,6 @@ package dev.fastball.components.form.metadata;
 import dev.fastball.auto.value.annotation.AutoValue;
 import dev.fastball.components.form.config.FormLayout;
 import dev.fastball.meta.annotation.PropertyDescription;
-import dev.fastball.meta.basic.PopupType;
 import dev.fastball.meta.component.ComponentProps;
 
 import java.util.List;

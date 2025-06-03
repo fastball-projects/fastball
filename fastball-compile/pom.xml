@@ -11,10 +11,13 @@
 
     <artifactId>fastball-compile</artifactId>
 
+    <name>Fastball - compile</name>
+
     <dependencies>
         <dependency>
             <groupId>dev.fastball</groupId>
             <artifactId>fastball-core</artifactId>
+            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

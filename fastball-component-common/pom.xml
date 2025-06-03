@@ -11,10 +11,13 @@
 
     <artifactId>fastball-component-common</artifactId>
 
+    <name>Fastball - component common</name>
+
     <dependencies>
         <dependency>
             <groupId>dev.fastball</groupId>
             <artifactId>fastball-core</artifactId>
+            <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
 

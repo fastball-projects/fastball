@@ -5,7 +5,6 @@ import dev.fastball.core.annotation.Field;
 import dev.fastball.meta.basic.DisplayType;
 import dev.fastball.orm.jpa.JpaBaseEntity;
 import dev.fastball.platform.dict.UserStatus;
-import dev.fastball.platform.entity.User;
 import dev.fastball.platform.entity.UserWithPassword;
 import jakarta.persistence.*;
 import lombok.*;

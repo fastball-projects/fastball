@@ -7,10 +7,6 @@ import dev.fastball.core.annotation.LookupSelector;
 import dev.fastball.core.annotation.TreeLookup;
 import dev.fastball.core.component.LookupAction;
 import dev.fastball.meta.basic.*;
-import dev.fastball.meta.basic.DependencyParamInfo;
-import dev.fastball.meta.basic.FieldInfo;
-import dev.fastball.meta.basic.LookupFillFieldInfo;
-import dev.fastball.meta.basic.ValueType;
 import dev.fastball.meta.component.ComponentProps;
 
 import javax.annotation.processing.ProcessingEnvironment;

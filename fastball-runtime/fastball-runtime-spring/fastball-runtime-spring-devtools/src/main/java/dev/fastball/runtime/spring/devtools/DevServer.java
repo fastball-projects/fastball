@@ -1,9 +1,9 @@
 package dev.fastball.runtime.spring.devtools;
 
 import dev.fastball.meta.component.ComponentInfo;
-import dev.fastball.platform.PlatformDevServerConfig;
 import dev.fastball.platform.FastballPlatform;
 import dev.fastball.platform.FastballPlatformLoader;
+import dev.fastball.platform.PlatformDevServerConfig;
 import dev.fastball.platform.exception.FastballPortalException;
 import dev.fastball.platform.exception.GenerateException;
 import dev.fastball.platform.utils.ResourceUtils;

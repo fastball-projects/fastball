@@ -1,7 +1,6 @@
 package dev.fastball.platform.configuration;
 
 import lombok.Data;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @Data
 public class FastballJwtProperties {

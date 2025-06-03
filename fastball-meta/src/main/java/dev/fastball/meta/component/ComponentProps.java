@@ -1,6 +1,5 @@
 package dev.fastball.meta.component;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import dev.fastball.meta.action.ActionInfo;
 import dev.fastball.meta.utils.JsonUtils;
 
