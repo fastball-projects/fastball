@@ -1,0 +1,18 @@
+<settings>
+    <servers>
+        <server>
+            <id>central</id>
+            <username>${{ secrets.MAVEN_USERNAME }}</username>
+            <password>${{ secrets.MAVEN_TOKEN }}</password>
+        </server>
+    </servers>
+    <profiles>
+        <profile>
+            <id>sonatype</id>
+            <properties>
+                <gpg.keyname>${{ secrets.GPG_KEY_ID }}</gpg.keyname>
+                <gpg.passphrase>'${{ secrets.GPG_PASSPHRASE }}'</gpg.passphrase>
+            </properties>
+        </profile>
+    </profiles>
+</settings>

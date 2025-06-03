@@ -1,0 +1,25 @@
+name: Publish snapshot version to Maven Central
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Publish snapshot version
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Check out sources
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: 17
+          cache: 'maven'
+
+      - name: Publish snapshot to Sonatype OSSRH
+        run: |
+          ./mvnw -B clean deploy -Dgpg.skip -Psonatype -s settings.xml
