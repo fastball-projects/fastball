@@ -26,7 +26,7 @@ public class MaterialRegistry {
 
     private final Map<Class<?>, UIMaterial> materialMap = new ConcurrentHashMap<>();
 
-    public MaterialRegistry(ClassLoader classLoader) {
+    public MaterialRegistry() {
     }
 
     public UIMaterial getMaterial(Class<?> compilerClass) {

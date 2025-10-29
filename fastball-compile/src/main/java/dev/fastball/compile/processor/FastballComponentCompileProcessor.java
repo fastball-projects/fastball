@@ -21,7 +21,7 @@ import java.util.stream.StreamSupport;
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class FastballComponentCompileProcessor extends AbstractProcessor {
 
-    MaterialRegistry materialRegistry = new MaterialRegistry(FastballComponentCompileProcessor.class.getClassLoader());
+    MaterialRegistry materialRegistry = new MaterialRegistry();
 
     private int roundCount = 0;
 

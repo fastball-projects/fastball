@@ -20,11 +20,23 @@ public interface FastballPlatform<T> extends GenericTypeGetter<T> {
 
     String platform();
 
-    void generate(File workspaceDir, List<ComponentInfo<?>> componentInfoList, OutputStream consoleInfoOut, OutputStream consoleErrorOut);
+    default void generate(File workspaceDir, List<ComponentInfo<?>> componentInfoList, OutputStream consoleInfoOut, OutputStream consoleErrorOut) {
+        generate(workspaceDir, componentInfoList, loadPlatformConfig(), consoleInfoOut, consoleErrorOut);
+    }
 
-    void run(File workspaceDir, List<ComponentInfo<?>> componentInfoList, PlatformDevServerConfig devServerConfig);
+    void generate(File workspaceDir, List<ComponentInfo<?>> componentInfoList, T platformConfig, OutputStream consoleInfoOut, OutputStream consoleErrorOut);
 
-    void build(File workspaceDir, File targetDir, List<ComponentInfo<?>> componentInfoList, OutputStream consoleInfoOut, OutputStream consoleErrorOut);
+    default void run(File workspaceDir, List<ComponentInfo<?>> componentInfoList, PlatformDevServerConfig devServerConfig) {
+        run(workspaceDir, componentInfoList, loadPlatformConfig(), devServerConfig);
+    }
+
+    void run(File workspaceDir, List<ComponentInfo<?>> componentInfoList, T platformConfig, PlatformDevServerConfig devServerConfig);
+
+    default void build(File workspaceDir, File targetDir, List<ComponentInfo<?>> componentInfoList, OutputStream consoleInfoOut, OutputStream consoleErrorOut) {
+        build(workspaceDir, targetDir, componentInfoList, loadPlatformConfig(), consoleInfoOut, consoleErrorOut);
+    }
+
+    void build(File workspaceDir, File targetDir, List<ComponentInfo<?>> componentInfoList, T platformConfig, OutputStream consoleInfoOut, OutputStream consoleErrorOut);
 
     default T loadPlatformConfig() {
         Resource menuResource = ResourceUtils.getResourceResolver(getClass().getClassLoader()).getResource(PLATFORM_CONFIG_PATH_PREFIX + platform() + PLATFORM_CONFIG_SUFFIX);
